@@ -1,0 +1,33 @@
+"""FastAPI 应用入口。
+
+启动：uvicorn main:app --host 0.0.0.0 --port 8000
+接口测试台：http://服务器IP:8000/docs
+"""
+import os
+
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+
+from database import Base, engine
+from routers import anniversaries, auth, bind, diaries, upload
+
+# 启动时自动建表（表已存在则跳过）
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="恋爱日记 API", version="0.1.0")
+
+# 上传的图片通过 /uploads/xxx.jpg 直接访问
+os.makedirs("uploads", exist_ok=True)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
+# 挂载所有路由，统一前缀 /api
+app.include_router(auth.router, prefix="/api")
+app.include_router(diaries.router, prefix="/api")
+app.include_router(anniversaries.router, prefix="/api")
+app.include_router(upload.router, prefix="/api")
+app.include_router(bind.router, prefix="/api")
+
+
+@app.get("/")
+def root():
+    return {"message": "恋爱日记 API 运行中", "docs": "/docs"}

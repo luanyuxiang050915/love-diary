@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+
+# æœ¬åœ°æ•°æ®åº“
+*.db
+*.sqlite3
+
+# ä¸Šä¼ çš„å›¾ç‰‡
+server/uploads/
+
+# uni-app
+node_modules/
+unpackage/
+dist/
+
+# ç¼–è¾‘å™¨
+.idea/
+.vscode/
+
+# Reasonix ¹¤¾ßÄÚ²¿ÎÄ¼ş
+.reasonix/
