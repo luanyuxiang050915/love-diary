@@ -1,0 +1,17 @@
+{
+  "name": "恋爱日记",
+  "appid": "",
+  "description": "情侣专属日记应用",
+  "versionName": "0.1.0",
+  "versionCode": 1,
+  "uni-app": {
+    "compilerVersion": "4.0"
+  },
+  "app-plus": {
+    "distribute": {
+      "android": {
+        "permissions": ["<uses-permission android:name=\"android.permission.INTERNET\"/>"]
+      }
+    }
+  }
+}

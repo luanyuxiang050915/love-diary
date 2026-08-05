@@ -6,6 +6,7 @@
 import os
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from database import Base, engine
@@ -15,6 +16,15 @@ from routers import anniversaries, auth, bind, diaries, upload
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="恋爱日记 API", version="0.1.0")
+
+# 允许跨域请求（浏览器运行 App 需要，真机 App 不受影响）
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # 上传的图片通过 /uploads/xxx.jpg 直接访问
 os.makedirs("uploads", exist_ok=True)

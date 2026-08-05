@@ -4,21 +4,25 @@ __pycache__/
 venv/
 .env
 
-# æœ¬åœ°æ•°æ®åº“
+# æœ„1¤7œ°æ•°æ®åº„1¤7
 *.db
 *.sqlite3
 
-# ä¸Šä¼ çš„å›¾ç‰‡
+# ä¸Šä¼ çš„å›¾ç‰„1¤7
 server/uploads/
 
 # uni-app
 node_modules/
 unpackage/
 dist/
+*.log
 
-# ç¼–è¾‘å™¨
+# ç¼–è¾‘å™„1¤7
 .idea/
 .vscode/
 
 # Reasonix ¹¤¾ßÄÚ²¿ÎÄ¼ş
 .reasonix/
+
+# ²¿Êğ½Å±¾£¨º¬·şÎñÆ÷Æ¾¾İ£¬ÎğÌá½»£©
+deploy_love_diary.py

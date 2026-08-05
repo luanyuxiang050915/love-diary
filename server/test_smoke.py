@@ -3,6 +3,7 @@ r"""冒烟自测脚本：跑通全部接口。
     python test_smoke.py
 """
 import base64
+import os
 import sys
 
 # Windows 控制台默认 GBK，强制 UTF-8 输出，避免打印 emoji/中文报错
@@ -11,7 +12,8 @@ if hasattr(sys.stdout, "reconfigure"):
 
 import httpx
 
-BASE = "http://127.0.0.1:8000"
+# 默认测本地，可用环境变量 BASE_URL 指定（如 http://47.93.241.64:8000）
+BASE = os.getenv("BASE_URL", "http://127.0.0.1:8000")
 
 
 def check(cond, msg):
