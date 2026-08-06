@@ -3,9 +3,9 @@ import store from './common/store.js'
 
 export default {
   onLaunch() {
-    // App 启动时检查是否已登录：有 token 免登录，直接进主页
-    if (!store.hasLogin()) {
-      uni.reLaunch({ url: '/pages/login/login' })
+    // 已登录 → 直接进主页；未登录 → 留在登录页（pages.json 首页）
+    if (store.hasLogin()) {
+      uni.reLaunch({ url: '/pages/diary/list' })
     }
   },
 }
