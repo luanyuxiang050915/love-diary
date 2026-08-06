@@ -55,7 +55,7 @@
   .card {
     position:relative; background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
     border:1px solid rgba(255,255,255,.06); border-radius:28px; padding:44px 32px; text-align:center;
-    backdrop-filter:blur(16px); transition:all .5s; cursor:default;
+    backdrop-filter:blur(16px); transition:all .5s cubic-bezier(.25,.8,.25,1.2); cursor:pointer; overflow:hidden;
     transform:translateY(80px); opacity:0;
   }
   .card.show { transform:translateY(0); opacity:1; }
@@ -65,8 +65,12 @@
     opacity:0; transition:opacity .5s; animation:borderFlow 4s linear infinite;
   }
   @keyframes borderFlow { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-  .card:hover { transform:translateY(-10px) rotateX(4deg) rotateY(-3deg) scale(1.03); box-shadow:0 30px 60px rgba(0,0,0,.4),0 0 30px rgba(248,165,194,.1); }
-  .card:hover::before { opacity:1; }
+  .card.active { transform:scale(1.18) !important; z-index:30; box-shadow:0 40px 80px rgba(0,0,0,.5),0 0 60px rgba(248,165,194,.25); }
+  .card.active::before { opacity:1; }
+  .card.dim { transform:scale(0.9) !important; opacity:.35; filter:blur(3px) brightness(.6); }
+  .card canvas { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5; }
+  .card .detail { display:none; position:relative; z-index:10; color:#ccc; font-size:14px; line-height:1.8; margin-top:16px; }
+  .card.active .detail { display:block; }
   .card .icon { font-size:52px; margin-bottom:20px; display:block; filter:drop-shadow(0 4px 12px rgba(248,165,194,.3)); }
   .card h3 { font-size:22px; margin-bottom:12px; color:var(--pink); font-weight:700; }
   .card p { color:#aaa; font-size:15px; line-height:1.8; }
@@ -128,12 +132,12 @@
   <h2>为 情 侣 而 生</h2>
   <p class="sub">一个只属于两个人的秘密基地</p>
   <div class="cards">
-    <div class="card"><span class="icon">📖</span><h3>私密日记</h3><p>两个人的专属空间，记录在一起的每一天甜。文字、心情、图片，永远保存在云端。</p></div>
-    <div class="card"><span class="icon">🔗</span><h3>一键绑定</h3><p>生成 6 位绑定码，输入对方码即刻配对。只有绑定的人才能看到彼此的日记。</p></div>
-    <div class="card"><span class="icon">📸</span><h3>图片日记</h3><p>上传你们的合照、一起看的风景。每一张照片都是爱的证据，最高支持 5MB。</p></div>
-    <div class="card"><span class="icon">🎂</span><h3>纪念日倒计时</h3><p>"在一起 365 天""生日还有 28 天"——纪念日自动倒数，每一天都值得期待。</p></div>
-    <div class="card"><span class="icon">🔒</span><h3>安全加密</h3><p>密码 bcrypt 哈希、JWT 令牌鉴权、私密日记隔离。你们的秘密，只有你们自己知道。</p></div>
-    <div class="card"><span class="icon">☁️</span><h3>云端永不丢失</h3><p>数据存在服务器 PostgreSQL，换手机不丢。你们走到哪儿，日记跟到哪儿。</p></div>
+    <div class="card" data-detail="只有你和你爱的人能看到这里。每篇日记支持文字 + 心情标签 + 图片，所有数据加密存储在云端服务器，换手机也不会丢失任何一条回忆。"><span class="icon">📖</span><h3>私密日记</h3><p>两个人的专属空间，记录在一起的每一天甜。文字、心情、图片，永远保存在云端。</p><p class="detail"></p></div>
+    <div class="card" data-detail="生成一个 6 位专属绑定码，对方输入后两人完成配对。之后即可互相查看对方设为"公开"的日记，专属秘密基地只属于你们。"><span class="icon">🔗</span><h3>一键绑定</h3><p>生成 6 位绑定码，输入对方码即刻配对。只有绑定的人才能看到彼此的日记。</p><p class="detail"></p></div>
+    <div class="card" data-detail="支持拍照和相册上传，jpg / png / webp 格式均可，单张最高 5MB。每篇日记最多 9 张图片，用画面定格你们最重要的时刻。"><span class="icon">📸</span><h3>图片日记</h3><p>上传你们的合照、一起看的风景。每一张照片都是爱的证据，最高支持 5MB。</p><p class="detail"></p></div>
+    <div class="card" data-detail="设置"在一起的日子""TA的生日""第一次旅行"……自动计算倒计时：还有多少天、已经过了多少天。每一个纪念日都值得被记住。"><span class="icon">🎂</span><h3>纪念日倒计时</h3><p>"在一起 365 天""生日还有 28 天"——纪念日自动倒数，每一天都值得期待。</p><p class="detail"></p></div>
+    <div class="card" data-detail="密码采用 bcrypt 加盐哈希存储，即使数据库泄露也无法破解。登录使用 JWT 令牌鉴权，每篇日记可独立设置是否向另一半公开，私密日记完全隔离。"><span class="icon">🔒</span><h3>安全加密</h3><p>密码 bcrypt 哈希、JWT 令牌鉴权、私密日记隔离。你们的秘密，只有你们自己知道。</p><p class="detail"></p></div>
+    <div class="card" data-detail="所有数据运行在阿里云 Ubuntu 服务器 + PostgreSQL 数据库上。无论你换几部手机，只要登录同一个账号，所有日记和纪念日都原封不动等你。"><span class="icon">☁️</span><h3>云端永不丢失</h3><p>数据存在服务器 PostgreSQL，换手机不丢。你们走到哪儿，日记跟到哪儿。</p><p class="detail"></p></div>
   </div>
 </section>
 
@@ -241,12 +245,59 @@ let pi=0,ci=0,timer
 function type(){ const el=document.getElementById('typewriter'); if(ci<phrases[pi].length){el.textContent+=phrases[pi][ci++];timer=setTimeout(type,80+Math.random()*40)}else{timer=setTimeout(()=>{ci=0;el.textContent='';pi=(pi+1)%phrases.length;type()},2500)} }
 type()
 
-// ============ 滚动渐显卡片 ============
-const cards=document.querySelectorAll('.card')
-const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('show'),i*120)}})},{threshold:.1})
-cards.forEach(c=>obs.observe(c))
+// ============ 卡片樱花雨 + 放大 ============
+const allCards = document.querySelectorAll('.card')
+const cardAnims = new Map() // card -> { animId, ctx, particles }
 
-// ============ 卡片堆叠翻页 ============
+class Petal {
+  constructor(w,h){ this.x=Math.random()*w; this.y=-10; this.s=Math.random()*8+4; this.sp=Math.random()*1+.4; this.op=Math.random()*.8+.2; this.rot=Math.random()*360; this.rs=Math.random()*2-1; }
+  update(w,h){ this.y+=this.sp; this.rot+=this.rs; if(this.y>h+20){this.y=-10;this.x=Math.random()*w} }
+  draw(ctx){
+    ctx.save();ctx.globalAlpha=this.op;ctx.fillStyle='#ffb3cc';
+    ctx.translate(this.x,this.y);ctx.rotate(this.rot*Math.PI/180);
+    ctx.beginPath();ctx.ellipse(0,0,this.s,this.s*.6,0,0,Math.PI*2);ctx.fill();ctx.restore()
+  }
+}
+
+allCards.forEach(card => {
+  card.addEventListener('mouseenter', () => {
+    // 显示详细描述
+    const detail = card.querySelector('.detail')
+    if(detail) detail.textContent = card.dataset.detail || ''
+    card.classList.add('active')
+    allCards.forEach(c => { if(c!==card) c.classList.add('dim') })
+
+    // 创建樱花 canvas
+    const canvas = document.createElement('canvas')
+    canvas.width = card.offsetWidth
+    canvas.height = card.offsetHeight
+    card.appendChild(canvas)
+    const ctx = canvas.getContext('2d')
+    const petals = Array.from({length:18},()=>new Petal(canvas.width,canvas.height))
+
+    function anim() {
+      ctx.clearRect(0,0,canvas.width,canvas.height)
+      petals.forEach(p=>{p.update(canvas.width,canvas.height);p.draw(ctx)})
+      cardAnims.get(card).animId = requestAnimationFrame(anim)
+    }
+    cardAnims.set(card,{ctx,petals,animId:requestAnimationFrame(anim)})
+  })
+
+  card.addEventListener('mouseleave', () => {
+    card.classList.remove('active')
+    allCards.forEach(c => c.classList.remove('dim'))
+    const a = cardAnims.get(card)
+    if(a){ cancelAnimationFrame(a.animId); cardAnims.delete(card) }
+    const cvs = card.querySelector('canvas')
+    if(cvs) cvs.remove()
+  })
+})
+
+// ============ 滚动渐显卡片 ============
+const obs = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => { if (e.isIntersecting) setTimeout(() => e.target.classList.add('show'), i * 100) })
+}, { threshold: .1 })
+allCards.forEach(c => obs.observe(c))
 const screens = document.querySelectorAll('.hero,.section,.cta,.footer')
 let screenIdx = 0
 let flipping = false
