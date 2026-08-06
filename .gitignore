@@ -17,6 +17,9 @@ unpackage/
 dist/
 *.log
 
+# 打包产物
+*.apk
+
 # 缂栬緫鍣�
 .idea/
 .vscode/
