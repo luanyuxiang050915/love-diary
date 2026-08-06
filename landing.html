@@ -41,11 +41,13 @@
 
   /* ===== 通用节 ===== */
   /* ===== 双门转场 ===== */
-  .door { position:fixed; top:0; height:100vh; width:50%; z-index:100; pointer-events:none; transition:transform .7s cubic-bezier(.75,0,.25,1); }
-  .door-left { left:0; background:linear-gradient(90deg,#0a0a1a,#1a1025); transform:translateX(0); }
-  .door-right { left:50%; background:linear-gradient(90deg,#1a1025,#0a0a1a); transform:translateX(0); }
+  .door { position:fixed; top:0; height:100vh; width:50%; z-index:100; pointer-events:none; transition:transform .55s cubic-bezier(.87,0,.13,1); }
+  .door-left { left:0; background:linear-gradient(90deg,#0a0a1a 0%,#1f1030 50%,#0a0a1a 100%); transform:translateX(0); }
+  .door-right { left:50%; background:linear-gradient(90deg,#0a0a1a 0%,#1f1030 50%,#0a0a1a 100%); transform:translateX(0); }
   .door.open-left { transform:translateX(-100%); }
   .door.open-right { transform:translateX(100%); }
+
+  .hero,.section,.cta,.footer { transition:transform .5s cubic-bezier(.34,1.56,.64,1),opacity .4s ease; will-change:transform,opacity; }
 
   .section, .cta, .footer { position:relative; z-index:1; }
   .section { max-width:1200px; margin:0 auto; padding:100px 24px; }
@@ -258,28 +260,37 @@ const screens = document.querySelectorAll('.hero,.section,.cta,.footer')
 let screenIdx = 0
 let flipping = false
 
-// 初始状态：门关着
-doorL.classList.add('open-left')
-doorR.classList.add('open-right')
-
 function flipTo(idx) {
   if (idx < 0 || idx >= screens.length || flipping) return
   flipping = true
+  const prev = screens[screenIdx]
   screenIdx = idx
+  const next = screens[idx]
 
-  // 关门
+  // 关门 + 旧内容缩小
   doorL.classList.remove('open-left')
   doorR.classList.remove('open-right')
+  prev.style.transform = 'scale(0.94)'
+  prev.style.opacity = '0.5'
 
-  requestAnimationFrame(() => {
-    // 强制回流后开门
-    void doorL.offsetWidth
-    doorL.classList.add('open-left')
-    doorR.classList.add('open-right')
-    screens[idx].scrollIntoView({ behavior: 'instant', block: 'start' })
+  setTimeout(() => {
+    // 切换屏幕
+    next.scrollIntoView({ behavior: 'instant', block: 'start' })
+    prev.style.transform = ''
+    prev.style.opacity = ''
+    next.style.transform = 'scale(0.94)'
+    next.style.opacity = '0.5'
 
-    setTimeout(() => { flipping = false }, 750)
-  })
+    requestAnimationFrame(() => {
+      void next.offsetWidth
+      // 开门 + 新内容弹入
+      doorL.classList.add('open-left')
+      doorR.classList.add('open-right')
+      next.style.transform = 'scale(1)'
+      next.style.opacity = '1'
+      setTimeout(() => { flipping = false }, 600)
+    })
+  }, 360)
 }
 
 // 鼠标滚轮
