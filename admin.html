@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>恋爱日记 · 管理后台</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#0f0f1a;color:#ccc;display:flex;min-height:100vh}
+  .sidebar{width:220px;background:#0a0a14;padding:24px 0;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,.05)}
+  .sidebar h2{color:#f8a5c2;font-size:18px;padding:0 20px 30px;letter-spacing:2px}
+  .sidebar a{color:#888;text-decoration:none;padding:12px 20px;font-size:14px;display:block;border-left:3px solid transparent;transition:.2s}
+  .sidebar a:hover,.sidebar a.active{color:#fff;background:rgba(248,165,194,.08);border-left-color:#f8a5c2}
+  .main{flex:1;padding:30px 36px;overflow-y:auto}
+  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}
+  .header h1{font-size:24px;color:#fff}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;margin-bottom:30px}
+  .stat{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:24px}
+  .stat .num{font-size:36px;font-weight:900;color:#f8a5c2}
+  .stat .label{font-size:13px;color:#666;margin-top:6px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:#888;border-bottom:1px solid rgba(255,255,255,.06);font-weight:400}
+  td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.03);color:#bbb;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .btn{display:inline-block;padding:6px 16px;border-radius:8px;font-size:12px;cursor:pointer;border:none}
+  .btn-danger{background:#e74c3c;color:#fff}.btn-danger:hover{background:#c0392b}
+  .login-box{max-width:400px;margin:80px auto;text-align:center}
+  .login-box input{width:100%;padding:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:16px;margin-bottom:16px;outline:none}
+  .login-box button{width:100%;padding:14px;background:#f8a5c2;color:#fff;border:none;border-radius:12px;font-size:16px;cursor:pointer}
+  .hidden{display:none}
+  .tab-content{display:none}.tab-content.active{display:block}
+</style>
+</head>
+<body>
+
+<!-- 侧边栏 -->
+<nav class="sidebar" id="sidebar">
+  <h2>💕 恋爱日记</h2>
+  <a class="active" data-tab="dashboard">📊 仪表盘</a>
+  <a data-tab="users">👥 用户管理</a>
+  <a data-tab="diaries">📖 日记管理</a>
+  <a data-tab="logs">📋 登录日志</a>
+</nav>
+
+<!-- 主区域 -->
+<main class="main" id="main">
+  <!-- 登录 -->
+  <div id="loginPage" class="login-box">
+    <h2 style="color:#f8a5c2;margin-bottom:24px">管理后台登录</h2>
+    <input id="tokenInput" type="password" placeholder="请输入 Admin Token" />
+    <button onclick="doLogin()">登 录</button>
+    <p style="color:#666;font-size:12px;margin-top:20px">Token 在服务器 .env 的 ADMIN_SECRET 中配置</p>
+  </div>
+
+  <!-- 已登录内容 -->
+  <div id="adminContent" class="hidden">
+    <div class="header"><h1 id="tabTitle">📊 仪表盘</h1><button class="btn btn-danger" onclick="doLogout()">退出</button></div>
+    <div class="stats" id="stats"></div>
+
+    <div id="tab-dashboard" class="tab-content active"></div>
+    <div id="tab-users" class="tab-content"><table><thead><tr><th>ID</th><th>用户名</th><th>昵称</th><th>绑定码</th><th>已绑定</th><th>UA</th><th>注册时间</th><th>操作</th></tr></thead><tbody id="usersTbody"></tbody></table></div>
+    <div id="tab-diaries" class="tab-content"><table><thead><tr><th>ID</th><th>作者ID</th><th>内容</th><th>心情</th><th>日期</th><th>操作</th></tr></thead><tbody id="diariesTbody"></tbody></table></div>
+    <div id="tab-logs" class="tab-content"><table><thead><tr><th>ID</th><th>用户ID</th><th>IP</th><th>UA</th><th>时间</th></tr></thead><tbody id="logsTbody"></tbody></table></div>
+  </div>
+</main>
+
+<script>
+const API = 'http://47.93.241.64:8000/api'
+let adminToken = sessionStorage.getItem('adtoken') || ''
+
+function headers() { return { 'X-Admin-Token': adminToken } }
+
+async function doLogin() {
+  adminToken = document.getElementById('tokenInput').value.trim()
+  const r = await fetch(API + '/admin/stats', { headers: headers() })
+  if (r.ok) { sessionStorage.setItem('adtoken', adminToken); showAdmin() }
+  else { alert('Token 无效'); adminToken = '' }
+}
+
+function doLogout() { sessionStorage.removeItem('adtoken'); adminToken = ''; location.reload() }
+
+function showAdmin() {
+  document.getElementById('loginPage').classList.add('hidden')
+  document.getElementById('adminContent').classList.remove('hidden')
+  loadDashboard(); loadUsers(); loadDiaries(); loadLogs()
+}
+
+// Tab 切换
+document.querySelectorAll('.sidebar a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar a').forEach(x => x.classList.remove('active'))
+    a.classList.add('active')
+    const tab = a.dataset.tab
+    document.getElementById('tabTitle').textContent = a.textContent
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'))
+    document.getElementById('tab-' + tab).classList.add('active')
+  })
+})
+
+async function loadDashboard() {
+  const r = await fetch(API + '/admin/stats', { headers: headers() })
+  if (!r.ok) return
+  const d = await r.json()
+  document.getElementById('stats').innerHTML = [
+    { num: d.users, label: '注册用户' },
+    { num: d.diaries, label: '日记总数' },
+    { num: d.anniversaries, label: '纪念日' },
+    { num: d.today_diaries, label: '今日日记' },
+    { num: d.today_logins, label: '今日登录' },
+  ].map(s => `<div class="stat"><div class="num">${s.num}</div><div class="label">${s.label}</div></div>`).join('')
+}
+
+async function loadUsers() {
+  const r = await fetch(API + '/admin/users', { headers: headers() })
+  if (!r.ok) return
+  const users = await r.json()
+  document.getElementById('usersTbody').innerHTML = users.map(u =>
+    `<tr><td>${u.id}</td><td>${u.username}</td><td>${u.nickname}</td><td>${u.bind_code||'-'}</td><td>${u.partner_id?'✅':'❌'}</td><td title="${u.last_user_agent}">${u.last_user_agent.slice(0,40)}</td><td>${(u.created_at||'').slice(0,10)}</td><td><button class="btn btn-danger" onclick="delUser(${u.id})">删除</button></td></tr>`
+  ).join('')
+}
+
+async function loadDiaries() {
+  const r = await fetch(API + '/admin/diaries', { headers: headers() })
+  if (!r.ok) return
+  const diaries = await r.json()
+  document.getElementById('diariesTbody').innerHTML = diaries.map(d =>
+    `<tr><td>${d.id}</td><td>${d.user_id}</td><td>${d.content.slice(0,60)}</td><td>${d.mood||'-'}</td><td>${d.date}</td><td><button class="btn btn-danger" onclick="delDiary(${d.id})">删除</button></td></tr>`
+  ).join('')
+}
+
+async function loadLogs() {
+  const r = await fetch(API + '/admin/logs', { headers: headers() })
+  if (!r.ok) return
+  const logs = await r.json()
+  document.getElementById('logsTbody').innerHTML = logs.map(l =>
+    `<tr><td>${l.id}</td><td>${l.user_id}</td><td>${l.ip}</td><td title="${l.user_agent}">${(l.user_agent||'').slice(0,60)}</td><td>${(l.created_at||'').slice(0,16)}</td></tr>`
+  ).join('')
+}
+
+async function delUser(id) { if (!confirm('确定删除该用户及其所有数据？')) return; await fetch(API + '/admin/users/' + id, { method: 'DELETE', headers: headers() }); loadUsers(); loadDashboard(); }
+async function delDiary(id) { if (!confirm('确定删除这篇日记？')) return; await fetch(API + '/admin/diaries/' + id, { method: 'DELETE', headers: headers() }); loadDiaries(); loadDashboard() }
+
+// 初始状态
+if (adminToken) {
+  fetch(API + '/admin/stats', { headers: headers() }).then(r => { if (r.ok) showAdmin() })
+}
+</script>
+</body>
+</html>
