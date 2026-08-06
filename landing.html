@@ -7,7 +7,7 @@
 <style>
   :root { --pink: #f8a5c2; --hot: #ff6b9d; --purple: #c44dff; --dark: #0a0a1a; }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'PingFang SC','Microsoft YaHei',sans-serif; background:var(--dark); color:#fff; overflow-x:hidden; cursor:default; }
+  body { font-family:'PingFang SC','Microsoft YaHei',sans-serif; background:var(--dark); color:#fff; overflow:hidden; cursor:default; height:100vh; }
   ::selection { background:var(--pink); color:#fff; }
   canvas#bg { position:fixed; top:0; left:0; z-index:0; pointer-events:none; }
 
@@ -36,11 +36,19 @@
   .btn.pulse { animation:btnPulse 2.5s ease-out infinite; }
   @keyframes btnPulse { 0%,100%{box-shadow:0 8px 35px rgba(248,165,194,.35)} 50%{box-shadow:0 8px 35px rgba(248,165,194,.35),0 0 60px rgba(248,165,194,.4),0 0 120px rgba(255,107,157,.2)} }
 
-  .scroll-hint { position:absolute; bottom:24px; color:var(--pink); font-size:13px; letter-spacing:3px; animation:bounce 2s infinite; }
+  .scroll-hint { position:absolute; bottom:24px; color:var(--pink); font-size:13px; letter-spacing:3px; animation:bounce 2s infinite; display:none; }
   @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(10px)} }
 
   /* ===== 通用节 ===== */
-  .section { position:relative; z-index:1; max-width:1200px; margin:0 auto; padding:100px 24px; }
+  /* ===== 双门转场 ===== */
+  .door { position:fixed; top:0; height:100vh; width:50%; z-index:100; pointer-events:none; transition:transform .7s cubic-bezier(.75,0,.25,1); }
+  .door-left { left:0; background:linear-gradient(90deg,#0a0a1a,#1a1025); transform:translateX(0); }
+  .door-right { left:50%; background:linear-gradient(90deg,#1a1025,#0a0a1a); transform:translateX(0); }
+  .door.open-left { transform:translateX(-100%); }
+  .door.open-right { transform:translateX(100%); }
+
+  .section, .cta, .footer { position:relative; z-index:1; }
+  .section { max-width:1200px; margin:0 auto; padding:100px 24px; }
   .section h2 { text-align:center; font-size:clamp(26px,5vw,44px); font-weight:900; margin-bottom:16px; background:linear-gradient(135deg,var(--pink),var(--purple)); -webkit-background-clip:text;-webkit-text-fill-color:transparent; }
   .section .sub { text-align:center; color:#777; font-size:16px; margin-bottom:60px; letter-spacing:2px; }
 
@@ -102,6 +110,8 @@
 <body>
 
 <canvas id="bg"></canvas>
+<div class="door door-left"></div>
+<div class="door door-right"></div>
 
 <!-- ===== 首屏 ===== -->
 <section class="hero">
@@ -241,7 +251,59 @@ const cards=document.querySelectorAll('.card')
 const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('show'),i*120)}})},{threshold:.1})
 cards.forEach(c=>obs.observe(c))
 
-// ============ 数字滚动计数器 ============
+// ============ 全屏翻页 + 双门推开 ============
+const doorL = document.querySelector('.door-left')
+const doorR = document.querySelector('.door-right')
+const screens = document.querySelectorAll('.hero,.section,.cta,.footer')
+let screenIdx = 0
+let flipping = false
+
+// 初始状态：门关着
+doorL.classList.add('open-left')
+doorR.classList.add('open-right')
+
+function flipTo(idx) {
+  if (idx < 0 || idx >= screens.length || flipping) return
+  flipping = true
+  screenIdx = idx
+
+  // 关门
+  doorL.classList.remove('open-left')
+  doorR.classList.remove('open-right')
+
+  requestAnimationFrame(() => {
+    // 强制回流后开门
+    void doorL.offsetWidth
+    doorL.classList.add('open-left')
+    doorR.classList.add('open-right')
+    screens[idx].scrollIntoView({ behavior: 'instant', block: 'start' })
+
+    setTimeout(() => { flipping = false }, 750)
+  })
+}
+
+// 鼠标滚轮
+window.addEventListener('wheel', e => {
+  e.preventDefault()
+  if (e.deltaY > 30) flipTo(screenIdx + 1)
+  else if (e.deltaY < -30) flipTo(screenIdx - 1)
+}, { passive: false })
+
+// 移动端触摸
+let touchY = 0
+window.addEventListener('touchstart', e => { touchY = e.touches[0].clientY }, { passive: true })
+window.addEventListener('touchend', e => {
+  const dy = touchY - e.changedTouches[0].clientY
+  if (Math.abs(dy) < 50) return
+  if (dy > 0) flipTo(screenIdx + 1)
+  else flipTo(screenIdx - 1)
+})
+
+// 键盘上下键
+window.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown') { e.preventDefault(); flipTo(screenIdx + 1) }
+  if (e.key === 'ArrowUp') { e.preventDefault(); flipTo(screenIdx - 1) }
+})
 const nums=document.querySelectorAll('.num[data-target]')
 let counted=false
 const countObs=new IntersectionObserver(entries=>{if(entries[0].isIntersecting&&!counted){counted=true;nums.forEach(el=>{const t=+el.dataset.target,s=t>100?80:20,step=t/s;let c=0;const iv=setInterval(()=>{c+=step;if(c>=t){el.textContent=t;clearInterval(iv)}else{el.textContent=Math.floor(c)}},30)})}},{threshold:.3})
