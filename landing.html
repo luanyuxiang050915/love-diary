@@ -82,16 +82,58 @@
   .stat .label { color:#666; font-size:14px; margin-top:10px; letter-spacing:3px; }
 
   /* ===== 手机 mockup ===== */
-  .phone-row { display:flex; align-items:center; justify-content:center; gap:clamp(14px,3vw,30px); flex-wrap:wrap; margin-top:clamp(24px,4vw,40px); }
+  .phone-stage { position:relative; max-width:1000px; margin:clamp(24px,4vw,40px) auto 0; }
+  .glow { position:absolute; border-radius:50%; filter:blur(60px); pointer-events:none; z-index:0; }
+  .glow-1 { width:320px; height:320px; left:6%; top:14%; background:rgba(248,165,194,.22); animation:glowFloat 7s ease-in-out infinite; }
+  .glow-2 { width:280px; height:280px; right:6%; bottom:10%; background:rgba(196,77,255,.20); animation:glowFloat 9s ease-in-out infinite reverse; }
+  @keyframes glowFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-16px) scale(1.08)} }
+  .float-emoji { position:absolute; z-index:1; font-size:26px; opacity:.75; filter:drop-shadow(0 0 12px rgba(248,165,194,.5)); animation:floaty 4s ease-in-out infinite; pointer-events:none; }
+  .fe-1 { left:5%; top:10%; }
+  .fe-2 { right:7%; top:8%; font-size:20px; animation-delay:1.2s; }
+  .fe-3 { left:11%; bottom:14%; font-size:20px; animation-delay:2s; }
+  @keyframes floaty { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+
+  .phone-row { position:relative; z-index:2; display:flex; align-items:center; justify-content:center; gap:clamp(16px,3vw,34px); flex-wrap:wrap; }
   .phone-mock {
-    width:clamp(130px,34vw,220px); height:auto; aspect-ratio:1/2; background:linear-gradient(180deg,#1a1a2e,#0d0d1a);
-    border:2px solid rgba(255,255,255,.08); border-radius:36px; position:relative;
-    box-shadow:0 30px 80px rgba(0,0,0,.5),0 0 40px rgba(248,165,194,.08);
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+    position:relative; background:linear-gradient(180deg,#1a1a2e,#0d0d1a);
+    border:2px solid rgba(255,255,255,.09); border-radius:36px; overflow:hidden;
+    box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 50px rgba(248,165,194,.10);
   }
-  .phone-mock .screen { color:var(--pink); font-size:40px; animation:floatHero 2.5s ease-in-out infinite; }
-  .phone-mock .screen-text { font-size:12px; color:#666; letter-spacing:1px; }
-  .phone-mock .notch { position:absolute; top:12px; width:80px; height:6px; background:#333; border-radius:4px; }
+  .phone-mock.side { width:clamp(120px,20vw,178px); aspect-ratio:1/2; }
+  .phone-mock.big {
+    width:clamp(170px,28vw,250px); aspect-ratio:1/2;
+    border-color:rgba(248,165,194,.28);
+    box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 70px rgba(248,165,194,.20);
+    animation:phoneFloat 5s ease-in-out infinite; z-index:3;
+  }
+  @keyframes phoneFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  .phone-mock .notch { position:absolute; top:12px; left:50%; transform:translateX(-50%); width:clamp(50px,12vw,80px); height:6px; background:rgba(255,255,255,.16); border-radius:4px; z-index:5; }
+
+  .phone-ui { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:22px 14px 16px; text-align:center; }
+  .phone-ui.left { justify-content:flex-start; align-items:stretch; text-align:left; padding-top:32px; }
+  .p-heart-big { font-size:clamp(30px,5vw,42px); filter:drop-shadow(0 0 14px rgba(248,165,194,.7)); animation:heartbeat 1.8s ease-in-out infinite; }
+  @keyframes heartbeat { 0%,100%{transform:scale(1)} 15%{transform:scale(1.15)} 30%{transform:scale(1)} 45%{transform:scale(1.12)} }
+  .p-title { font-size:clamp(11px,1.7vw,15px); font-weight:800; letter-spacing:2px; color:#fff; }
+  .p-badge { padding:3px 10px; border-radius:20px; font-size:clamp(9px,1.3vw,11px); color:#4ade80; background:rgba(74,222,128,.12); border:1px solid rgba(74,222,128,.3); }
+  .p-code { font-family:Consolas,monospace; font-size:clamp(12px,2vw,16px); letter-spacing:3px; color:var(--pink); background:rgba(248,165,194,.1); padding:4px 10px; border-radius:8px; }
+  .p-note { font-size:clamp(9px,1.3vw,11px); color:#888; }
+  .p-cake { font-size:clamp(28px,4.5vw,38px); filter:drop-shadow(0 0 12px rgba(251,191,36,.5)); }
+  .p-bignum { font-size:clamp(26px,4.5vw,40px); font-weight:900; background:linear-gradient(135deg,var(--pink),var(--hot)); -webkit-background-clip:text;-webkit-text-fill-color:transparent; line-height:1.1; }
+  .p-label { font-size:clamp(9px,1.3vw,11px); color:#888; letter-spacing:2px; }
+  .p-next { font-size:clamp(9px,1.3vw,11px); color:#aaa; line-height:1.7; }
+  .p-status { display:flex; justify-content:space-between; font-size:clamp(8px,1.1vw,10px); color:#999; margin-bottom:4px; }
+  .p-appbar { font-size:clamp(11px,1.7vw,14px); font-weight:800; color:#fff; padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,.08); display:flex; justify-content:space-between; }
+  .p-appbar .p-heart { color:var(--pink); }
+  .p-today { font-size:clamp(8px,1.1vw,10px); color:#666; margin:6px 0; }
+  .p-entry { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.06); border-radius:10px; padding:8px 10px; margin-bottom:6px; }
+  .p-entry .p-mood { display:inline-block; font-size:clamp(8px,1vw,10px); color:var(--pink); background:rgba(248,165,194,.1); padding:1px 7px; border-radius:8px; margin-bottom:3px; }
+  .p-entry .p-text { font-size:clamp(9px,1.3vw,11px); color:#c9c9da; line-height:1.5; }
+  .p-entry .p-like { display:block; margin-top:3px; font-size:clamp(8px,1vw,10px); color:#888; }
+  .p-nav { position:absolute; left:0; right:0; bottom:0; display:flex; justify-content:space-around; padding:8px 0; background:rgba(255,255,255,.04); border-top:1px solid rgba(255,255,255,.06); font-size:clamp(11px,1.7vw,14px); }
+  .p-nav span { opacity:.45; }
+  .p-nav span.on { opacity:1; color:var(--pink); }
+  .phone-caption { position:relative; z-index:2; text-align:center; margin-top:clamp(22px,3.5vw,32px); color:#777; font-size:clamp(12px,1.8vw,14px); letter-spacing:2px; }
+  .phone-caption b { color:var(--pink); }
 
   /* ===== CTA ===== */
   .cta { position:relative; z-index:1; text-align:center; padding:clamp(56px,9vw,120px) clamp(14px,3vw,20px); }
@@ -125,7 +167,8 @@
   @media(max-width:700px) {
     .card.active { transform:scale(1.06) !important; }
     .section h2, .cta h2 { letter-spacing:2px; }
-    .phone-mock { width:clamp(120px,36vw,160px); }
+    .phone-mock.side { display:none; }
+    .phone-mock.big { width:min(78vw,240px); }
     .hero h1 { margin:6px 0; }
     .logo-wrap { margin-bottom:12px; }
   }
@@ -173,10 +216,46 @@
 <section class="section">
   <h2>随 身 携 带</h2>
   <p class="sub">装进手机，随时随地写日记</p>
-  <div class="phone-row">
-    <div class="phone-mock"><div class="notch"></div><span class="screen">📝</span><span class="screen-text">写日记</span></div>
-    <div class="phone-mock"><div class="notch"></div><span class="screen">💕</span><span class="screen-text">已绑定</span></div>
-    <div class="phone-mock"><div class="notch"></div><span class="screen">🎂</span><span class="screen-text">纪念日</span></div>
+  <div class="phone-stage">
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    <span class="float-emoji fe-1">💌</span>
+    <span class="float-emoji fe-2">✨</span>
+    <span class="float-emoji fe-3">💕</span>
+    <div class="phone-row">
+      <div class="phone-mock side">
+        <div class="notch"></div>
+        <div class="phone-ui">
+          <div class="p-heart-big">💞</div>
+          <div class="p-title">已 绑 定</div>
+          <div class="p-badge">配对成功</div>
+          <div class="p-code">B5BBE8</div>
+          <div class="p-note">我们在一起啦</div>
+        </div>
+      </div>
+      <div class="phone-mock big">
+        <div class="notch"></div>
+        <div class="phone-ui left">
+          <div class="p-status"><span>9:41</span><span>📶 🔋</span></div>
+          <div class="p-appbar">我的日记 <span class="p-heart">💕</span></div>
+          <div class="p-today">今天 · 2026.08.08</div>
+          <div class="p-entry"><span class="p-mood">开心</span><div class="p-text">今天和你一起看了日落，晚霞特别美……</div><span class="p-like">❤️ 3</span></div>
+          <div class="p-entry"><span class="p-mood">想你</span><div class="p-text">一整天都在想你呀</div><span class="p-like">❤️ 1</span></div>
+          <div class="p-entry"><span class="p-mood">幸福</span><div class="p-text">第 365 天，依然爱你</div><span class="p-like">❤️ 5</span></div>
+          <div class="p-nav"><span>📖</span><span class="on">✨</span><span>👤</span></div>
+        </div>
+      </div>
+      <div class="phone-mock side">
+        <div class="notch"></div>
+        <div class="phone-ui">
+          <div class="p-cake">🎂</div>
+          <div class="p-bignum">365</div>
+          <div class="p-label">在一起的天数</div>
+          <div class="p-next">下一个纪念日<br>还有 28 天</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-caption">日记 · 纪念日 · 情侣绑定 — <b>一个 App 全搞定</b></div>
   </div>
 </section>
 
