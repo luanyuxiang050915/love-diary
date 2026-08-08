@@ -299,7 +299,6 @@ class Petal {
 }
 
 let currentCard = null // 当前展开的卡片（同一时间只允许一张）
-let pinnedCard = null  // 被点击固定的卡片（鼠标移开也不收起）
 
 function activateCard(card) {
   // 先收起当前展开的卡片，保证只有一张处于展开态，避免残留卡住
@@ -336,7 +335,6 @@ function activateCard(card) {
 function deactivateCard(card) {
   if (currentCard !== card) return
   currentCard = null
-  pinnedCard = null
   card.classList.remove('active')
   allCards.forEach(c => c.classList.remove('dim'))
   const animId = cardAnims.get(card)
@@ -348,38 +346,20 @@ function deactivateCard(card) {
 let touchDevice = window.matchMedia('(pointer: coarse)').matches
 window.addEventListener('pointerdown', e => { if (e.pointerType === 'touch') touchDevice = true }, { once: true })
 
-// 悬停防抖：鼠标在卡片边缘来回时，延迟展开/收起并自动取消，避免状态反复切换造成闪烁
-const hoverTimers = new Map() // card -> { open, close }
-
+// 点击展开/收起：同一时间只允许一张卡片展开，再点一次恢复原样
 allCards.forEach(card => {
-  card.addEventListener('mouseenter', () => {
-    if (touchDevice) return
-    const t = hoverTimers.get(card)
-    if (t) { clearTimeout(t.open); clearTimeout(t.close) }
-    hoverTimers.set(card, { open: setTimeout(() => activateCard(card), 120) })
-  })
-  card.addEventListener('mouseleave', () => {
-    if (touchDevice) return
-    const t = hoverTimers.get(card)
-    if (t) { clearTimeout(t.open); clearTimeout(t.close) }
-    hoverTimers.set(card, { close: setTimeout(() => { if (pinnedCard !== card) deactivateCard(card) }, 240) })
-  })
   card.addEventListener('click', () => {
-    const t = hoverTimers.get(card)
-    if (t) { clearTimeout(t.open); clearTimeout(t.close) }
     if (card.classList.contains('active')) {
-      if (pinnedCard === card) deactivateCard(card)
-      else pinnedCard = card
+      deactivateCard(card)
     } else {
       activateCard(card)
-      pinnedCard = card
     }
   })
 })
 
-// 触屏端点击卡片外区域：收起固定中的卡片
+// 触屏端点击卡片外区域：收起当前展开的卡片
 document.addEventListener('click', e => {
-  if (touchDevice && pinnedCard && !pinnedCard.contains(e.target)) deactivateCard(pinnedCard)
+  if (touchDevice && currentCard && !currentCard.contains(e.target)) deactivateCard(currentCard)
 })
 
 // ============ 滚动渐显卡片 ============
