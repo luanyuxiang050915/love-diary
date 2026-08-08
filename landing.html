@@ -50,30 +50,52 @@
   .section h2 { text-align:center; font-size:clamp(26px,5vw,44px); font-weight:900; margin-bottom:16px; background:linear-gradient(135deg,var(--pink),var(--purple)); -webkit-background-clip:text;-webkit-text-fill-color:transparent; }
   .section .sub { text-align:center; color:#777; font-size:clamp(13px,2vw,16px); margin-bottom:clamp(30px,5vw,60px); letter-spacing:2px; }
 
-  /* ===== 功能卡片 ===== */
-  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr)); gap:clamp(14px,2.5vw,28px); align-items:start; }
-  .card {
-    position:relative; background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
-    border:1px solid rgba(255,255,255,.06); border-radius:clamp(20px,3vw,28px); padding:clamp(26px,4vw,44px) clamp(16px,3vw,32px); text-align:center;
-    backdrop-filter:blur(16px); transition:all .5s cubic-bezier(.25,.8,.25,1.2); cursor:pointer; overflow:hidden;
-    transform:translateY(80px); opacity:0;
+  /* ===== 功能卡片：横滑轨道 ===== */
+  .feat-carousel { position:relative; max-width:1180px; margin:0 auto; perspective:1200px; }
+  .feat-track {
+    display:flex; align-items:center; gap:clamp(14px,2vw,24px);
+    overflow-x:auto; scroll-snap-type:x mandatory; scroll-behavior:smooth;
+    padding:26px calc(50% - clamp(270px,31vw,350px)/2) 30px;
+    scrollbar-width:none; -ms-overflow-style:none;
   }
-  .card.show { transform:translateY(0); opacity:1; }
+  .feat-track::-webkit-scrollbar { display:none; }
+  .card {
+    position:relative; flex:0 0 clamp(270px,31vw,350px);
+    background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.012));
+    border:1px solid rgba(255,255,255,.07); border-radius:clamp(20px,3vw,28px);
+    padding:clamp(26px,3.5vw,40px) clamp(18px,2.5vw,30px);
+    text-align:center; backdrop-filter:blur(16px);
+    cursor:pointer; overflow:hidden; scroll-snap-align:center;
+    transition:opacity .35s ease, box-shadow .5s ease, border-color .4s ease;
+    will-change:transform, opacity;
+  }
   .card::before {
     content:''; position:absolute; top:-1px; left:-1px; right:-1px; bottom:-1px; border-radius:28px; z-index:-1;
     background:linear-gradient(135deg,var(--pink),var(--purple),var(--hot),var(--pink)); background-size:400% 400%;
     opacity:0; transition:opacity .5s; animation:borderFlow 4s linear infinite;
   }
   @keyframes borderFlow { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-  .card.active { transform:scale(1.18) !important; z-index:30; box-shadow:0 40px 80px rgba(0,0,0,.5),0 0 60px rgba(248,165,194,.25); }
+  .card.active { border-color:rgba(248,165,194,.38); box-shadow:0 30px 70px rgba(0,0,0,.5),0 0 50px rgba(248,165,194,.25); }
   .card.active::before { opacity:1; }
-  .card.dim { transform:scale(0.9) !important; opacity:.4; filter:blur(1.5px) brightness(.7); }
   .card canvas { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5; }
-  .card .detail { display:none; position:relative; z-index:10; color:#ccc; font-size:14px; line-height:1.8; margin-top:16px; }
+  .card .detail { display:none; position:relative; z-index:10; color:#ccc; font-size:13.5px; line-height:1.75; margin-top:14px; text-align:left; }
   .card.active .detail { display:block; }
-  .card .icon { font-size:52px; margin-bottom:20px; display:block; filter:drop-shadow(0 4px 12px rgba(248,165,194,.3)); }
-  .card h3 { font-size:22px; margin-bottom:12px; color:var(--pink); font-weight:700; }
-  .card p { color:#aaa; font-size:15px; line-height:1.8; }
+  .card .icon { font-size:46px; margin-bottom:16px; display:block; filter:drop-shadow(0 4px 12px rgba(248,165,194,.3)); }
+  .card h3 { font-size:20px; margin-bottom:10px; color:var(--pink); font-weight:700; }
+  .card p { color:#aaa; font-size:14px; line-height:1.75; }
+  .feat-arrow {
+    position:absolute; top:calc(50% - 14px); transform:translateY(-50%); z-index:20;
+    width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); color:var(--pink); font-size:20px;
+    cursor:pointer; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); transition:.3s;
+  }
+  .feat-arrow:hover { background:rgba(248,165,194,.2); transform:translateY(-50%) scale(1.1); }
+  .feat-arrow.prev { left:clamp(0px,1vw,14px); }
+  .feat-arrow.next { right:clamp(0px,1vw,14px); }
+  .feat-dots { display:flex; justify-content:center; gap:8px; margin-top:10px; }
+  .feat-dots button { width:8px; height:8px; border-radius:50%; border:none; padding:0; background:rgba(255,255,255,.18); cursor:pointer; transition:.3s; }
+  .feat-dots button:hover { background:rgba(248,165,194,.5); }
+  .feat-dots button.on { background:var(--pink); transform:scale(1.3); box-shadow:0 0 10px rgba(248,165,194,.8); }
 
   /* ===== 数字滚动 ===== */
   .stats { display:flex; justify-content:center; gap:clamp(20px,5vw,80px); flex-wrap:wrap; }
@@ -200,6 +222,7 @@
     .phone-mock.left { left:calc(50% - clamp(110px,30vw,160px)); transform:translate(-50%,-50%) translateZ(-80px) rotateY(30deg) scale(.74); }
     .phone-mock.right { left:calc(50% + clamp(110px,30vw,160px)); transform:translate(-50%,-50%) translateZ(-80px) rotateY(-30deg) scale(.74); }
     .stage-btn { width:34px; height:34px; font-size:15px; }
+    .feat-arrow { width:32px; height:32px; font-size:14px; }
     .hero h1 { margin:6px 0; }
     .logo-wrap { margin-bottom:12px; }
   }
@@ -233,13 +256,18 @@
 <section class="section">
   <h2>为 情 侣 而 生</h2>
   <p class="sub">一个只属于两个人的秘密基地</p>
-  <div class="cards">
-    <div class="card" data-detail="只有你和你爱的人能看到这里。每篇日记支持文字 + 心情标签 + 图片，所有数据加密存储在云端服务器，换手机也不会丢失任何一条回忆。"><span class="icon">📖</span><h3>私密日记</h3><p>两个人的专属空间，记录在一起的每一天甜。文字、心情、图片，永远保存在云端。</p><p class="detail"></p></div>
-    <div class="card" data-detail="生成一个 6 位专属绑定码，对方输入后两人完成配对。之后即可互相查看对方设为"公开"的日记，专属秘密基地只属于你们。"><span class="icon">🔗</span><h3>一键绑定</h3><p>生成 6 位绑定码，输入对方码即刻配对。只有绑定的人才能看到彼此的日记。</p><p class="detail"></p></div>
-    <div class="card" data-detail="支持拍照和相册上传，jpg / png / webp 格式均可，单张最高 5MB。每篇日记最多 9 张图片，用画面定格你们最重要的时刻。"><span class="icon">📸</span><h3>图片日记</h3><p>上传你们的合照、一起看的风景。每一张照片都是爱的证据，最高支持 5MB。</p><p class="detail"></p></div>
-    <div class="card" data-detail="设置"在一起的日子""TA的生日""第一次旅行"……自动计算倒计时：还有多少天、已经过了多少天。每一个纪念日都值得被记住。"><span class="icon">🎂</span><h3>纪念日倒计时</h3><p>"在一起 365 天""生日还有 28 天"——纪念日自动倒数，每一天都值得期待。</p><p class="detail"></p></div>
-    <div class="card" data-detail="密码采用 bcrypt 加盐哈希存储，即使数据库泄露也无法破解。登录使用 JWT 令牌鉴权，每篇日记可独立设置是否向另一半公开，私密日记完全隔离。"><span class="icon">🔒</span><h3>安全加密</h3><p>密码 bcrypt 哈希、JWT 令牌鉴权、私密日记隔离。你们的秘密，只有你们自己知道。</p><p class="detail"></p></div>
-    <div class="card" data-detail="所有数据运行在阿里云 Ubuntu 服务器 + PostgreSQL 数据库上。无论你换几部手机，只要登录同一个账号，所有日记和纪念日都原封不动等你。"><span class="icon">☁️</span><h3>云端永不丢失</h3><p>数据存在服务器 PostgreSQL，换手机不丢。你们走到哪儿，日记跟到哪儿。</p><p class="detail"></p></div>
+  <div class="feat-carousel">
+    <button class="feat-arrow prev" aria-label="上一张">‹</button>
+    <div class="feat-track" id="featTrack">
+      <div class="card" data-detail="只有你和你爱的人能看到这里。每篇日记支持文字 + 心情标签 + 图片，所有数据加密存储在云端服务器，换手机也不会丢失任何一条回忆。"><span class="icon">📖</span><h3>私密日记</h3><p>两个人的专属空间，记录在一起的每一天甜。文字、心情、图片，永远保存在云端。</p><p class="detail"></p></div>
+      <div class="card" data-detail="生成一个 6 位专属绑定码，对方输入后两人完成配对。之后即可互相查看对方设为"公开"的日记，专属秘密基地只属于你们。"><span class="icon">🔗</span><h3>一键绑定</h3><p>生成 6 位绑定码，输入对方码即刻配对。只有绑定的人才能看到彼此的日记。</p><p class="detail"></p></div>
+      <div class="card" data-detail="支持拍照和相册上传，jpg / png / webp 格式均可，单张最高 5MB。每篇日记最多 9 张图片，用画面定格你们最重要的时刻。"><span class="icon">📸</span><h3>图片日记</h3><p>上传你们的合照、一起看的风景。每一张照片都是爱的证据，最高支持 5MB。</p><p class="detail"></p></div>
+      <div class="card" data-detail="设置"在一起的日子""TA的生日""第一次旅行"……自动计算倒计时：还有多少天、已经过了多少天。每一个纪念日都值得被记住。"><span class="icon">🎂</span><h3>纪念日倒计时</h3><p>"在一起 365 天""生日还有 28 天"——纪念日自动倒数，每一天都值得期待。</p><p class="detail"></p></div>
+      <div class="card" data-detail="密码采用 bcrypt 加盐哈希存储，即使数据库泄露也无法破解。登录使用 JWT 令牌鉴权，每篇日记可独立设置是否向另一半公开，私密日记完全隔离。"><span class="icon">🔒</span><h3>安全加密</h3><p>密码 bcrypt 哈希、JWT 令牌鉴权、私密日记隔离。你们的秘密，只有你们自己知道。</p><p class="detail"></p></div>
+      <div class="card" data-detail="所有数据运行在阿里云 Ubuntu 服务器 + PostgreSQL 数据库上。无论你换几部手机，只要登录同一个账号，所有日记和纪念日都原封不动等你。"><span class="icon">☁️</span><h3>云端永不丢失</h3><p>数据存在服务器 PostgreSQL，换手机不丢。你们走到哪儿，日记跟到哪儿。</p><p class="detail"></p></div>
+    </div>
+    <button class="feat-arrow next" aria-label="下一张">›</button>
+    <div class="feat-dots" id="featDots"></div>
   </div>
 </section>
 
@@ -397,9 +425,12 @@ let pi=0,ci=0,timer
 function type(){ const el=document.getElementById('typewriter'); if(ci<phrases[pi].length){el.textContent+=phrases[pi][ci++];timer=setTimeout(type,80+Math.random()*40)}else{timer=setTimeout(()=>{ci=0;el.textContent='';pi=(pi+1)%phrases.length;type()},2500)} }
 type()
 
-// ============ 卡片樱花雨 + 放大 ============
+// ============ 功能卡片：横滑轨道 + 点击展开 ============
 const allCards = document.querySelectorAll('.card')
-const cardAnims = new Map() // card -> { animId, ctx, particles }
+const featTrack = document.getElementById('featTrack')
+const featDotsWrap = document.getElementById('featDots')
+const cardAnims = new Map() // card -> animation id
+let currentCard = null // 当前展开详情的卡片（同一时间只允许一张）
 
 class Petal {
   constructor(w,h){ this.x=Math.random()*w; this.y=-10; this.s=Math.random()*8+4; this.sp=Math.random()*1+.4; this.op=Math.random()*.8+.2; this.rot=Math.random()*360; this.rs=Math.random()*2-1; }
@@ -411,17 +442,12 @@ class Petal {
   }
 }
 
-let currentCard = null // 当前展开的卡片（同一时间只允许一张）
-
 function activateCard(card) {
-  // 先收起当前展开的卡片，保证只有一张处于展开态，避免残留卡住
   if (currentCard && currentCard !== card) deactivateCard(currentCard)
   if (card.classList.contains('active')) return
-
   const detail = card.querySelector('.detail')
   if (detail) detail.textContent = card.dataset.detail || ''
   card.classList.add('active')
-  allCards.forEach(c => { if (c !== card) c.classList.add('dim') })
 
   // 樱花雨 canvas：有则复用，避免重复创建
   let canvas = card.querySelector('canvas')
@@ -449,30 +475,93 @@ function deactivateCard(card) {
   if (currentCard !== card) return
   currentCard = null
   card.classList.remove('active')
-  allCards.forEach(c => c.classList.remove('dim'))
   const animId = cardAnims.get(card)
   if (animId) { cancelAnimationFrame(animId); cardAnims.delete(card) }
   const cvs = card.querySelector('canvas')
   if (cvs) cvs.remove()
 }
 
-let touchDevice = window.matchMedia('(pointer: coarse)').matches
-window.addEventListener('pointerdown', e => { if (e.pointerType === 'touch') touchDevice = true }, { once: true })
+// 底部圆点
+const featDots = []
+allCards.forEach((_, i) => {
+  const b = document.createElement('button')
+  b.setAttribute('aria-label', '第 ' + (i + 1) + ' 张')
+  b.addEventListener('click', () => scrollToCard(i))
+  featDotsWrap.appendChild(b)
+  featDots.push(b)
+})
 
-// 点击展开/收起：同一时间只允许一张卡片展开，再点一次恢复原样
-allCards.forEach(card => {
+function cardCenters() {
+  const trackRect = featTrack.getBoundingClientRect()
+  const center = trackRect.left + trackRect.width / 2
+  const items = Array.from(allCards).map(card => {
+    const r = card.getBoundingClientRect()
+    const c = r.left + r.width / 2
+    return { card, c, dist: Math.abs(c - center) }
+  })
+  return { center, items }
+}
+
+function updateCardView() {
+  const { center, items } = cardCenters()
+  const trackW = featTrack.clientWidth
+  let nearest = 0, best = Infinity
+  items.forEach((it, i) => {
+    if (it.dist < best) { best = it.dist; nearest = i }
+    const t = Math.min(it.dist / (trackW * 0.42), 1)
+    const scale = 1 - 0.10 * t
+    const ry = t * 10 * (it.c < center ? 1 : -1)
+    it.card.style.transform = 'scale(' + scale.toFixed(3) + ') rotateY(' + ry.toFixed(2) + 'deg)'
+    it.card.style.opacity = (1 - 0.38 * t).toFixed(3)
+  })
+  featDots.forEach((d, i) => d.classList.toggle('on', i === nearest))
+  // 展开中的卡片被滑远时自动收起
+  if (currentCard) {
+    const r = currentCard.getBoundingClientRect()
+    if (Math.abs(r.left + r.width / 2 - center) > trackW * 0.3) deactivateCard(currentCard)
+  }
+}
+
+function scrollToCard(i) {
+  i = Math.max(0, Math.min(allCards.length - 1, i))
+  const card = allCards[i]
+  const trackRect = featTrack.getBoundingClientRect()
+  const r = card.getBoundingClientRect()
+  const delta = (r.left + r.width / 2) - (trackRect.left + trackRect.width / 2)
+  featTrack.scrollTo({ left: featTrack.scrollLeft + delta, behavior: 'smooth' })
+}
+
+// 点击：不在中间先滑到中间，在中间则展开/收起详情
+allCards.forEach((card, i) => {
   card.addEventListener('click', () => {
-    if (card.classList.contains('active')) {
-      deactivateCard(card)
-    } else {
-      activateCard(card)
-    }
+    const { center, items } = cardCenters()
+    if (items[i].dist > card.offsetWidth * 0.4) scrollToCard(i)
+    else if (card.classList.contains('active')) deactivateCard(card)
+    else activateCard(card)
   })
 })
 
-// 触屏端点击卡片外区域：收起当前展开的卡片
+// 箭头：以当前最近的一张为基准前后移动
+document.querySelector('.feat-arrow.prev').addEventListener('click', () => {
+  const { items } = cardCenters()
+  const nearest = items.reduce((a, b) => (b.dist < a.dist ? b : a)).card
+  scrollToCard(Array.from(allCards).indexOf(nearest) - 1)
+})
+document.querySelector('.feat-arrow.next').addEventListener('click', () => {
+  const { items } = cardCenters()
+  const nearest = items.reduce((a, b) => (b.dist < a.dist ? b : a)).card
+  scrollToCard(Array.from(allCards).indexOf(nearest) + 1)
+})
+
+featTrack.addEventListener('scroll', updateCardView, { passive: true })
+window.addEventListener('resize', updateCardView)
+updateCardView()
+
+// 触屏端点击轨道外区域：收起展开的卡片
+let touchDevice = window.matchMedia('(pointer: coarse)').matches
+window.addEventListener('pointerdown', e => { if (e.pointerType === 'touch') touchDevice = true }, { once: true })
 document.addEventListener('click', e => {
-  if (touchDevice && currentCard && !currentCard.contains(e.target)) deactivateCard(currentCard)
+  if (touchDevice && currentCard && !document.querySelector('.feat-carousel').contains(e.target)) deactivateCard(currentCard)
 })
 
 // ============ 手机舞台：台前调度式 3D 切换 ============
@@ -514,7 +603,6 @@ if (window.matchMedia('(pointer: fine)').matches && phoneRow3d) {
 const obs = new IntersectionObserver(entries => {
   entries.forEach((e, i) => { if (e.isIntersecting) setTimeout(() => e.target.classList.add('show'), i * 100) })
 }, { threshold: .1 })
-allCards.forEach(c => obs.observe(c))
 document.querySelectorAll('.step').forEach(s => obs.observe(s))
 const screens = document.querySelectorAll('.hero,.section,.cta')
 let screenIdx = 0
