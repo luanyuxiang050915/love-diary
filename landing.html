@@ -93,20 +93,35 @@
   .fe-3 { left:11%; bottom:14%; font-size:20px; animation-delay:2s; }
   @keyframes floaty { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
 
-  .phone-row { position:relative; z-index:2; display:flex; align-items:center; justify-content:center; gap:clamp(16px,3vw,34px); flex-wrap:wrap; }
+  .phone-stage { perspective:1500px; }
+  .phone-row { position:relative; z-index:2; height:clamp(500px,40vw,560px); transform-style:preserve-3d; transition:transform .25s ease-out; }
   .phone-mock {
-    position:relative; background:linear-gradient(180deg,#1a1a2e,#0d0d1a);
+    position:absolute; left:50%; top:50%; aspect-ratio:1/2; cursor:pointer;
+    background:linear-gradient(180deg,#1a1a2e,#0d0d1a);
     border:2px solid rgba(255,255,255,.09); border-radius:36px; overflow:hidden;
     box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 50px rgba(248,165,194,.10);
+    transition:transform .9s cubic-bezier(.22,.9,.3,1.12), opacity .45s ease, box-shadow .6s ease;
+    will-change:transform; backface-visibility:hidden;
   }
-  .phone-mock.side { width:clamp(120px,20vw,178px); aspect-ratio:1/2; }
-  .phone-mock.big {
+  .phone-mock.front {
     width:clamp(170px,28vw,250px); aspect-ratio:1/2;
+    transform:translate(-50%,-50%) rotateY(0deg) scale(1);
+    z-index:30; opacity:1;
     border-color:rgba(248,165,194,.28);
     box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 70px rgba(248,165,194,.20);
-    animation:phoneFloat 5s ease-in-out infinite; z-index:3;
   }
-  @keyframes phoneFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  .phone-mock.left {
+    width:clamp(120px,20vw,178px); aspect-ratio:1/2;
+    left:calc(50% - clamp(170px,26vw,320px));
+    transform:translate(-50%,-50%) rotateY(38deg) scale(.82);
+    z-index:10; opacity:.72;
+  }
+  .phone-mock.right {
+    width:clamp(120px,20vw,178px); aspect-ratio:1/2;
+    left:calc(50% + clamp(170px,26vw,320px));
+    transform:translate(-50%,-50%) rotateY(-38deg) scale(.82);
+    z-index:20; opacity:.72;
+  }
   .phone-mock .notch { position:absolute; top:12px; left:50%; transform:translateX(-50%); width:clamp(50px,12vw,80px); height:6px; background:rgba(255,255,255,.16); border-radius:4px; z-index:5; }
 
   .phone-ui { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:22px 14px 16px; text-align:center; }
@@ -134,6 +149,16 @@
   .p-nav span.on { opacity:1; color:var(--pink); }
   .phone-caption { position:relative; z-index:2; text-align:center; margin-top:clamp(22px,3.5vw,32px); color:#777; font-size:clamp(12px,1.8vw,14px); letter-spacing:2px; }
   .phone-caption b { color:var(--pink); }
+  .stage-hint { position:relative; z-index:2; text-align:center; margin-top:8px; color:#5c5c74; font-size:clamp(11px,1.5vw,12px); letter-spacing:2px; }
+  .stage-btn {
+    position:absolute; top:50%; transform:translateY(-50%); z-index:40;
+    width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:var(--pink); font-size:18px;
+    cursor:pointer; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); transition:.3s;
+  }
+  .stage-btn:hover { background:rgba(248,165,194,.18); transform:translateY(-50%) scale(1.12); }
+  .stage-btn.prev { left:clamp(2px,2vw,18px); }
+  .stage-btn.next { right:clamp(2px,2vw,18px); }
 
   /* ===== CTA ===== */
   .cta { position:relative; z-index:1; text-align:center; padding:clamp(56px,9vw,120px) clamp(14px,3vw,20px); }
@@ -167,8 +192,14 @@
   @media(max-width:700px) {
     .card.active { transform:scale(1.06) !important; }
     .section h2, .cta h2 { letter-spacing:2px; }
-    .phone-mock.side { display:none; }
-    .phone-mock.big { width:min(78vw,240px); }
+    .glow-1 { width:220px; height:220px; left:0; }
+    .glow-2 { width:200px; height:200px; right:0; }
+    .phone-row { height:clamp(470px,130vw,540px); }
+    .phone-mock.front { width:min(58vw,230px); }
+    .phone-mock.left, .phone-mock.right { width:clamp(92px,24vw,130px); }
+    .phone-mock.left { left:calc(50% - clamp(110px,30vw,160px)); transform:translate(-50%,-50%) rotateY(30deg) scale(.74); }
+    .phone-mock.right { left:calc(50% + clamp(110px,30vw,160px)); transform:translate(-50%,-50%) rotateY(-30deg) scale(.74); }
+    .stage-btn { width:34px; height:34px; font-size:15px; }
     .hero h1 { margin:6px 0; }
     .logo-wrap { margin-bottom:12px; }
   }
@@ -223,7 +254,7 @@
     <span class="float-emoji fe-2">✨</span>
     <span class="float-emoji fe-3">💕</span>
     <div class="phone-row">
-      <div class="phone-mock side">
+      <div class="phone-mock">
         <div class="notch"></div>
         <div class="phone-ui">
           <div class="p-heart-big">💞</div>
@@ -233,7 +264,7 @@
           <div class="p-note">我们在一起啦</div>
         </div>
       </div>
-      <div class="phone-mock big">
+      <div class="phone-mock">
         <div class="notch"></div>
         <div class="phone-ui left">
           <div class="p-status"><span>9:41</span><span>📶 🔋</span></div>
@@ -245,7 +276,7 @@
           <div class="p-nav"><span>📖</span><span class="on">✨</span><span>👤</span></div>
         </div>
       </div>
-      <div class="phone-mock side">
+      <div class="phone-mock">
         <div class="notch"></div>
         <div class="phone-ui">
           <div class="p-cake">🎂</div>
@@ -254,8 +285,11 @@
           <div class="p-next">下一个纪念日<br>还有 28 天</div>
         </div>
       </div>
+      <button class="stage-btn prev" aria-label="上一台">‹</button>
+      <button class="stage-btn next" aria-label="下一台">›</button>
     </div>
     <div class="phone-caption">日记 · 纪念日 · 情侣绑定 — <b>一个 App 全搞定</b></div>
+    <div class="stage-hint">点击两侧手机或箭头 · 像台前调度一样转动切换</div>
   </div>
 </section>
 
@@ -440,6 +474,41 @@ allCards.forEach(card => {
 document.addEventListener('click', e => {
   if (touchDevice && currentCard && !currentCard.contains(e.target)) deactivateCard(currentCard)
 })
+
+// ============ 手机舞台：台前调度式 3D 切换 ============
+const phoneMocks = document.querySelectorAll('.phone-mock')
+let frontPhone = 1 // 默认中间的「日记」手机在前
+
+function layoutPhones() {
+  phoneMocks.forEach((p, i) => {
+    let r = i - frontPhone
+    if (r > 1) r -= 3
+    if (r < -1) r += 3
+    p.classList.remove('front', 'left', 'right')
+    p.classList.add(r === 0 ? 'front' : (r === -1 ? 'left' : 'right'))
+  })
+}
+
+phoneMocks.forEach((p, i) => {
+  p.addEventListener('click', () => {
+    if (i !== frontPhone) { frontPhone = i; layoutPhones() }
+  })
+})
+document.querySelector('.stage-btn.prev').addEventListener('click', () => { frontPhone = (frontPhone + 2) % 3; layoutPhones() })
+document.querySelector('.stage-btn.next').addEventListener('click', () => { frontPhone = (frontPhone + 1) % 3; layoutPhones() })
+layoutPhones()
+
+// 桌面端：鼠标移动时舞台轻微 3D 倾斜
+const phoneRow3d = document.querySelector('.phone-row')
+if (window.matchMedia('(pointer: fine)').matches && phoneRow3d) {
+  phoneRow3d.addEventListener('mousemove', e => {
+    const r = phoneRow3d.getBoundingClientRect()
+    const x = (e.clientX - r.left) / r.width - 0.5
+    const y = (e.clientY - r.top) / r.height - 0.5
+    phoneRow3d.style.transform = 'rotateX(' + (-y * 4).toFixed(2) + 'deg) rotateY(' + (x * 5).toFixed(2) + 'deg)'
+  })
+  phoneRow3d.addEventListener('mouseleave', () => { phoneRow3d.style.transform = '' })
+}
 
 // ============ 滚动渐显卡片 ============
 const obs = new IntersectionObserver(entries => {
