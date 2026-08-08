@@ -290,51 +290,74 @@ class Petal {
   }
 }
 
+let currentCard = null // 当前展开的卡片（同一时间只允许一张）
+let pinnedCard = null  // 被点击固定的卡片（鼠标移开也不收起）
+
 function activateCard(card) {
+  // 先收起当前展开的卡片，保证只有一张处于展开态，避免残留卡住
+  if (currentCard && currentCard !== card) deactivateCard(currentCard)
   if (card.classList.contains('active')) return
+
   const detail = card.querySelector('.detail')
   if (detail) detail.textContent = card.dataset.detail || ''
   card.classList.add('active')
   allCards.forEach(c => { if (c !== card) c.classList.add('dim') })
 
-  // 创建樱花 canvas
-  const canvas = document.createElement('canvas')
+  // 樱花雨 canvas：有则复用，避免重复创建
+  let canvas = card.querySelector('canvas')
+  if (!canvas) {
+    canvas = document.createElement('canvas')
+    canvas.className = 'petal-canvas'
+    card.appendChild(canvas)
+  }
   canvas.width = card.offsetWidth
   canvas.height = card.offsetHeight
-  card.appendChild(canvas)
   const ctx = canvas.getContext('2d')
   const petals = Array.from({length:18},()=>new Petal(canvas.width,canvas.height))
+  let animId
   function anim() {
     ctx.clearRect(0,0,canvas.width,canvas.height)
     petals.forEach(p=>{p.update(canvas.width,canvas.height);p.draw(ctx)})
-    cardAnims.get(card).animId = requestAnimationFrame(anim)
+    animId = requestAnimationFrame(anim)
   }
-  cardAnims.set(card,{ctx,petals,animId:requestAnimationFrame(anim)})
+  animId = requestAnimationFrame(anim)
+  cardAnims.set(card, animId)
+  currentCard = card
 }
 
 function deactivateCard(card) {
+  if (currentCard !== card) return
+  currentCard = null
+  pinnedCard = null
   card.classList.remove('active')
   allCards.forEach(c => c.classList.remove('dim'))
-  const a = cardAnims.get(card)
-  if (a) { cancelAnimationFrame(a.animId); cardAnims.delete(card) }
+  const animId = cardAnims.get(card)
+  if (animId) { cancelAnimationFrame(animId); cardAnims.delete(card) }
   const cvs = card.querySelector('canvas')
   if (cvs) cvs.remove()
 }
 
-let touchDevice = false
-window.addEventListener('pointerdown', () => { touchDevice = true }, { once: true })
+let touchDevice = window.matchMedia('(pointer: coarse)').matches
+window.addEventListener('pointerdown', e => { if (e.pointerType === 'touch') touchDevice = true }, { once: true })
 
 allCards.forEach(card => {
+  // 桌面端：悬停展开、移开收起；点击可固定（再次点击收起）
   card.addEventListener('mouseenter', () => { if (!touchDevice) activateCard(card) })
-  card.addEventListener('mouseleave', () => { if (!touchDevice) deactivateCard(card) })
+  card.addEventListener('mouseleave', () => { if (!touchDevice && pinnedCard !== card) deactivateCard(card) })
   card.addEventListener('click', () => {
-    if (touchDevice) {
-      if (card.classList.contains('active')) deactivateCard(card)
-      else activateCard(card)
+    if (card.classList.contains('active')) {
+      if (pinnedCard === card) deactivateCard(card)
+      else pinnedCard = card
     } else {
       activateCard(card)
+      pinnedCard = card
     }
   })
+})
+
+// 触屏端点击卡片外区域：收起固定中的卡片
+document.addEventListener('click', e => {
+  if (touchDevice && pinnedCard && !pinnedCard.contains(e.target)) deactivateCard(pinnedCard)
 })
 
 // ============ 滚动渐显卡片 ============
