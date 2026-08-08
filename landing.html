@@ -36,7 +36,7 @@
   .btn.pulse { animation:btnPulse 2.5s ease-out infinite; }
   @keyframes btnPulse { 0%,100%{box-shadow:0 8px 35px rgba(248,165,194,.35)} 50%{box-shadow:0 8px 35px rgba(248,165,194,.35),0 0 60px rgba(248,165,194,.4),0 0 120px rgba(255,107,157,.2)} }
 
-  .scroll-hint { position:absolute; bottom:24px; color:var(--pink); font-size:13px; letter-spacing:3px; animation:bounce 2s infinite; display:none; }
+  .scroll-hint { position:absolute; bottom:24px; left:50%; transform:translateX(-50%); color:var(--pink); font-size:13px; letter-spacing:3px; animation:bounce 2s infinite; }
   @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(10px)} }
 
   /* ===== 通用节 ===== */
@@ -101,6 +101,25 @@
   /* ===== footer ===== */
   .footer { position:relative; z-index:1; text-align:center; padding:36px 20px; color:#444; font-size:13px; border-top:1px solid rgba(255,255,255,.04); }
   .footer span { color:var(--pink); }
+  .footer a { color:#555; text-decoration:none; margin-left:14px; transition:color .3s; }
+  .footer a:hover { color:var(--pink); }
+
+  /* ===== 导航圆点 ===== */
+  .nav-dots { position:fixed; right:18px; top:50%; transform:translateY(-50%); z-index:99; display:flex; flex-direction:column; gap:12px; }
+  .nav-dots button { width:10px; height:10px; border-radius:50%; border:none; padding:0; background:rgba(255,255,255,.18); cursor:pointer; transition:all .35s; }
+  .nav-dots button:hover { background:rgba(248,165,194,.55); }
+  .nav-dots button.on { background:var(--pink); transform:scale(1.35); box-shadow:0 0 12px rgba(248,165,194,.85); }
+
+  /* ===== 三步开始 ===== */
+  .steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:26px; max-width:1040px; margin:0 auto; }
+  .step { position:relative; background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(255,255,255,.01)); border:1px solid rgba(255,255,255,.07); border-radius:26px; padding:40px 28px 34px; text-align:center; transition:all .45s cubic-bezier(.25,.8,.25,1.2); overflow:hidden; transform:translateY(60px); opacity:0; }
+  .step.show { transform:translateY(0); opacity:1; }
+  .step:hover { transform:translateY(-7px); border-color:rgba(248,165,194,.4); box-shadow:0 20px 55px rgba(0,0,0,.4),0 0 35px rgba(248,165,194,.12); }
+  .step::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:70px; height:3px; border-radius:3px; background:linear-gradient(90deg,var(--pink),var(--hot)); opacity:.8; }
+  .step .s-num { position:absolute; top:18px; left:20px; font-size:13px; font-weight:900; color:var(--pink); opacity:.5; letter-spacing:2px; }
+  .step .s-icon { font-size:46px; display:block; margin-bottom:16px; filter:drop-shadow(0 4px 14px rgba(248,165,194,.35)); }
+  .step h3 { font-size:19px; color:var(--pink); margin-bottom:10px; letter-spacing:1px; }
+  .step p { color:#a5a5b8; font-size:14px; line-height:1.8; }
 
   /* ===== 响应式 ===== */
   @media(max-width:600px) {
@@ -112,6 +131,7 @@
 <body>
 
 <canvas id="bg"></canvas>
+<div class="nav-dots" id="navDots"></div>
 
 <!-- ===== 首屏 ===== -->
 <section class="hero">
@@ -152,6 +172,17 @@
   </div>
 </section>
 
+<!-- ===== 三步开始 ===== -->
+<section class="section">
+  <h2>三 步 开 始</h2>
+  <p class="sub">从下载到绑定，只要三分钟</p>
+  <div class="steps">
+    <div class="step"><span class="s-num">STEP 01</span><span class="s-icon">📱</span><h3>下载 App</h3><p>点击按钮下载安装包，安卓手机直接安装，无需任何配置。</p></div>
+    <div class="step"><span class="s-num">STEP 02</span><span class="s-icon">📝</span><h3>注册账号</h3><p>两个人各自注册自己的账号，昵称随便起，数据完全隔离。</p></div>
+    <div class="step"><span class="s-num">STEP 03</span><span class="s-icon">🔗</span><h3>输入绑定码</h3><p>其中一人生成 6 位绑定码，另一人输入后即完成配对，开始写日记。</p></div>
+  </div>
+</section>
+
 <!-- ===== 数字 ===== -->
 <section class="section">
   <h2>用 数 字 说 爱</h2>
@@ -169,7 +200,7 @@
   <h2>💌 开始你们的专属日记</h2>
   <p>三分钟搭建属于两个人的秘密基地</p>
   <a href="love-diary.apk" class="btn pulse" style="font-size:22px;padding:20px 64px;">📱 立即下载 App</a>
-  <footer class="footer" style="border:none;margin-top:60px;">Made with <span>❤️</span> for couples · 恋爱日记 © 2026</footer>
+  <footer class="footer" style="border:none;margin-top:60px;">Made with <span>❤️</span> for couples · 恋爱日记 © 2026<a href="admin.html">管理入口</a></footer>
 </section>
 
 <script>
@@ -259,37 +290,50 @@ class Petal {
   }
 }
 
+function activateCard(card) {
+  if (card.classList.contains('active')) return
+  const detail = card.querySelector('.detail')
+  if (detail) detail.textContent = card.dataset.detail || ''
+  card.classList.add('active')
+  allCards.forEach(c => { if (c !== card) c.classList.add('dim') })
+
+  // 创建樱花 canvas
+  const canvas = document.createElement('canvas')
+  canvas.width = card.offsetWidth
+  canvas.height = card.offsetHeight
+  card.appendChild(canvas)
+  const ctx = canvas.getContext('2d')
+  const petals = Array.from({length:18},()=>new Petal(canvas.width,canvas.height))
+  function anim() {
+    ctx.clearRect(0,0,canvas.width,canvas.height)
+    petals.forEach(p=>{p.update(canvas.width,canvas.height);p.draw(ctx)})
+    cardAnims.get(card).animId = requestAnimationFrame(anim)
+  }
+  cardAnims.set(card,{ctx,petals,animId:requestAnimationFrame(anim)})
+}
+
+function deactivateCard(card) {
+  card.classList.remove('active')
+  allCards.forEach(c => c.classList.remove('dim'))
+  const a = cardAnims.get(card)
+  if (a) { cancelAnimationFrame(a.animId); cardAnims.delete(card) }
+  const cvs = card.querySelector('canvas')
+  if (cvs) cvs.remove()
+}
+
+let touchDevice = false
+window.addEventListener('pointerdown', () => { touchDevice = true }, { once: true })
+
 allCards.forEach(card => {
-  card.addEventListener('mouseenter', () => {
-    // 显示详细描述
-    const detail = card.querySelector('.detail')
-    if(detail) detail.textContent = card.dataset.detail || ''
-    card.classList.add('active')
-    allCards.forEach(c => { if(c!==card) c.classList.add('dim') })
-
-    // 创建樱花 canvas
-    const canvas = document.createElement('canvas')
-    canvas.width = card.offsetWidth
-    canvas.height = card.offsetHeight
-    card.appendChild(canvas)
-    const ctx = canvas.getContext('2d')
-    const petals = Array.from({length:18},()=>new Petal(canvas.width,canvas.height))
-
-    function anim() {
-      ctx.clearRect(0,0,canvas.width,canvas.height)
-      petals.forEach(p=>{p.update(canvas.width,canvas.height);p.draw(ctx)})
-      cardAnims.get(card).animId = requestAnimationFrame(anim)
+  card.addEventListener('mouseenter', () => { if (!touchDevice) activateCard(card) })
+  card.addEventListener('mouseleave', () => { if (!touchDevice) deactivateCard(card) })
+  card.addEventListener('click', () => {
+    if (touchDevice) {
+      if (card.classList.contains('active')) deactivateCard(card)
+      else activateCard(card)
+    } else {
+      activateCard(card)
     }
-    cardAnims.set(card,{ctx,petals,animId:requestAnimationFrame(anim)})
-  })
-
-  card.addEventListener('mouseleave', () => {
-    card.classList.remove('active')
-    allCards.forEach(c => c.classList.remove('dim'))
-    const a = cardAnims.get(card)
-    if(a){ cancelAnimationFrame(a.animId); cardAnims.delete(card) }
-    const cvs = card.querySelector('canvas')
-    if(cvs) cvs.remove()
   })
 })
 
@@ -298,15 +342,30 @@ const obs = new IntersectionObserver(entries => {
   entries.forEach((e, i) => { if (e.isIntersecting) setTimeout(() => e.target.classList.add('show'), i * 100) })
 }, { threshold: .1 })
 allCards.forEach(c => obs.observe(c))
-const screens = document.querySelectorAll('.hero,.section,.cta,.footer')
+document.querySelectorAll('.step').forEach(s => obs.observe(s))
+const screens = document.querySelectorAll('.hero,.section,.cta')
 let screenIdx = 0
 let flipping = false
+
+// 右侧导航圆点
+const dotsWrap = document.getElementById('navDots')
+const navDots = []
+screens.forEach((s, i) => {
+  const b = document.createElement('button')
+  b.setAttribute('aria-label', '第 ' + (i + 1) + ' 屏')
+  b.addEventListener('click', () => flipTo(i))
+  dotsWrap.appendChild(b)
+  navDots.push(b)
+})
+function renderDots() { navDots.forEach((b, i) => b.classList.toggle('on', i === screenIdx)) }
+renderDots()
 
 function flipTo(idx) {
   if (idx < 0 || idx >= screens.length || flipping) return
   flipping = true
   const prev = screens[screenIdx]
   screenIdx = idx
+  renderDots()
   const next = screens[idx]
 
   // 旧页缩小下沉变暗

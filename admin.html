@@ -3,145 +3,761 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0b15">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💕</text></svg>">
 <title>恋爱日记 · 管理后台</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#0f0f1a;color:#ccc;display:flex;min-height:100vh}
-  .sidebar{width:220px;background:#0a0a14;padding:24px 0;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,.05)}
-  .sidebar h2{color:#f8a5c2;font-size:18px;padding:0 20px 30px;letter-spacing:2px}
-  .sidebar a{color:#888;text-decoration:none;padding:12px 20px;font-size:14px;display:block;border-left:3px solid transparent;transition:.2s}
-  .sidebar a:hover,.sidebar a.active{color:#fff;background:rgba(248,165,194,.08);border-left-color:#f8a5c2}
-  .main{flex:1;padding:30px 36px;overflow-y:auto}
-  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}
-  .header h1{font-size:24px;color:#fff}
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;margin-bottom:30px}
-  .stat{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:24px}
-  .stat .num{font-size:36px;font-weight:900;color:#f8a5c2}
-  .stat .label{font-size:13px;color:#666;margin-top:6px}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;padding:10px 14px;color:#888;border-bottom:1px solid rgba(255,255,255,.06);font-weight:400}
-  td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.03);color:#bbb;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .btn{display:inline-block;padding:6px 16px;border-radius:8px;font-size:12px;cursor:pointer;border:none}
-  .btn-danger{background:#e74c3c;color:#fff}.btn-danger:hover{background:#c0392b}
-  .login-box{max-width:400px;margin:80px auto;text-align:center}
-  .login-box input{width:100%;padding:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:16px;margin-bottom:16px;outline:none}
-  .login-box button{width:100%;padding:14px;background:#f8a5c2;color:#fff;border:none;border-radius:12px;font-size:16px;cursor:pointer}
-  .hidden{display:none}
-  .tab-content{display:none}.tab-content.active{display:block}
+:root{
+  --bg:#0b0b15; --panel:rgba(255,255,255,.035); --panel-2:rgba(255,255,255,.055);
+  --line:rgba(255,255,255,.08); --line-2:rgba(255,255,255,.04);
+  --text:#eaeaf4; --muted:#8d8da8;
+  --pink:#f8a5c2; --hot:#ff6b9d; --purple:#c44dff;
+  --green:#4ade80; --amber:#fbbf24; --red:#f87171; --blue:#60a5fa;
+  --grad:linear-gradient(135deg,#f8a5c2,#ff6b9d 55%,#c44dff);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;
+  background:var(--bg); color:var(--text); overflow-x:hidden;
+}
+body::before{
+  content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(700px 460px at 88% -8%,rgba(196,77,255,.17),transparent 62%),
+    radial-gradient(760px 520px at -8% 108%,rgba(248,165,194,.14),transparent 62%),
+    radial-gradient(560px 420px at 52% 125%,rgba(255,107,157,.10),transparent 62%);
+}
+::selection{background:rgba(248,165,194,.35);color:#fff}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:6px}
+::-webkit-scrollbar-thumb:hover{background:rgba(248,165,194,.4)}
+::-webkit-scrollbar-track{background:transparent}
+
+.hidden{display:none !important}
+
+/* ================= 登录页 ================= */
+#loginPage{
+  position:fixed; inset:0; z-index:20; display:flex; align-items:center; justify-content:center;
+  background:
+    radial-gradient(900px 600px at 50% -10%,rgba(196,77,255,.22),transparent 60%),
+    radial-gradient(800px 500px at 50% 115%,rgba(248,165,194,.18),transparent 60%), var(--bg);
+  padding:20px;
+}
+.login-card{
+  position:relative; width:100%; max-width:400px; padding:46px 38px 40px; text-align:center;
+  background:linear-gradient(160deg,rgba(255,255,255,.075),rgba(255,255,255,.02));
+  border:1px solid var(--line); border-radius:26px;
+  backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  box-shadow:0 30px 80px rgba(0,0,0,.45),0 0 60px rgba(248,165,194,.07);
+  animation:cardIn .7s cubic-bezier(.2,.9,.3,1.2);
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(26px) scale(.96)}to{opacity:1;transform:none}}
+.login-logo{
+  width:74px;height:74px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;
+  font-size:36px;border-radius:22px;background:var(--grad);
+  box-shadow:0 12px 34px rgba(255,107,157,.45); animation:floaty 3.2s ease-in-out infinite;
+}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.login-card h1{font-size:24px;letter-spacing:3px;margin-bottom:6px;
+  background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:900}
+.login-card .sub{color:var(--muted);font-size:13px;letter-spacing:2px;margin-bottom:30px}
+.field{position:relative;margin-bottom:16px}
+.field input{
+  width:100%;padding:15px 16px 15px 46px;background:rgba(255,255,255,.05);
+  border:1px solid var(--line);border-radius:14px;color:#fff;font-size:15px;outline:none;transition:.25s;
+}
+.field input::placeholder{color:#6d6d87}
+.field input:focus{border-color:rgba(248,165,194,.65);box-shadow:0 0 0 4px rgba(248,165,194,.12);background:rgba(255,255,255,.07)}
+.field .ficon{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:17px;opacity:.75;pointer-events:none}
+.field .eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;cursor:pointer;opacity:.6;padding:4px}
+.field .eye:hover{opacity:1}
+.btn-primary{
+  width:100%;padding:15px;border:none;border-radius:14px;cursor:pointer;font-size:16px;font-weight:700;letter-spacing:6px;color:#fff;
+  background:linear-gradient(135deg,#f8a5c2,#ff6b9d 55%,#c44dff);background-size:200% 200%;
+  box-shadow:0 10px 30px rgba(255,107,157,.35);transition:.3s;margin-top:6px;
+}
+.btn-primary:hover{background-position:100% 50%;transform:translateY(-2px);box-shadow:0 14px 38px rgba(255,107,157,.45)}
+.btn-primary:active{transform:translateY(0)}
+.login-tip{color:#5f5f78;font-size:12px;margin-top:22px;line-height:1.8}
+.login-tip code{color:var(--pink);background:rgba(248,165,194,.1);padding:2px 7px;border-radius:6px;font-family:Consolas,monospace}
+
+/* 漂浮爱心 */
+.hearts{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.hearts i{
+  position:absolute;bottom:-40px;font-style:normal;font-size:18px;color:rgba(248,165,194,.28);
+  animation:rise linear infinite;
+}
+@keyframes rise{
+  0%{transform:translateY(0) rotate(0deg);opacity:0}
+  12%{opacity:1}
+  100%{transform:translateY(-110vh) rotate(320deg);opacity:0}
+}
+
+/* ================= 整体布局 ================= */
+#app{position:relative;z-index:1;min-height:100vh}
+.sidebar{
+  position:fixed;left:0;top:0;bottom:0;width:232px;z-index:15;
+  background:rgba(13,13,24,.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-right:1px solid var(--line-2);display:flex;flex-direction:column;
+  transform:translateX(-100%);transition:transform .3s ease;
+}
+body.logged .sidebar{transform:none}
+.brand{display:flex;align-items:center;gap:12px;padding:26px 22px 22px}
+.brand .bicon{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--grad);box-shadow:0 8px 22px rgba(255,107,157,.4)}
+.brand b{font-size:17px;letter-spacing:2px;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand small{display:block;color:#5f5f78;font-size:11px;letter-spacing:1px;font-weight:400;margin-top:2px}
+.nav{flex:1;padding:8px 14px;overflow-y:auto}
+.nav a{
+  display:flex;align-items:center;gap:12px;padding:12px 15px;margin-bottom:5px;border-radius:12px;
+  color:var(--muted);text-decoration:none;font-size:14px;letter-spacing:1px;cursor:pointer;transition:.22s;position:relative;
+}
+.nav a .nav-ico{font-size:17px;width:20px;text-align:center}
+.nav a:hover{color:#fff;background:rgba(255,255,255,.05)}
+.nav a.active{color:#fff;background:linear-gradient(120deg,rgba(248,165,194,.18),rgba(196,77,255,.14));box-shadow:inset 0 0 0 1px rgba(248,165,194,.22)}
+.nav a.active::before{content:'';position:absolute;left:-14px;top:50%;transform:translateY(-50%);width:3px;height:22px;border-radius:3px;background:var(--grad)}
+.sidebar-foot{padding:16px 22px;color:#55556c;font-size:11px;letter-spacing:1px;border-top:1px solid var(--line-2)}
+
+.main{margin-left:0;padding:22px;transition:margin .3s ease}
+body.logged .main{margin-left:232px}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:24px;flex-wrap:wrap;
+  background:var(--panel);border:1px solid var(--line-2);border-radius:18px;padding:16px 20px;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+}
+.topbar h1{font-size:19px;font-weight:800;letter-spacing:2px}
+.topbar h1 .grad{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.topbar .sub{color:var(--muted);font-size:12px;margin-top:3px;letter-spacing:1px}
+.top-actions{display:flex;gap:10px;align-items:center}
+.icon-btn{
+  width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--muted);cursor:pointer;font-size:16px;transition:.2s;
+}
+.icon-btn:hover{color:#fff;background:rgba(255,255,255,.09);transform:translateY(-1px)}
+.icon-btn.danger:hover{color:#fff;background:rgba(239,68,68,.22);border-color:rgba(239,68,68,.4)}
+.burger{display:none}
+
+/* ================= 统计卡片 ================= */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-bottom:22px}
+.stat-card{
+  position:relative;overflow:hidden;padding:22px 20px;border-radius:18px;
+  background:linear-gradient(150deg,rgba(255,255,255,.06),rgba(255,255,255,.015));
+  border:1px solid var(--line);transition:.3s;cursor:default;
+}
+.stat-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.14)}
+.stat-card::after{
+  content:'';position:absolute;right:-34px;top:-34px;width:110px;height:110px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.10),transparent 70%);opacity:.7;
+}
+.stat-card .s-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.stat-card .s-label{color:var(--muted);font-size:12px;letter-spacing:2px}
+.stat-card .s-ico{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.stat-card .num{font-size:34px;font-weight:900;line-height:1;letter-spacing:1px}
+.stat-card .s-note{color:#5f5f78;font-size:11px;margin-top:8px}
+.sc-1 .s-ico{background:rgba(248,165,194,.16)} .sc-1 .num{color:var(--pink)}
+.sc-2 .s-ico{background:rgba(196,77,255,.16)} .sc-2 .num{color:var(--purple)}
+.sc-3 .s-ico{background:rgba(251,191,36,.14)} .sc-3 .num{color:var(--amber)}
+.sc-4 .s-ico{background:rgba(74,222,128,.13)} .sc-4 .num{color:var(--green)}
+.sc-5 .s-ico{background:rgba(96,165,250,.14)} .sc-5 .num{color:var(--blue)}
+
+/* ================= 面板 ================= */
+.panel{
+  background:var(--panel);border:1px solid var(--line-2);border-radius:18px;padding:20px;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);margin-bottom:22px;
+}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.panel-head h2{font-size:15px;font-weight:700;letter-spacing:1px;display:flex;align-items:center;gap:9px}
+.panel-head h2::before{content:'';width:4px;height:16px;border-radius:3px;background:var(--grad)}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search-box{position:relative}
+.search-box input{
+  padding:9px 12px 9px 34px;border-radius:10px;background:rgba(255,255,255,.05);
+  border:1px solid var(--line);color:#fff;font-size:13px;outline:none;width:200px;transition:.25s;
+}
+.search-box input:focus{border-color:rgba(248,165,194,.55);width:230px}
+.search-box::before{content:'⌕';position:absolute;left:11px;top:50%;transform:translateY(-52%);color:#6d6d87;font-size:15px}
+.btn-ghost{
+  padding:9px 16px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid var(--line);
+  color:var(--text);font-size:13px;cursor:pointer;transition:.2s;letter-spacing:1px;
+}
+.btn-ghost:hover{background:rgba(255,255,255,.1);color:#fff}
+.btn-more{
+  display:block;margin:6px auto 0;padding:10px 26px;border-radius:12px;border:1px dashed rgba(248,165,194,.4);
+  background:rgba(248,165,194,.06);color:var(--pink);font-size:13px;cursor:pointer;transition:.25s;letter-spacing:2px;
+}
+.btn-more:hover{background:rgba(248,165,194,.15);letter-spacing:3px}
+
+/* ================= 表格 ================= */
+.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--line-2)}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:720px}
+thead th{
+  text-align:left;padding:12px 14px;color:var(--muted);font-weight:600;font-size:12px;letter-spacing:1px;
+  background:rgba(255,255,255,.03);border-bottom:1px solid var(--line);white-space:nowrap;position:sticky;top:0;
+}
+tbody td{padding:12px 14px;border-bottom:1px solid var(--line-2);color:#c9c9da;vertical-align:middle}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:rgba(248,165,194,.045)}
+tbody tr:last-child td{border-bottom:none}
+.empty{text-align:center;color:#5f5f78;padding:46px 0 !important;font-size:14px;letter-spacing:2px}
+.mono{font-family:Consolas,'Courier New',monospace;letter-spacing:1px}
+.avatar{
+  width:32px;height:32px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:#fff;vertical-align:middle;flex-shrink:0;
+}
+.u-cell{display:flex;align-items:center;gap:10px}
+.u-name{font-weight:600;color:#fff}
+.u-sub{font-size:11px;color:#6d6d87}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:1px;white-space:nowrap}
+.badge.ok{background:rgba(74,222,128,.12);color:var(--green);border:1px solid rgba(74,222,128,.28)}
+.badge.no{background:rgba(255,255,255,.05);color:#6d6d87;border:1px solid var(--line)}
+.chip{display:inline-block;padding:3px 10px;border-radius:8px;font-size:11px;background:rgba(196,77,255,.12);color:#d8b4fe;border:1px solid rgba(196,77,255,.25);white-space:nowrap}
+.chip.mood{background:rgba(248,165,194,.1);color:var(--pink);border-color:rgba(248,165,194,.25)}
+.chip.vis{background:rgba(96,165,250,.1);color:var(--blue);border-color:rgba(96,165,250,.25)}
+.chip.priv{background:rgba(255,255,255,.05);color:#8d8da8;border-color:var(--line)}
+.cell-sub{color:#8d8da8;font-size:12px;margin-top:3px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cell-sub.tight{max-width:220px}
+.copy-btn{
+  margin-left:6px;padding:2px 8px;border-radius:7px;background:rgba(248,165,194,.1);border:1px solid rgba(248,165,194,.25);
+  color:var(--pink);font-size:11px;cursor:pointer;transition:.2s;font-family:inherit;
+}
+.copy-btn:hover{background:rgba(248,165,194,.22)}
+.btn-danger{
+  padding:6px 13px;border-radius:9px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);
+  color:var(--red);font-size:12px;cursor:pointer;transition:.2s;letter-spacing:1px;
+}
+.btn-danger:hover{background:rgba(239,68,68,.24);color:#fff}
+
+/* ================= 仪表盘副面板 ================= */
+.dash-grid{display:grid;grid-template-columns:1fr;gap:22px}
+@media(min-width:1100px){.dash-grid{grid-template-columns:1.25fr 1fr}}
+.recent-item{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px dashed var(--line-2)}
+.recent-item:last-child{border-bottom:none}
+.recent-item .r-ico{width:34px;height:34px;border-radius:10px;background:rgba(96,165,250,.12);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.recent-item .r-main{flex:1;min-width:0}
+.recent-item .r-title{font-size:13px;color:#cfcfe0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.recent-item .r-sub{font-size:11px;color:#6d6d87;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.recent-item time{font-size:11px;color:#6d6d87;white-space:nowrap}
+.ip-pill{font-family:Consolas,monospace;font-size:11px;color:var(--blue);background:rgba(96,165,250,.1);padding:2px 8px;border-radius:7px}
+
+/* ================= 弹窗 & Toast ================= */
+.modal-mask{
+  position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:rgba(5,5,12,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  animation:fadeIn .2s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{
+  width:100%;max-width:380px;background:linear-gradient(160deg,#1c1c31,#141425);border:1px solid var(--line);
+  border-radius:20px;padding:28px;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,.6);animation:pop .28s cubic-bezier(.2,.9,.3,1.2);
+}
+@keyframes pop{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:none}}
+.modal .m-ico{font-size:40px;margin-bottom:12px}
+.modal h3{font-size:17px;margin-bottom:8px;letter-spacing:1px}
+.modal p{color:var(--muted);font-size:13px;line-height:1.8;margin-bottom:22px}
+.modal .m-actions{display:flex;gap:12px}
+.modal .m-actions button{flex:1;padding:11px;border-radius:11px;font-size:14px;cursor:pointer;border:none;transition:.2s;letter-spacing:2px}
+.btn-cancel{background:rgba(255,255,255,.07);color:var(--muted)}
+.btn-cancel:hover{color:#fff;background:rgba(255,255,255,.12)}
+.btn-confirm{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;font-weight:700}
+.btn-confirm:hover{filter:brightness(1.12)}
+#toastWrap{position:fixed;top:22px;left:50%;transform:translateX(-50%);z-index:99;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}
+.toast{
+  padding:11px 22px;border-radius:12px;font-size:13px;letter-spacing:1px;color:#fff;
+  background:rgba(24,24,42,.92);border:1px solid var(--line);backdrop-filter:blur(12px);
+  box-shadow:0 12px 36px rgba(0,0,0,.4);display:flex;align-items:center;gap:8px;
+  animation:toastIn .3s cubic-bezier(.2,.9,.3,1.2);
+}
+.toast.ok{border-color:rgba(74,222,128,.4)}
+.toast.err{border-color:rgba(239,68,68,.45)}
+.toast.info{border-color:rgba(96,165,250,.4)}
+@keyframes toastIn{from{opacity:0;transform:translateY(-14px) scale(.94)}to{opacity:1;transform:none}}
+.toast.out{opacity:0;transform:translateY(-10px);transition:.35s}
+
+/* ================= 响应式 ================= */
+@media(max-width:900px){
+  body.logged .sidebar{transform:translateX(-100%);box-shadow:none}
+  body.logged .sidebar.open{transform:none;box-shadow:0 0 60px rgba(0,0,0,.6)}
+  body.logged .main{margin-left:0}
+  .burger{display:flex}
+  .search-box input{width:150px}
+  .search-box input:focus{width:170px}
+  .login-card{padding:38px 26px 34px}
+}
 </style>
 </head>
 <body>
 
-<!-- 侧边栏 -->
-<nav class="sidebar" id="sidebar">
-  <h2>💕 恋爱日记</h2>
-  <a class="active" data-tab="dashboard">📊 仪表盘</a>
-  <a data-tab="users">👥 用户管理</a>
-  <a data-tab="diaries">📖 日记管理</a>
-  <a data-tab="logs">📋 登录日志</a>
-</nav>
-
-<!-- 主区域 -->
-<main class="main" id="main">
-  <!-- 登录 -->
-  <div id="loginPage" class="login-box">
-    <h2 style="color:#f8a5c2;margin-bottom:24px">管理后台登录</h2>
-    <input id="tokenInput" type="password" placeholder="请输入 Admin Token" />
-    <button onclick="doLogin()">登 录</button>
-    <p style="color:#666;font-size:12px;margin-top:20px">Token 在服务器 .env 的 ADMIN_SECRET 中配置</p>
+<!-- 登录页 -->
+<div id="loginPage">
+  <div class="hearts" id="hearts"></div>
+  <div class="login-card">
+    <div class="login-logo">💕</div>
+    <h1>恋爱日记</h1>
+    <div class="sub">管 理 后 台</div>
+    <div class="field">
+      <span class="ficon">🔑</span>
+      <input id="tokenInput" type="password" placeholder="请输入 Admin Token" autocomplete="off" />
+      <button class="eye" id="eyeBtn" type="button">👁</button>
+    </div>
+    <button class="btn-primary" id="loginBtn">登 录</button>
+    <div class="login-tip">Token 配置在服务器 <code>.env</code> 的 <code>ADMIN_SECRET</code> 中</div>
   </div>
+</div>
 
-  <!-- 已登录内容 -->
-  <div id="adminContent" class="hidden">
-    <div class="header"><h1 id="tabTitle">📊 仪表盘</h1><button class="btn btn-danger" onclick="doLogout()">退出</button></div>
-    <div class="stats" id="stats"></div>
+<!-- 已登录应用 -->
+<div id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="bicon">💕</div>
+      <div><b>恋爱日记</b><small>LOVE DIARY ADMIN</small></div>
+    </div>
+    <nav class="nav">
+      <a class="active" data-tab="dashboard"><span class="nav-ico">📊</span>仪表盘</a>
+      <a data-tab="users"><span class="nav-ico">👥</span>用户管理</a>
+      <a data-tab="diaries"><span class="nav-ico">📖</span>日记管理</a>
+      <a data-tab="logs"><span class="nav-ico">📋</span>登录日志</a>
+    </nav>
+    <div class="sidebar-foot">LOVE DIARY · v0.1</div>
+  </aside>
 
-    <div id="tab-dashboard" class="tab-content active"></div>
-    <div id="tab-users" class="tab-content"><table><thead><tr><th>ID</th><th>用户名</th><th>昵称</th><th>绑定码</th><th>已绑定</th><th>UA</th><th>注册时间</th><th>操作</th></tr></thead><tbody id="usersTbody"></tbody></table></div>
-    <div id="tab-diaries" class="tab-content"><table><thead><tr><th>ID</th><th>作者ID</th><th>内容</th><th>心情</th><th>日期</th><th>操作</th></tr></thead><tbody id="diariesTbody"></tbody></table></div>
-    <div id="tab-logs" class="tab-content"><table><thead><tr><th>ID</th><th>用户ID</th><th>IP</th><th>UA</th><th>时间</th></tr></thead><tbody id="logsTbody"></tbody></table></div>
+  <main class="main" id="main">
+    <div class="topbar">
+      <div>
+        <h1><span class="grad" id="tabTitle">📊 仪表盘</span></h1>
+        <div class="sub" id="tabSub">总览全站数据</div>
+      </div>
+      <div class="top-actions">
+        <button class="burger icon-btn" id="burger" title="菜单">☰</button>
+        <button class="icon-btn" id="refreshBtn" title="刷新">⟳</button>
+        <button class="icon-btn danger" id="logoutBtn" title="退出登录">⏻</button>
+      </div>
+    </div>
+
+    <!-- 仪表盘 -->
+    <div id="tab-dashboard">
+      <div class="stat-grid" id="stats"></div>
+      <div class="dash-grid">
+        <div class="panel">
+          <div class="panel-head"><h2>最近登录动态</h2></div>
+          <div id="recentLogs"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>系统提示</h2></div>
+          <div id="tips"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 用户 -->
+    <div id="tab-users" class="hidden">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>用户列表</h2>
+          <div class="toolbar">
+            <div class="search-box"><input id="userSearch" placeholder="搜索用户名 / 昵称" /></div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>用户</th><th>绑定码</th><th>绑定状态</th><th>设备 UA</th><th>注册时间</th><th>操作</th></tr></thead>
+            <tbody id="usersTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 日记 -->
+    <div id="tab-diaries" class="hidden">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>日记列表</h2>
+          <div class="toolbar">
+            <div class="search-box"><input id="diarySearch" placeholder="搜索日记内容" /></div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>作者</th><th>内容</th><th>心情</th><th>可见性</th><th>日期</th><th>操作</th></tr></thead>
+            <tbody id="diariesTbody"></tbody>
+          </table>
+        </div>
+        <button class="btn-more" id="diaryMore">加载更多</button>
+      </div>
+    </div>
+
+    <!-- 日志 -->
+    <div id="tab-logs" class="hidden">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>登录日志</h2>
+          <div class="toolbar">
+            <div class="search-box"><input id="logSearch" placeholder="搜索 IP / UA" /></div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>用户 ID</th><th>IP</th><th>设备 UA</th><th>时间</th></tr></thead>
+            <tbody id="logsTbody"></tbody>
+          </table>
+        </div>
+        <button class="btn-more" id="logMore">加载更多</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- 确认弹窗 -->
+<div class="modal-mask hidden" id="modalMask">
+  <div class="modal">
+    <div class="m-ico" id="modalIcon">⚠️</div>
+    <h3 id="modalTitle">确认操作</h3>
+    <p id="modalText"></p>
+    <div class="m-actions">
+      <button class="btn-cancel" id="modalCancel">取 消</button>
+      <button class="btn-confirm" id="modalOk">确 定</button>
+    </div>
   </div>
-</main>
+</div>
+
+<div id="toastWrap"></div>
 
 <script>
 const API = 'http://47.93.241.64:8000/api'
 let adminToken = sessionStorage.getItem('adtoken') || ''
+let currentTab = 'dashboard'
 
-function headers() { return { 'X-Admin-Token': adminToken } }
-
-async function doLogin() {
-  adminToken = document.getElementById('tokenInput').value.trim()
-  const r = await fetch(API + '/admin/stats', { headers: headers() })
-  if (r.ok) { sessionStorage.setItem('adtoken', adminToken); showAdmin() }
-  else { alert('Token 无效'); adminToken = '' }
+const state = {
+  users: [], diaries: [], logs: [],
+  diaryPage: 1, logPage: 1,
+  diaryLoading: false, logLoading: false,
 }
 
-function doLogout() { sessionStorage.removeItem('adtoken'); adminToken = ''; location.reload() }
+/* ---------- 工具 ---------- */
+const $ = id => document.getElementById(id)
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
+const trunc = (s, n) => { s = s || ''; return s.length > n ? s.slice(0, n) + '…' : s }
+
+function toast(msg, type = 'ok') {
+  const el = document.createElement('div')
+  el.className = 'toast ' + type
+  const ico = type === 'err' ? '✕' : type === 'info' ? 'ℹ' : '✓'
+  el.innerHTML = `<span>${ico}</span>${esc(msg)}`
+  $('toastWrap').appendChild(el)
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 400) }, 2400)
+}
+
+function confirmModal(title, text, icon = '⚠️') {
+  return new Promise(resolve => {
+    $('modalTitle').textContent = title
+    $('modalText').textContent = text
+    $('modalIcon').textContent = icon
+    $('modalMask').classList.remove('hidden')
+    const done = ok => { $('modalMask').classList.add('hidden'); resolve(ok) }
+    $('modalOk').onclick = () => done(true)
+    $('modalCancel').onclick = () => done(false)
+    $('modalMask').onclick = e => { if (e.target === $('modalMask')) done(false) }
+  })
+}
+
+async function api(path, opts = {}) {
+  try {
+    const r = await fetch(API + path, {
+      ...opts,
+      headers: { 'X-Admin-Token': adminToken, ...(opts.headers || {}) },
+    })
+    if (r.status === 403) { toast('Token 已失效，请重新登录', 'err'); doLogout(); return null }
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}))
+      toast(d.detail || '请求失败', 'err')
+      return null
+    }
+    return r.status === 204 ? {} : r.json()
+  } catch {
+    toast('网络错误，请检查服务器状态', 'err')
+    return null
+  }
+}
+
+/* ---------- 登录 / 退出 ---------- */
+async function doLogin() {
+  adminToken = $('tokenInput').value.trim()
+  if (!adminToken) { toast('请输入 Admin Token', 'info'); return }
+  const d = await api('/admin/stats')
+  if (d) {
+    sessionStorage.setItem('adtoken', adminToken)
+    toast('登录成功')
+    showAdmin()
+  } else {
+    adminToken = ''
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('adtoken')
+  adminToken = ''
+  location.reload()
+}
 
 function showAdmin() {
-  document.getElementById('loginPage').classList.add('hidden')
-  document.getElementById('adminContent').classList.remove('hidden')
-  loadDashboard(); loadUsers(); loadDiaries(); loadLogs()
+  $('loginPage').classList.add('hidden')
+  document.body.classList.add('logged')
+  switchTab(currentTab)
 }
 
-// Tab 切换
-document.querySelectorAll('.sidebar a').forEach(a => {
-  a.addEventListener('click', () => {
-    document.querySelectorAll('.sidebar a').forEach(x => x.classList.remove('active'))
-    a.classList.add('active')
-    const tab = a.dataset.tab
-    document.getElementById('tabTitle').textContent = a.textContent
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'))
-    document.getElementById('tab-' + tab).classList.add('active')
-  })
-})
+/* ---------- Tab 切换 ---------- */
+function switchTab(tab) {
+  currentTab = tab
+  document.querySelectorAll('.nav a').forEach(a => a.classList.toggle('active', a.dataset.tab === tab))
+  ;['dashboard','users','diaries','logs'].forEach(t => $('tab-' + t).classList.toggle('hidden', t !== tab))
+  const meta = {
+    dashboard: ['📊 仪表盘', '总览全站数据'],
+    users: ['👥 用户管理', '查看与管理全部用户'],
+    diaries: ['📖 日记管理', '浏览与删除日记'],
+    logs: ['📋 登录日志', '查看全部登录记录'],
+  }[tab]
+  $('tabTitle').textContent = meta[0]
+  $('tabSub').textContent = meta[1]
+  $('sidebar').classList.remove('open')
+  if (tab === 'dashboard') loadDashboard()
+  else if (tab === 'users') { if (!state.users.length) loadUsers() }
+  else if (tab === 'diaries') { if (!state.diaries.length) loadDiaries(1) }
+  else if (tab === 'logs') { if (!state.logs.length) loadLogs(1) }
+}
 
+/* ---------- 数字滚动 ---------- */
+function countUp(el, target) {
+  const dur = 900, t0 = performance.now()
+  function tick(t) {
+    const p = Math.min((t - t0) / dur, 1)
+    el.textContent = Math.floor(target * (1 - Math.pow(1 - p, 3)))
+    if (p < 1) requestAnimationFrame(tick)
+  }
+  requestAnimationFrame(tick)
+}
+
+/* ---------- 仪表盘 ---------- */
 async function loadDashboard() {
-  const r = await fetch(API + '/admin/stats', { headers: headers() })
-  if (!r.ok) return
-  const d = await r.json()
-  document.getElementById('stats').innerHTML = [
-    { num: d.users, label: '注册用户' },
-    { num: d.diaries, label: '日记总数' },
-    { num: d.anniversaries, label: '纪念日' },
-    { num: d.today_diaries, label: '今日日记' },
-    { num: d.today_logins, label: '今日登录' },
-  ].map(s => `<div class="stat"><div class="num">${s.num}</div><div class="label">${s.label}</div></div>`).join('')
+  const d = await api('/admin/stats')
+  if (!d) return
+  const cards = [
+    { cls: 'sc-1', ico: '👥', label: '注册用户',     num: d.users,          note: '全部账号' },
+    { cls: 'sc-2', ico: '📖', label: '日记总数',     num: d.diaries,        note: '云端回忆' },
+    { cls: 'sc-3', ico: '🎂', label: '纪念日',       num: d.anniversaries,  note: '重要日子' },
+    { cls: 'sc-4', ico: '✍️', label: '今日日记',     num: d.today_diaries,  note: '今天的新故事' },
+    { cls: 'sc-5', ico: '🔑', label: '今日登录',     num: d.today_logins,   note: '活跃用户' },
+  ]
+  $('stats').innerHTML = cards.map(c =>
+    `<div class="stat-card ${c.cls}">
+       <div class="s-top"><span class="s-label">${c.label}</span><span class="s-ico">${c.ico}</span></div>
+       <div class="num" data-num="${c.num}">0</div>
+       <div class="s-note">${c.note}</div>
+     </div>`).join('')
+  document.querySelectorAll('.stat-card .num').forEach(el => countUp(el, +el.dataset.num))
+  loadRecentLogs()
+  renderTips(d)
 }
 
+async function loadRecentLogs() {
+  const logs = await api('/admin/logs?page=1&page_size=6')
+  if (!logs) return
+  const box = $('recentLogs')
+  if (!logs.length) { box.innerHTML = '<div class="empty">暂无登录记录</div>'; return }
+  box.innerHTML = logs.map(l => `
+    <div class="recent-item">
+      <div class="r-ico">🔑</div>
+      <div class="r-main">
+        <div class="r-title"><span class="ip-pill">${esc(l.ip || '-')}</span><span>用户 #${l.user_id}</span></div>
+        <div class="r-sub">${esc(trunc(l.user_agent, 70))}</div>
+      </div>
+      <time>${esc((l.created_at || '').slice(5, 16))}</time>
+    </div>`).join('')
+}
+
+function renderTips(d) {
+  const tips = []
+  if (d.users < 2) tips.push(['💡', '注册用户还不足 2 位，App 下载后即可开始注册。'])
+  if (d.diaries === 0) tips.push(['📖', '还没有日记，用户写下的第一条回忆会出现在这里。'])
+  if (d.anniversaries < 2) tips.push(['🎂', '纪念日数量较少，鼓励用户记录在一起的日子。'])
+  if (d.today_logins === 0) tips.push(['🔑', '今天还没有登录记录，看看用户是否正常使用。'])
+  if (!tips.length) tips.push(['✨', '一切正常，今天也有爱正在发生。'])
+  $('tips').innerHTML = tips.map(t =>
+    `<div class="recent-item"><div class="r-ico">${t[0]}</div><div class="r-main"><div class="r-title" style="color:#cfcfe0;font-size:13px">${t[1]}</div></div></div>`).join('')
+}
+
+/* ---------- 用户 ---------- */
 async function loadUsers() {
-  const r = await fetch(API + '/admin/users', { headers: headers() })
-  if (!r.ok) return
-  const users = await r.json()
-  document.getElementById('usersTbody').innerHTML = users.map(u =>
-    `<tr><td>${u.id}</td><td>${u.username}</td><td>${u.nickname}</td><td>${u.bind_code||'-'}</td><td>${u.partner_id?'✅':'❌'}</td><td title="${u.last_user_agent}">${u.last_user_agent.slice(0,40)}</td><td>${(u.created_at||'').slice(0,10)}</td><td><button class="btn btn-danger" onclick="delUser(${u.id})">删除</button></td></tr>`
-  ).join('')
+  const users = await api('/admin/users')
+  if (!users) return
+  state.users = users
+  renderUsers()
 }
 
-async function loadDiaries() {
-  const r = await fetch(API + '/admin/diaries', { headers: headers() })
-  if (!r.ok) return
-  const diaries = await r.json()
-  document.getElementById('diariesTbody').innerHTML = diaries.map(d =>
-    `<tr><td>${d.id}</td><td>${d.user_id}</td><td>${d.content.slice(0,60)}</td><td>${d.mood||'-'}</td><td>${d.date}</td><td><button class="btn btn-danger" onclick="delDiary(${d.id})">删除</button></td></tr>`
-  ).join('')
+function renderUsers() {
+  const kw = ($('userSearch').value || '').trim().toLowerCase()
+  const list = state.users.filter(u =>
+    !kw || (u.username || '').toLowerCase().includes(kw) || (u.nickname || '').toLowerCase().includes(kw))
+  const tbody = $('usersTbody')
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">没有匹配的用户</td></tr>'; return }
+  const colors = ['#f8a5c2','#c44dff','#60a5fa','#4ade80','#fbbf24']
+  tbody.innerHTML = list.map((u, i) => {
+    const name = u.nickname || u.username || '?'
+    const color = colors[i % colors.length]
+    return `<tr>
+      <td><div class="u-cell"><span class="avatar" style="background:${color}">${esc(name[0])}</span>
+        <div><div class="u-name">${esc(name)}</div><div class="u-sub">@${esc(u.username)} · ID ${u.id}</div></div></div></td>
+      <td><span class="mono" style="color:#d8b4fe">${esc(u.bind_code || '-')}</span>
+        ${u.bind_code ? `<button class="copy-btn" onclick="copyText('${esc(u.bind_code)}')">复制</button>` : ''}</td>
+      <td>${u.partner_id ? `<span class="badge ok">✓ 已绑定 #${u.partner_id}</span>` : '<span class="badge no">未绑定</span>'}</td>
+      <td><div class="cell-sub tight" title="${esc(u.last_user_agent)}">${esc(trunc(u.last_user_agent, 32)) || '-'}</div></td>
+      <td class="mono" style="font-size:12px">${esc((u.created_at || '').slice(0, 10))}</td>
+      <td><button class="btn-danger" onclick="delUser(${u.id}, '${esc(name)}')">删除</button></td>
+    </tr>`
+  }).join('')
 }
 
-async function loadLogs() {
-  const r = await fetch(API + '/admin/logs', { headers: headers() })
-  if (!r.ok) return
-  const logs = await r.json()
-  document.getElementById('logsTbody').innerHTML = logs.map(l =>
-    `<tr><td>${l.id}</td><td>${l.user_id}</td><td>${l.ip}</td><td title="${l.user_agent}">${(l.user_agent||'').slice(0,60)}</td><td>${(l.created_at||'').slice(0,16)}</td></tr>`
-  ).join('')
+async function delUser(id, name) {
+  const ok = await confirmModal('删除用户', `确定删除用户「${name}」及其全部日记、纪念日和登录记录吗？此操作不可恢复。`, '🗑️')
+  if (!ok) return
+  const d = await api('/admin/users/' + id, { method: 'DELETE' })
+  if (d) { toast('用户已删除'); loadUsers(); loadDashboard() }
 }
 
-async function delUser(id) { if (!confirm('确定删除该用户及其所有数据？')) return; await fetch(API + '/admin/users/' + id, { method: 'DELETE', headers: headers() }); loadUsers(); loadDashboard(); }
-async function delDiary(id) { if (!confirm('确定删除这篇日记？')) return; await fetch(API + '/admin/diaries/' + id, { method: 'DELETE', headers: headers() }); loadDiaries(); loadDashboard() }
+/* ---------- 日记 ---------- */
+async function loadDiaries(page, append = false) {
+  if (state.diaryLoading) return
+  state.diaryLoading = true
+  $('diaryMore').textContent = '加载中…'
+  const list = await api(`/admin/diaries?page=${page}&page_size=15`)
+  state.diaryLoading = false
+  if (!list) { $('diaryMore').textContent = '加载更多'; return }
+  state.diaryPage = page
+  if (append) state.diaries.push(...list)
+  else state.diaries = list
+  $('diaryMore').textContent = list.length < 15 ? '没有更多了' : '加载更多'
+  $('diaryMore').style.display = list.length < 15 ? 'none' : ''
+  renderDiaries()
+}
 
-// 初始状态
+function renderDiaries() {
+  const kw = ($('diarySearch').value || '').trim().toLowerCase()
+  const list = state.diaries.filter(d => !kw || (d.content || '').toLowerCase().includes(kw))
+  const tbody = $('diariesTbody')
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">没有匹配的日记</td></tr>'; return }
+  tbody.innerHTML = list.map(d => {
+    const mood = d.mood ? `<span class="chip mood">${esc(d.mood)}</span>` : '<span class="chip">无</span>'
+    const vis = d.visible_to_partner ? '<span class="chip vis">对 TA 可见</span>' : '<span class="chip priv">仅自己</span>'
+    return `<tr>
+      <td class="mono">${d.id}</td>
+      <td class="mono">#${d.user_id}</td>
+      <td><div class="cell-sub" title="${esc(d.content)}">${esc(trunc(d.content, 60)) || '（无内容）'}</div></td>
+      <td>${mood}</td><td>${vis}</td>
+      <td class="mono" style="font-size:12px">${esc(d.date)}</td>
+      <td><button class="btn-danger" onclick="delDiary(${d.id})">删除</button></td>
+    </tr>`
+  }).join('')
+}
+
+async function delDiary(id) {
+  const ok = await confirmModal('删除日记', `确定删除日记 #${id} 吗？删除后不可恢复。`, '🗑️')
+  if (!ok) return
+  const d = await api('/admin/diaries/' + id, { method: 'DELETE' })
+  if (d) {
+    toast('日记已删除')
+    state.diaries = state.diaries.filter(x => x.id !== id)
+    renderDiaries(); loadDashboard()
+  }
+}
+
+/* ---------- 日志 ---------- */
+async function loadLogs(page, append = false) {
+  if (state.logLoading) return
+  state.logLoading = true
+  $('logMore').textContent = '加载中…'
+  const list = await api(`/admin/logs?page=${page}&page_size=15`)
+  state.logLoading = false
+  if (!list) { $('logMore').textContent = '加载更多'; return }
+  state.logPage = page
+  if (append) state.logs.push(...list)
+  else state.logs = list
+  $('logMore').textContent = list.length < 15 ? '没有更多了' : '加载更多'
+  $('logMore').style.display = list.length < 15 ? 'none' : ''
+  renderLogs()
+}
+
+function renderLogs() {
+  const kw = ($('logSearch').value || '').trim().toLowerCase()
+  const list = state.logs.filter(l =>
+    !kw || (l.ip || '').toLowerCase().includes(kw) || (l.user_agent || '').toLowerCase().includes(kw))
+  const tbody = $('logsTbody')
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">没有匹配的日志</td></tr>'; return }
+  tbody.innerHTML = list.map(l => `<tr>
+    <td class="mono">${l.id}</td>
+    <td class="mono">#${l.user_id}</td>
+    <td><span class="ip-pill">${esc(l.ip || '-')}</span></td>
+    <td><div class="cell-sub" title="${esc(l.user_agent)}">${esc(trunc(l.user_agent, 70)) || '-'}</div></td>
+    <td class="mono" style="font-size:12px">${esc((l.created_at || '').slice(0, 16))}</td>
+  </tr>`).join('')
+}
+
+/* ---------- 其他 ---------- */
+function copyText(t) {
+  const done = () => toast('绑定码已复制')
+  const fail = () => toast('复制失败，请手动复制', 'err')
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(t).then(done).catch(fail)
+  } else {
+    const ta = document.createElement('textarea')
+    ta.value = t
+    ta.style.position = 'fixed'
+    ta.style.opacity = '0'
+    document.body.appendChild(ta)
+    ta.select()
+    try { document.execCommand('copy'); done() } catch { fail() }
+    ta.remove()
+  }
+}
+
+function refreshCurrent() {
+  if (currentTab === 'dashboard') loadDashboard()
+  else if (currentTab === 'users') loadUsers()
+  else if (currentTab === 'diaries') loadDiaries(1)
+  else if (currentTab === 'logs') loadLogs(1)
+}
+
+/* ---------- 事件绑定 ---------- */
+$('loginBtn').onclick = doLogin
+$('tokenInput').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin() })
+$('eyeBtn').onclick = () => {
+  const i = $('tokenInput')
+  i.type = i.type === 'password' ? 'text' : 'password'
+  $('eyeBtn').textContent = i.type === 'password' ? '👁' : '🙈'
+}
+$('logoutBtn').onclick = () => confirmModal('退出登录', '确定退出管理后台吗？', '👋').then(ok => ok && doLogout())
+$('refreshBtn').onclick = refreshCurrent
+$('burger').onclick = () => $('sidebar').classList.toggle('open')
+document.querySelectorAll('.nav a').forEach(a => a.addEventListener('click', () => switchTab(a.dataset.tab)))
+
+$('userSearch').addEventListener('input', renderUsers)
+$('diarySearch').addEventListener('input', renderDiaries)
+$('logSearch').addEventListener('input', renderLogs)
+$('diaryMore').onclick = () => loadDiaries(state.diaryPage + 1, true)
+$('logMore').onclick = () => loadLogs(state.logPage + 1, true)
+
+// 漂浮爱心
+const heartsBox = $('hearts')
+for (let i = 0; i < 14; i++) {
+  const h = document.createElement('i')
+  h.textContent = '💗'
+  h.style.left = Math.random() * 100 + '%'
+  h.style.fontSize = (12 + Math.random() * 16) + 'px'
+  h.style.animationDuration = (7 + Math.random() * 9) + 's'
+  h.style.animationDelay = (Math.random() * 8) + 's'
+  heartsBox.appendChild(h)
+}
+
+// 初始状态：已有 token 则自动登录
 if (adminToken) {
-  fetch(API + '/admin/stats', { headers: headers() }).then(r => { if (r.ok) showAdmin() })
+  api('/admin/stats').then(d => { if (d) showAdmin() })
 }
 </script>
 </body>
