@@ -25,4 +25,4 @@ export function daysLeftText(dateStr) {
 }
 
 /** 心情标签的 emoji+文字映射 */
-export const MOODS = ['开心 😊', '难过 😢', '想你 💕', '幸福 🥰', '生气 😤', '平淡 ☁️']
+export const MOODS = ['心动 💓', '得意 😎', '开心 😊', '平静 😌', '无聊 😑', '累了 😫', '孤独 🥺', '丧 😞', '伤心 😢', '烦躁 😣', '生气 😤']
