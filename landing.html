@@ -51,7 +51,7 @@
   .section .sub { text-align:center; color:#777; font-size:clamp(13px,2vw,16px); margin-bottom:clamp(30px,5vw,60px); letter-spacing:2px; }
 
   /* ===== 功能卡片 ===== */
-  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr)); gap:clamp(14px,2.5vw,28px); }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr)); gap:clamp(14px,2.5vw,28px); align-items:start; }
   .card {
     position:relative; background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
     border:1px solid rgba(255,255,255,.06); border-radius:clamp(20px,3vw,28px); padding:clamp(26px,4vw,44px) clamp(16px,3vw,32px); text-align:center;
@@ -348,11 +348,25 @@ function deactivateCard(card) {
 let touchDevice = window.matchMedia('(pointer: coarse)').matches
 window.addEventListener('pointerdown', e => { if (e.pointerType === 'touch') touchDevice = true }, { once: true })
 
+// 悬停防抖：鼠标在卡片边缘来回时，延迟展开/收起并自动取消，避免状态反复切换造成闪烁
+const hoverTimers = new Map() // card -> { open, close }
+
 allCards.forEach(card => {
-  // 桌面端：悬停展开、移开收起；点击可固定（再次点击收起）
-  card.addEventListener('mouseenter', () => { if (!touchDevice) activateCard(card) })
-  card.addEventListener('mouseleave', () => { if (!touchDevice && pinnedCard !== card) deactivateCard(card) })
+  card.addEventListener('mouseenter', () => {
+    if (touchDevice) return
+    const t = hoverTimers.get(card)
+    if (t) { clearTimeout(t.open); clearTimeout(t.close) }
+    hoverTimers.set(card, { open: setTimeout(() => activateCard(card), 120) })
+  })
+  card.addEventListener('mouseleave', () => {
+    if (touchDevice) return
+    const t = hoverTimers.get(card)
+    if (t) { clearTimeout(t.open); clearTimeout(t.close) }
+    hoverTimers.set(card, { close: setTimeout(() => { if (pinnedCard !== card) deactivateCard(card) }, 240) })
+  })
   card.addEventListener('click', () => {
+    const t = hoverTimers.get(card)
+    if (t) { clearTimeout(t.open); clearTimeout(t.close) }
     if (card.classList.contains('active')) {
       if (pinnedCard === card) deactivateCard(card)
       else pinnedCard = card
