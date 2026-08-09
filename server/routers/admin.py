@@ -4,12 +4,13 @@ from datetime import date as date_cls
 
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, Header, HTTPException
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
 import security
 from database import get_db
-from models import Anniversary, Diary, LoginLog, User
+from models import Anniversary, Checkin, Diary, LoginLog, Poke, User, Whisper, Wish
 from schemas import DiaryOut
 
 load_dotenv()
@@ -53,6 +54,10 @@ def delete_user(user_id: int, _ok: bool = Depends(_check_admin), db: Session = D
     db.query(LoginLog).filter(LoginLog.user_id == user_id).delete()
     db.query(Anniversary).filter(Anniversary.user_id == user_id).delete()
     db.query(Diary).filter(Diary.user_id == user_id).delete()
+    db.query(Poke).filter(or_(Poke.from_user_id == user_id, Poke.to_user_id == user_id)).delete()
+    db.query(Wish).filter(Wish.user_id == user_id).delete()
+    db.query(Checkin).filter(Checkin.user_id == user_id).delete()
+    db.query(Whisper).filter(Whisper.user_id == user_id).delete()
     # 解除对方的绑定
     if user.partner_id:
         partner = db.query(User).filter(User.id == user.partner_id).first()
