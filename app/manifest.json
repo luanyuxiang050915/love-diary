@@ -15,6 +15,7 @@
             /* android打包配置 */
             "android" : {
                 "permissions" : [
+                    "<uses-permission android:name=\"android.permission.INTERNET\"/>",
                     "<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
                     "<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
                     "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
@@ -30,7 +31,8 @@
                     "<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
                     "<uses-feature android:name=\"android.hardware.camera\"/>",
                     "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
-                ]
+                ],
+                "usesCleartextTraffic" : true
             },
             /* ios打包配置 */
             "ios" : {
