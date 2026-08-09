@@ -36,19 +36,6 @@
       <view class="action" @click="showLogs">登录记录</view>
       <view class="action danger" @click="doLogout">退出登录</view>
     </view>
-
-    <!-- 互动 -->
-    <view class="section">
-      <view class="section-title">互动</view>
-      <view class="action" @click="go('/pages/poke/index')">
-        <text>💓 戳一戳</text>
-        <text class="badge" v-if="pokeUnread > 0">{{ pokeUnread }}</text>
-      </view>
-      <view class="action" @click="go('/pages/wish/list')">✨ 心愿清单</view>
-      <view class="action" @click="go('/pages/checkin/index')">🔥 爱的打卡</view>
-      <view class="action" @click="go('/pages/whisper/list')">💬 悄悄话</view>
-      <view class="action" @click="go('/pages/stats/mood')">📊 心情月报</view>
-    </view>
   </view>
 </template>
 
@@ -61,7 +48,6 @@ export default {
     return {
       user: {},
       bindCode: '',
-      pokeUnread: 0,
     }
   },
   computed: {
@@ -73,20 +59,13 @@ export default {
       return ''
     },
   },
-  onShow() { this.loadMe(); this.loadPokeUnread() },
+  onShow() { this.loadMe() },
 
   methods: {
     async loadMe() {
       const { ok, data } = await api.getMe()
       if (ok) { this.user = data; store.updateUser(data) }
     },
-
-    async loadPokeUnread() {
-      const { ok, data } = await api.getPokeUnread()
-      if (ok) this.pokeUnread = data.unread
-    },
-
-    go(url) { uni.navigateTo({ url }) },
 
     changeNickname() {
       uni.showModal({ title: '修改昵称', editable: true, placeholderText: this.user.nickname || '', success: async (res) => {
@@ -177,9 +156,5 @@ export default {
 .small-btn { background: #f8a5c2; color: #fff; border-radius: 8rpx; }
 .action { padding: 20rpx 0; font-size: 28rpx; color: #333; border-bottom: 1rpx solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
 .action:last-child { border-bottom: none; }
-.badge {
-  min-width: 36rpx; height: 36rpx; border-radius: 18rpx; text-align: center; line-height: 36rpx;
-  background: #ff6b9d; color: #fff; font-size: 22rpx; padding: 0 10rpx;
-}
 .danger { color: #e74c3c; }
 </style>
