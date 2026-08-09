@@ -97,3 +97,64 @@ class BindCodeOut(BaseModel):
 
 class BindAcceptIn(BaseModel):
     code: str = Field(min_length=6, max_length=10, description="对方的绑定码")
+
+
+# ---------- 戳一戳 ----------
+class PokeOut(BaseModel):
+    id: int
+    from_user_id: int
+    from_nickname: str
+    is_read: bool
+    created_at: datetime
+
+
+class PokeUnreadOut(BaseModel):
+    unread: int
+
+
+# ---------- 心愿清单 ----------
+class WishIn(BaseModel):
+    content: str = Field(min_length=1, max_length=100, description="心愿内容")
+
+
+class WishOut(BaseModel):
+    id: int
+    user_id: int
+    nickname: str
+    content: str
+    done: bool
+    created_at: datetime
+
+
+# ---------- 爱的打卡 ----------
+class CheckinOut(BaseModel):
+    today: bool          # 今天是否已打卡
+    total: int           # 累计打卡天数
+    streak: int          # 当前连续天数
+    best: int            # 历史最长连续天数
+    dates: list[str]     # 最近打卡日期（倒序）
+
+
+# ---------- 悄悄话 ----------
+class WhisperIn(BaseModel):
+    content: str = Field(min_length=1, max_length=200, description="悄悄话内容")
+
+
+class WhisperOut(BaseModel):
+    id: int
+    user_id: int
+    nickname: str
+    content: str
+    created_at: datetime
+
+
+# ---------- 心情月报 ----------
+class MoodStatItem(BaseModel):
+    mood: str
+    count: int
+
+
+class MoodReportOut(BaseModel):
+    month: str
+    total: int
+    stats: list[MoodStatItem]

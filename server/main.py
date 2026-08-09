@@ -10,7 +10,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from database import Base, engine
-from routers import anniversaries, auth, bind, diaries, upload, admin
+from routers import (
+    admin,
+    anniversaries,
+    auth,
+    bind,
+    checkins,
+    diaries,
+    pokes,
+    stats,
+    upload,
+    whispers,
+    wishes,
+)
 
 # 启动时自动建表（表已存在则跳过）
 Base.metadata.create_all(bind=engine)
@@ -37,6 +49,11 @@ app.include_router(anniversaries.router, prefix="/api")
 app.include_router(upload.router, prefix="/api")
 app.include_router(bind.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
+app.include_router(pokes.router, prefix="/api")
+app.include_router(wishes.router, prefix="/api")
+app.include_router(checkins.router, prefix="/api")
+app.include_router(whispers.router, prefix="/api")
+app.include_router(stats.router, prefix="/api")
 
 
 @app.get("/")

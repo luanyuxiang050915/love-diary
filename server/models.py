@@ -4,7 +4,7 @@
 """
 from datetime import date, datetime
 
-from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -59,6 +59,54 @@ class Anniversary(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     name = Column(String(50), nullable=False)          # 纪念日名称
     date = Column(Date, nullable=False)                # 纪念日日期（倒计时由前端算）
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Poke(Base):
+    """戳一戳：向另一半发送的互动提醒。"""
+
+    __tablename__ = "pokes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    is_read = Column(Boolean, default=False)                 # 对方是否已读
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Wish(Base):
+    """心愿清单：和另一半一起列想做的事。"""
+
+    __tablename__ = "wishes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    content = Column(String(100), nullable=False)            # 心愿内容
+    done = Column(Boolean, default=False)                    # 是否已完成
+    done_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Checkin(Base):
+    """爱的打卡：每人每天可打卡一次，累计连续天数。"""
+
+    __tablename__ = "checkins"
+    __table_args__ = (UniqueConstraint("user_id", "date", name="uq_checkin_user_date"),)
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    date = Column(Date, default=date.today, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Whisper(Base):
+    """悄悄话留言板：两人共用的留言墙。"""
+
+    __tablename__ = "whispers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    content = Column(String(200), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 

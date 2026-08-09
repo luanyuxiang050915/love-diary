@@ -31,6 +31,26 @@
     {
       "path": "pages/partner/diaries",
       "style": { "navigationBarTitleText": "TA的日记" }
+    },
+    {
+      "path": "pages/poke/index",
+      "style": { "navigationBarTitleText": "戳一戳" }
+    },
+    {
+      "path": "pages/wish/list",
+      "style": { "navigationBarTitleText": "心愿清单" }
+    },
+    {
+      "path": "pages/checkin/index",
+      "style": { "navigationBarTitleText": "爱的打卡" }
+    },
+    {
+      "path": "pages/whisper/list",
+      "style": { "navigationBarTitleText": "悄悄话" }
+    },
+    {
+      "path": "pages/stats/mood",
+      "style": { "navigationBarTitleText": "心情月报" }
     }
   ],
   "globalStyle": {

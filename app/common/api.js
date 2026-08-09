@@ -105,3 +105,26 @@ export function uploadImage(filePath) {
 export const getBindCode = () => request('/api/bind/code', 'POST')
 export const acceptBind = (code) => request('/api/bind/accept', 'POST', { code })
 export const getPartnerDiaries = () => request('/api/partner/diaries')
+
+// 戳一戳
+export const sendPoke = () => request('/api/pokes', 'POST')
+export const getPokes = () => request('/api/pokes')
+export const getPokeUnread = () => request('/api/pokes/unread')
+export const readPokes = () => request('/api/pokes/read', 'POST')
+
+// 心愿清单
+export const listWishes = () => request('/api/wishes')
+export const createWish = (content) => request('/api/wishes', 'POST', { content })
+export const toggleWish = (id) => request(`/api/wishes/${id}/done`, 'PUT')
+export const deleteWish = (id) => request(`/api/wishes/${id}`, 'DELETE')
+
+// 爱的打卡
+export const doCheckin = () => request('/api/checkins', 'POST')
+export const getCheckin = () => request('/api/checkins')
+
+// 悄悄话
+export const listWhispers = () => request('/api/whispers')
+export const sendWhisper = (content) => request('/api/whispers', 'POST', { content })
+
+// 心情月报
+export const getMoodReport = (month) => request(`/api/stats/moods${month ? '?month=' + month : ''}`)
