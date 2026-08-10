@@ -292,15 +292,6 @@
   .mood-btn { display:block; margin:16px auto 0; border:none; background:rgba(248,165,194,.14); color:var(--pink); border-radius:18px; padding:8px 18px; font-size:13px; cursor:pointer; transition:.3s; }
   .mood-btn:hover { background:rgba(248,165,194,.26); }
 
-  /* ===== 三步流程线 ===== */
-  .flow { position:relative; }
-  .flow::before {
-    content:''; position:absolute; top:60px; left:13%; right:13%; height:2px; z-index:0;
-    background:linear-gradient(90deg,transparent,var(--pink),var(--purple),transparent);
-    background-size:200% 100%; animation:flowMove 3s linear infinite; opacity:.45;
-  }
-  @keyframes flowMove { 0%{background-position:0% 0%} 100%{background-position:200% 0%} }
-
   /* ===== 标题逐字浮入 ===== */
   .title-reveal { display:inline-block; opacity:0; transform:translateY(26px); transition:opacity .55s ease, transform .55s cubic-bezier(.25,.8,.25,1.2); }
   .section h2.show .title-reveal { opacity:1; transform:none; }
@@ -491,7 +482,7 @@
 <section class="section">
   <h2>三 步 开 始</h2>
   <p class="sub">从下载到绑定，只要三分钟</p>
-  <div class="steps flow">
+  <div class="steps">
     <div class="step"><span class="s-num">STEP 01</span><span class="s-icon">📱</span><h3>下载 App</h3><p>点击按钮下载安装包，安卓手机直接安装，无需任何配置。</p></div>
     <div class="step"><span class="s-num">STEP 02</span><span class="s-icon">📝</span><h3>注册账号</h3><p>两个人各自注册自己的账号，昵称随便起，数据完全隔离。</p></div>
     <div class="step"><span class="s-num">STEP 03</span><span class="s-icon">🔗</span><h3>输入绑定码</h3><p>其中一人生成 6 位绑定码，另一人输入后即完成配对，开始写日记。</p></div>
