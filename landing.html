@@ -7,7 +7,8 @@
 <style>
   :root { --pink: #f8a5c2; --hot: #ff6b9d; --purple: #c44dff; --dark: #0a0a1a; }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'PingFang SC','Microsoft YaHei',sans-serif; background:var(--dark); color:#fff; overflow:hidden; cursor:default; height:100vh; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'PingFang SC','Microsoft YaHei',sans-serif; background:var(--dark); color:#fff; overflow-x:hidden; cursor:default; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
   ::selection { background:var(--pink); color:#fff; }
   canvas#bg { position:fixed; top:0; left:0; z-index:0; pointer-events:none; }
 
@@ -38,12 +39,6 @@
 
   .scroll-hint { position:absolute; bottom:clamp(12px,3vh,24px); left:50%; transform:translateX(-50%); color:var(--pink); font-size:clamp(11px,2vw,13px); letter-spacing:3px; animation:bounce 2s infinite; }
   @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(10px)} }
-
-  /* ===== 通用节 ===== */
-  /* ===== 卡片堆叠转场 ===== */
-
-  .hero,.section,.cta,.footer { transition:transform .6s cubic-bezier(.25,.8,.25,1.2),opacity .5s ease,filter .5s ease; will-change:transform,opacity,filter; }
-  .hero,.section,.cta,.footer { transform-origin:center center; }
 
   .section, .cta, .footer { position:relative; z-index:1; }
   .section { max-width:1200px; margin:0 auto; padding:clamp(44px,8vw,100px) clamp(14px,3vw,24px); }
@@ -210,6 +205,111 @@
   .step h3 { font-size:19px; color:var(--pink); margin-bottom:10px; letter-spacing:1px; }
   .step p { color:#a5a5b8; font-size:14px; line-height:1.8; }
 
+  /* ===== 加载动画 ===== */
+  #loader { position:fixed; inset:0; z-index:300; background:var(--dark); display:flex; flex-direction:column; align-items:center; justify-content:center; transition:opacity .6s ease, visibility .6s; }
+  #loader.done { opacity:0; visibility:hidden; }
+  .loader-heart { font-size:64px; animation:loaderBeat 1s ease-in-out infinite; filter:drop-shadow(0 0 30px rgba(248,165,194,.6)); }
+  @keyframes loaderBeat { 0%,100%{transform:scale(1)} 20%{transform:scale(1.22)} 40%{transform:scale(1)} 60%{transform:scale(1.12)} }
+  .loader-name { margin-top:16px; font-size:20px; letter-spacing:10px; color:var(--pink); font-weight:700; text-indent:10px; }
+
+  /* ===== 悬浮下载按钮 ===== */
+  .float-dl {
+    position:fixed; right:clamp(12px,3vw,26px); bottom:clamp(16px,4vh,30px); z-index:90;
+    display:flex; align-items:center; gap:8px; padding:13px 24px; border-radius:40px;
+    background:linear-gradient(135deg,var(--pink),var(--hot)); color:#fff; font-weight:bold; font-size:15px;
+    letter-spacing:1px; text-decoration:none; box-shadow:0 10px 34px rgba(255,107,157,.45);
+    transform:translateY(90px); opacity:0; transition:all .45s cubic-bezier(.25,.8,.25,1.2);
+  }
+  .float-dl.show { transform:translateY(0); opacity:1; }
+  .float-dl:hover { transform:translateY(-3px) scale(1.05); }
+
+  /* ===== 首屏二维码 ===== */
+  .hero-qr { margin-top:24px; display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .hero-qr img { width:clamp(104px,16vw,132px); height:clamp(104px,16vw,132px); border-radius:14px; background:#fff; padding:8px; box-shadow:0 10px 36px rgba(0,0,0,.45),0 0 40px rgba(248,165,194,.18); }
+  .hero-qr span { font-size:12px; color:#888; letter-spacing:3px; }
+
+  /* ===== 情话轮播 ===== */
+  .quotes-section { max-width:840px; }
+  .quote-card {
+    position:relative; background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(255,255,255,.012));
+    border:1px solid rgba(255,255,255,.08); border-radius:28px; overflow:hidden;
+    padding:clamp(34px,6vw,64px) clamp(24px,5vw,56px); text-align:center; box-shadow:0 24px 70px rgba(0,0,0,.4);
+  }
+  .quote-card::before { content:''; position:absolute; top:-80px; right:-80px; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle,rgba(248,165,194,.18),transparent 70%); }
+  .quote-card::after { content:''; position:absolute; bottom:-90px; left:-90px; width:240px; height:240px; border-radius:50%; background:radial-gradient(circle,rgba(196,77,255,.16),transparent 70%); }
+  #quoteText { position:relative; z-index:1; font-size:clamp(20px,3.6vw,30px); line-height:1.8; color:#f2e9ef; font-weight:600; letter-spacing:2px; min-height:2.6em; display:flex; align-items:center; justify-content:center; transition:opacity .35s ease; }
+  #quoteText.fade { opacity:0; }
+  .quote-dots { position:relative; z-index:1; display:flex; justify-content:center; gap:8px; margin-top:22px; }
+  .quote-dots button { width:7px; height:7px; border-radius:50%; border:none; padding:0; background:rgba(255,255,255,.2); cursor:pointer; transition:.3s; }
+  .quote-dots button.on { background:var(--pink); transform:scale(1.35); box-shadow:0 0 10px rgba(248,165,194,.8); }
+
+  /* ===== 恋爱互动：可玩小部件 ===== */
+  .demo-card { text-align:left; }
+  .demo-card h3 { text-align:center; }
+  .demo-card > p { text-align:center; margin-bottom:14px; font-size:13px; }
+  .poke-btn {
+    display:block; margin:0 auto; width:86px; height:86px; border-radius:50%; border:none; cursor:pointer;
+    background:linear-gradient(135deg,var(--pink),var(--hot)); font-size:40px;
+    box-shadow:0 10px 30px rgba(255,107,157,.45); transition:transform .2s;
+  }
+  .poke-btn:active { transform:scale(.88); }
+  .poke-count { margin-top:14px; text-align:center; font-size:13px; color:#bbb; }
+  .poke-count b { color:var(--pink); font-size:19px; }
+  .heart-burst { position:fixed; pointer-events:none; z-index:150; font-size:22px; animation:burstUp 1s ease-out forwards; }
+  @keyframes burstUp { 0%{transform:translateY(0) scale(.6); opacity:1} 100%{transform:translateY(-95px) scale(1.3); opacity:0} }
+
+  .wish-list { width:100%; }
+  .wish-item { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.06); cursor:pointer; }
+  .wish-item:last-child { border-bottom:none; }
+  .wish-check { width:22px; height:22px; border-radius:50%; border:2px solid rgba(255,255,255,.25); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:13px; color:transparent; transition:.25s; }
+  .wish-item.done .wish-check { background:linear-gradient(135deg,#4ade80,#22c55e); border-color:transparent; color:#fff; }
+  .wish-item .txt { font-size:14px; color:#cfcfdd; transition:.25s; }
+  .wish-item.done .txt { text-decoration:line-through; color:#777; }
+  .wish-progress { width:100%; height:6px; background:rgba(255,255,255,.08); border-radius:4px; margin-top:12px; overflow:hidden; }
+  .wish-progress i { display:block; height:100%; width:0; background:linear-gradient(90deg,#4ade80,#22c55e); border-radius:4px; transition:width .5s; }
+  .wish-num { margin-top:8px; font-size:12px; color:#888; }
+
+  .checkin-days { display:flex; gap:8px; flex-wrap:wrap; }
+  .cday { width:36px; height:36px; border-radius:50%; border:2px solid rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; font-size:13px; color:#888; cursor:pointer; transition:.25s; }
+  .cday.done { background:linear-gradient(135deg,var(--pink),var(--hot)); border-color:transparent; color:#fff; }
+  .cday.today { border-color:var(--pink); box-shadow:0 0 14px rgba(248,165,194,.5); }
+  .checkin-streak { margin-top:14px; font-size:13px; color:#bbb; }
+  .checkin-streak b { color:var(--hot); font-size:18px; }
+
+  .whisper-send { display:flex; gap:8px; }
+  .whisper-send input { flex:1; min-width:0; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:9px 14px; color:#fff; font-size:13px; outline:none; }
+  .whisper-send button { border:none; background:linear-gradient(135deg,var(--pink),var(--hot)); color:#fff; border-radius:20px; padding:0 18px; font-size:13px; cursor:pointer; }
+  .whisper-bubbles { margin-top:12px; display:flex; flex-direction:column; gap:8px; }
+  .wbubble { align-self:flex-start; max-width:92%; background:rgba(248,165,194,.12); border:1px solid rgba(248,165,194,.2); color:#eee; font-size:13px; padding:8px 12px; border-radius:12px 12px 12px 4px; animation:wbIn .35s ease; }
+  @keyframes wbIn { from{transform:translateY(8px);opacity:0} to{transform:none;opacity:1} }
+
+  .mood-bars { width:100%; display:flex; flex-direction:column; gap:9px; }
+  .mood-bar { display:flex; align-items:center; gap:8px; }
+  .mood-bar .lb { width:44px; font-size:13px; color:#c9c9da; flex-shrink:0; }
+  .mood-bar .track { flex:1; height:16px; background:rgba(255,255,255,.07); border-radius:9px; overflow:hidden; }
+  .mood-bar .fill { display:block; height:100%; width:0; border-radius:9px; background:linear-gradient(90deg,var(--pink),var(--purple)); transition:width 1s cubic-bezier(.25,.8,.25,1); }
+  .mood-bar .cnt { width:26px; font-size:13px; color:#888; text-align:right; flex-shrink:0; }
+  .mood-btn { display:block; margin:16px auto 0; border:none; background:rgba(248,165,194,.14); color:var(--pink); border-radius:18px; padding:8px 18px; font-size:13px; cursor:pointer; transition:.3s; }
+  .mood-btn:hover { background:rgba(248,165,194,.26); }
+
+  /* ===== 三步流程线 ===== */
+  .flow { position:relative; }
+  .flow::before {
+    content:''; position:absolute; top:60px; left:13%; right:13%; height:2px; z-index:0;
+    background:linear-gradient(90deg,transparent,var(--pink),var(--purple),transparent);
+    background-size:200% 100%; animation:flowMove 3s linear infinite; opacity:.45;
+  }
+  @keyframes flowMove { 0%{background-position:0% 0%} 100%{background-position:200% 0%} }
+
+  /* ===== 标题逐字浮入 ===== */
+  .title-reveal { display:inline-block; opacity:0; transform:translateY(26px); transition:opacity .55s ease, transform .55s cubic-bezier(.25,.8,.25,1.2); }
+  .section h2.show .title-reveal { opacity:1; transform:none; }
+
+  /* ===== 鼠标爱心跟随 ===== */
+  .cursor-heart { position:fixed; pointer-events:none; z-index:160; font-size:15px; animation:cursorHeart 1s ease-out forwards; }
+  @keyframes cursorHeart { 0%{transform:translate(-50%,-50%) scale(.5); opacity:.9} 100%{transform:translate(-50%,-130%) scale(1.15); opacity:0} }
+  @media (hover:none) { .cursor-heart { display:none; } }
+
   /* ===== 响应式 ===== */
   @media(max-width:700px) {
     .card.active { transform:scale(1.06) !important; }
@@ -235,6 +335,7 @@
 </head>
 <body>
 
+<div id="loader"><div class="loader-heart">💗</div><div class="loader-name">恋爱日记</div></div>
 <canvas id="bg"></canvas>
 <div class="nav-dots" id="navDots"></div>
 
@@ -249,6 +350,10 @@
   <p class="typewriter" id="typewriter"></p>
   <br>
   <a href="love-diary.apk" class="btn pulse">📱 下载 App</a>
+  <div class="hero-qr">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQgAAAEICAIAAAAslP2oAAAE8ElEQVR4nO3dQW4bRxBAUcrIjkfI/Y/mI3DNrJP8MTxGN7pbfG9nQKAomh8tsDRTX+/3+wH824///BsQBjQnBgRhQBAGBGFAEAYEYUAQBgRhQBAGBGFAEAYEYUAQBoS/Hjc9n38/TvB6/Rzyc109zt3XYdTzuevu973r+U3fD04MCMKAIAwIwoAgDAjCgCAMGDHHWPV5+ajP0e/OK+6aPfeYPTcY9fq8Dnk/XHFiQBAGBGFAEAYEYUAQBgRhwMw5xqddV7BqXrHquo5Pez84MSAIA4IwIAgDgjAgCAOCMGDFHON0s6/T+K7XdZzOiQFBGBCEAUEYEIQBQRgQhAHh4+YYs/dmjJp7mFes5cSAIAwIwoAgDAjCgCAMCMKAFXOMVXsS7tptz/eox9nt9X9t9nyuODEgCAOCMCAIA4IwIAgDgjBg5hzjlPsUjZpXjJpvrHo+n7aX4y4nBgRhQBAGBGFAEAYEYUAQBoyYY5zy9/Sn75/e7fl82vvBiQFBGBCEAUEYEIQBQRgQhAEj5hij/l5/lNOfzylzj+fk+2jtNrdxYkAQBgRhQBAGBGFAEAYEYcCK/Riz5wyzH+fq+c++f9Tdx5ntNXneMmp+MooTA4IwIAgDgjAgCAOCMCAIA1bsx1j1+fRu91MaNQ8Z9XxO2Xf+WnRdjRMDgjAgCAOCMCAIA4IwIAgDwtf7/X6MMPvz7NlW3Zdp9r7t2f9fz81+rlGcGBCEAUEYEIQBQRgQhAFBGLBijnH6noS7Vu2ROGXPxmyjXh8nBgRhQBAGBGFAEAYEYUAQBqzYjzHbbp/fX1k1z5l93cXp9x+74sSAIAwIwoAgDAjCgCAMCMKAEXOMVZ/3j9ovcfX4q/Y/3LXbfonXN91/4sSAIAwIwoAgDAjCgCAMCMKAE/ZjnH5fptm+6z6K3X5eJwYEYUAQBgRhQBAGBGFAEAbsdF+p2fs0Zj/OqnnL3a+f/X1fm81PRj2+EwOCMCAIA4IwIAgDgjAgCANGXI9x+h7o0/c2zDZ7bvNc9Lq5HgMG8KsUBGFAEAYEYUAQBgRhwIrrMUb9vf6q+clu3/eUPdzPRddjjHodnBgQhAFBGBCEAcKA3+PEgCAMmHk9xqp5xez7Gp2+r/qKPSS/5sSAIAwIwoAgDAjCgCAMCMKAneYYd+02rxg1f/i0uc2V3a7DcWJAEAYEYUAQBgRhQBAGBGHAiDnG6VbteThlX/io77vbvOguJwYEYUAQBgRhQBAGBGFAEAaM2I9xyn7rq8+/d7tOY7d92Hc9J+/BWLVnw4kBQRgQhAFBGBCEAUEYEIQBM/d8n7Ln4ZS92ne//pS5zZXd5h5ODAjCgCAMCMKAIAwIwoAgDJg5xzjlvkZ3rZpXnDI/WWX283FiQBAGBGFAEAYEYUAQBgRhwIo5xilWXQ9w9fWz76c0e1/4XaOuMxk133BiQBAGBGFAEAYEYUAQBgRhQDDH+EOjPu8fNd9Y5TlobjPq/lej5i1ODAjCgCAMCMKAIAwIwoAgDFgxx1h1P6jd7vt0yteP8lw0r7AfAybyqxQEYUAQBgRhQBAGBGFA+Hq/3487drse4Mqo+w7tNk9YtYf7rtnvk9k/lxMDgjAgCAOCMCAIA4IwIAgDRswx4BM4MSAIA4IwIAgDgjAgCAOCMCAIA4IwIAgDgjAgCAOCMCAIA4Iw4PF//wB+dCnPhtMU4AAAAABJRU5ErkJggg==" alt="扫码下载">
+    <span>扫码下载 App</span>
+  </div>
   <div class="scroll-hint">↓ 往下探索</div>
 </section>
 
@@ -268,6 +373,14 @@
     </div>
     <button class="feat-arrow next" aria-label="下一张">›</button>
     <div class="feat-dots" id="featDots"></div>
+  </div>
+</section>
+
+<!-- ===== 情话轮播 ===== -->
+<section class="section quotes-section">
+  <div class="quote-card">
+    <p id="quoteText"></p>
+    <div class="quote-dots" id="quoteDots"></div>
   </div>
 </section>
 
@@ -326,11 +439,51 @@
   <h2>恋 爱 互 动</h2>
   <p class="sub">五个小功能，让每天都多一点甜</p>
   <div class="steps">
-    <div class="step"><span class="s-num">NEW 01</span><span class="s-icon">💓</span><h3>戳一戳</h3><p>想 TA 了就点一下，对方打开 App 就能看到你的心动提醒。</p></div>
-    <div class="step"><span class="s-num">NEW 02</span><span class="s-icon">✨</span><h3>心愿清单</h3><p>一起写下想做的事，完成一个勾一个，两个人的进度看得见。</p></div>
-    <div class="step"><span class="s-num">NEW 03</span><span class="s-icon">🔥</span><h3>爱的打卡</h3><p>每天打卡想 TA，连续天数不断线，把爱变成每天的习惯。</p></div>
-    <div class="step"><span class="s-num">NEW 04</span><span class="s-icon">💬</span><h3>悄悄话</h3><p>专属两个人的留言墙，一句晚安一句想你，只有你们看得到。</p></div>
-    <div class="step"><span class="s-num">NEW 05</span><span class="s-icon">📊</span><h3>心情月报</h3><p>每月自动统计心情排行，看看这个月开心了几天、心动了几天。</p></div>
+    <div class="step demo-card">
+      <span class="s-num">NEW 01</span>
+      <h3>💓 戳一戳</h3>
+      <p>想 TA 了？点一下试试</p>
+      <button class="poke-btn" id="pokeBtn" aria-label="戳一戳">💓</button>
+      <div class="poke-count">已戳 <b id="pokeCount">0</b> 下</div>
+    </div>
+    <div class="step demo-card">
+      <span class="s-num">NEW 02</span>
+      <h3>✨ 心愿清单</h3>
+      <p>点一点，完成我们的心愿</p>
+      <div class="wish-list" id="wishList">
+        <div class="wish-item done"><span class="wish-check">✓</span><span class="txt">去看一场日出</span></div>
+        <div class="wish-item"><span class="wish-check"></span><span class="txt">一起做一顿饭</span></div>
+        <div class="wish-item"><span class="wish-check"></span><span class="txt">来一场说走就走的旅行</span></div>
+      </div>
+      <div class="wish-progress"><i id="wishFill"></i></div>
+      <div class="wish-num" id="wishNum">1 / 3 已完成</div>
+    </div>
+    <div class="step demo-card">
+      <span class="s-num">NEW 03</span>
+      <h3>🔥 爱的打卡</h3>
+      <p>点一下今天的小心心</p>
+      <div class="checkin-days" id="checkinDays"></div>
+      <div class="checkin-streak">连续 <b id="streakNum">4</b> 天</div>
+    </div>
+    <div class="step demo-card">
+      <span class="s-num">NEW 04</span>
+      <h3>💬 悄悄话</h3>
+      <p>写一句想对 TA 说的话</p>
+      <div class="whisper-demo">
+        <div class="whisper-send">
+          <input id="whisperInput" placeholder="比如：晚安，好梦…" maxlength="20">
+          <button id="whisperBtn">发送</button>
+        </div>
+        <div class="whisper-bubbles" id="whisperBubbles"></div>
+      </div>
+    </div>
+    <div class="step demo-card">
+      <span class="s-num">NEW 05</span>
+      <h3>📊 心情月报</h3>
+      <p>这个月我们的心情排行</p>
+      <div class="mood-bars" id="moodBars"></div>
+      <button class="mood-btn" id="moodBtn">重新生成</button>
+    </div>
   </div>
 </section>
 
@@ -338,7 +491,7 @@
 <section class="section">
   <h2>三 步 开 始</h2>
   <p class="sub">从下载到绑定，只要三分钟</p>
-  <div class="steps">
+  <div class="steps flow">
     <div class="step"><span class="s-num">STEP 01</span><span class="s-icon">📱</span><h3>下载 App</h3><p>点击按钮下载安装包，安卓手机直接安装，无需任何配置。</p></div>
     <div class="step"><span class="s-num">STEP 02</span><span class="s-icon">📝</span><h3>注册账号</h3><p>两个人各自注册自己的账号，昵称随便起，数据完全隔离。</p></div>
     <div class="step"><span class="s-num">STEP 03</span><span class="s-icon">🔗</span><h3>输入绑定码</h3><p>其中一人生成 6 位绑定码，另一人输入后即完成配对，开始写日记。</p></div>
@@ -365,6 +518,8 @@
   <a href="love-diary.apk" class="btn pulse" style="font-size:22px;padding:20px 64px;">📱 立即下载 App</a>
   <footer class="footer" style="border:none;margin-top:60px;">Made with <span>❤️</span> for couples · 恋爱日记 © 2026<a href="admin.html">管理入口</a></footer>
 </section>
+
+<a href="love-diary.apk" class="float-dl" id="floatDl">📱 下载 App</a>
 
 <script>
 // ============ 粒子背景：多层星空 + 爱心 + 连线 ============
@@ -618,77 +773,203 @@ const obs = new IntersectionObserver(entries => {
   entries.forEach((e, i) => { if (e.isIntersecting) setTimeout(() => e.target.classList.add('show'), i * 100) })
 }, { threshold: .1 })
 document.querySelectorAll('.step').forEach(s => obs.observe(s))
-const screens = document.querySelectorAll('.hero,.section,.cta')
-let screenIdx = 0
-let flipping = false
 
-// 右侧导航圆点
+// ============ 正常滚动 + 右侧导航圆点（滚动定位） ============
+const screens = document.querySelectorAll('.hero,.section,.cta')
 const dotsWrap = document.getElementById('navDots')
 const navDots = []
 screens.forEach((s, i) => {
   const b = document.createElement('button')
   b.setAttribute('aria-label', '第 ' + (i + 1) + ' 屏')
-  b.addEventListener('click', () => flipTo(i))
+  b.addEventListener('click', () => s.scrollIntoView({ behavior: 'smooth', block: 'start' }))
   dotsWrap.appendChild(b)
   navDots.push(b)
 })
-function renderDots() { navDots.forEach((b, i) => b.classList.toggle('on', i === screenIdx)) }
+function renderDots() {
+  const y = window.scrollY + window.innerHeight * 0.45
+  let idx = 0
+  screens.forEach((s, i) => { if (s.offsetTop <= y) idx = i })
+  navDots.forEach((b, i) => b.classList.toggle('on', i === idx))
+}
+window.addEventListener('scroll', renderDots, { passive: true })
 renderDots()
 
-function flipTo(idx) {
-  if (idx < 0 || idx >= screens.length || flipping) return
-  flipping = true
-  const prev = screens[screenIdx]
-  screenIdx = idx
-  renderDots()
-  const next = screens[idx]
+// ============ 加载动画 ============
+const loader = document.getElementById('loader')
+let loaderHidden = false
+function hideLoader() {
+  if (loaderHidden || !loader) return
+  loaderHidden = true
+  loader.classList.add('done')
+  setTimeout(() => loader.remove(), 700)
+}
+window.addEventListener('load', hideLoader)
+setTimeout(hideLoader, 1600)
 
-  // 旧页缩小下沉变暗
-  prev.style.transform = 'scale(0.88)'
-  prev.style.opacity = '0.4'
-  prev.style.filter = 'brightness(0.5)'
+// ============ 悬浮下载按钮 ============
+const floatDl = document.getElementById('floatDl')
+window.addEventListener('scroll', () => {
+  if (floatDl) floatDl.classList.toggle('show', window.scrollY > 220)
+}, { passive: true })
 
+// ============ 情话轮播 ============
+const quotes = [
+  '想你的次数，比星星还多 ✨',
+  '和你在一起的每一天，都值得纪念 💕',
+  '世界很大，而我的全世界是你 🌏',
+  '你一笑，我的世界就亮了 ☀️',
+  '最好的浪漫，是和你慢慢变老 🍂',
+  '遇见你之后，每天都是情人节 🌹'
+]
+const quoteText = document.getElementById('quoteText')
+const quoteDots = document.getElementById('quoteDots')
+let qi = 0
+quotes.forEach((_, i) => {
+  const b = document.createElement('button')
+  b.setAttribute('aria-label', '情话 ' + (i + 1))
+  b.addEventListener('click', () => setQuote(i))
+  quoteDots.appendChild(b)
+})
+function setQuote(i) {
+  qi = i
+  quoteText.classList.add('fade')
   setTimeout(() => {
-    next.scrollIntoView({ behavior: 'instant', block: 'start' })
-    // 新页从下方起始
-    next.style.transform = 'scale(0.92) translateY(60px)'
-    next.style.opacity = '0.6'
-    next.style.filter = 'brightness(0.7)'
+    quoteText.textContent = quotes[i]
+    ;[...quoteDots.children].forEach((d, j) => d.classList.toggle('on', j === i))
+    quoteText.classList.remove('fade')
+  }, 350)
+}
+setQuote(0)
+setInterval(() => setQuote((qi + 1) % quotes.length), 4200)
 
-    prev.style.transform = ''; prev.style.opacity = ''; prev.style.filter = ''
-
-    requestAnimationFrame(() => {
-      void next.offsetWidth
-      next.style.transform = 'scale(1) translateY(0)'
-      next.style.opacity = '1'
-      next.style.filter = 'brightness(1)'
-      setTimeout(() => { flipping = false }, 650)
-    })
-  }, 300)
+// ============ 戳一戳：爱心爆发 ============
+const pokeBtn = document.getElementById('pokeBtn')
+const pokeCount = document.getElementById('pokeCount')
+let pokeN = 0
+if (pokeBtn) {
+  pokeBtn.addEventListener('click', e => {
+    pokeN++; pokeCount.textContent = pokeN
+    const emojis = ['💗', '💖', '💕', '💓']
+    for (let i = 0; i < 8; i++) {
+      const h = document.createElement('span')
+      h.className = 'heart-burst'
+      h.textContent = emojis[i % 4]
+      h.style.left = (e.clientX + (Math.random() * 44 - 22)) + 'px'
+      h.style.top = (e.clientY + (Math.random() * 32 - 16)) + 'px'
+      document.body.appendChild(h)
+      setTimeout(() => h.remove(), 1000)
+    }
+  })
 }
 
-// 鼠标滚轮
-window.addEventListener('wheel', e => {
-  e.preventDefault()
-  if (e.deltaY > 30) flipTo(screenIdx + 1)
-  else if (e.deltaY < -30) flipTo(screenIdx - 1)
-}, { passive: false })
+// ============ 心愿清单：点选完成 ============
+const wishItems = document.querySelectorAll('#wishList .wish-item')
+const wishFill = document.getElementById('wishFill')
+const wishNum = document.getElementById('wishNum')
+function refreshWish() {
+  const d = document.querySelectorAll('#wishList .wish-item.done').length
+  wishFill.style.width = Math.round(d / wishItems.length * 100) + '%'
+  wishNum.textContent = d + ' / ' + wishItems.length + ' 已完成'
+}
+wishItems.forEach(el => el.addEventListener('click', () => { el.classList.toggle('done'); refreshWish() }))
+refreshWish()
 
-// 移动端触摸
-let touchY = 0
-window.addEventListener('touchstart', e => { touchY = e.touches[0].clientY }, { passive: true })
-window.addEventListener('touchend', e => {
-  const dy = touchY - e.changedTouches[0].clientY
-  if (Math.abs(dy) < 50) return
-  if (dy > 0) flipTo(screenIdx + 1)
-  else flipTo(screenIdx - 1)
+// ============ 爱的打卡：点亮今天 ============
+const checkinDays = document.getElementById('checkinDays')
+const streakNum = document.getElementById('streakNum')
+for (let i = 0; i < 7; i++) {
+  const d = document.createElement('div')
+  d.className = 'cday'
+  if (i < 4) { d.classList.add('done'); d.textContent = '✓' }
+  else if (i === 4) { d.classList.add('today'); d.textContent = '今' }
+  else d.textContent = String(i + 1)
+  d.addEventListener('click', () => {
+    if (i > 4) return
+    d.classList.toggle('done')
+    d.textContent = d.classList.contains('done') ? '✓' : '今'
+    streakNum.textContent = document.querySelectorAll('#checkinDays .cday.done').length
+  })
+  checkinDays.appendChild(d)
+}
+
+// ============ 悄悄话：发送即达 ============
+const whisperInput = document.getElementById('whisperInput')
+const whisperBtn = document.getElementById('whisperBtn')
+const whisperBubbles = document.getElementById('whisperBubbles')
+function sendWhisper() {
+  const v = whisperInput.value.trim()
+  if (!v) return
+  const b = document.createElement('div')
+  b.className = 'wbubble'
+  b.textContent = '💌 ' + v
+  whisperBubbles.appendChild(b)
+  whisperInput.value = ''
+  while (whisperBubbles.children.length > 3) whisperBubbles.removeChild(whisperBubbles.firstChild)
+}
+whisperBtn.addEventListener('click', sendWhisper)
+whisperInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendWhisper() })
+
+// ============ 心情月报：动态柱状图 ============
+const moodData = [['开心', 12], ['心动', 9], ['想你', 8], ['平静', 5]]
+const moodBars = document.getElementById('moodBars')
+const moodBtn = document.getElementById('moodBtn')
+function buildMood(animate) {
+  moodBars.innerHTML = ''
+  const max = Math.max(...moodData.map(m => m[1]))
+  moodData.forEach((m, idx) => {
+    const row = document.createElement('div')
+    row.className = 'mood-bar'
+    row.innerHTML = '<span class="lb">' + m[0] + '</span><span class="track"><i class="fill"></i></span><span class="cnt">' + m[1] + '</span>'
+    moodBars.appendChild(row)
+    const fill = row.querySelector('.fill')
+    const pct = Math.max(Math.round(m[1] / max * 100), 6)
+    if (animate) setTimeout(() => { fill.style.width = pct + '%' }, 150 + idx * 120)
+    else fill.style.width = pct + '%'
+  })
+}
+let moodBuilt = false
+const moodObs = new IntersectionObserver(es => {
+  es.forEach(e => { if (e.isIntersecting && !moodBuilt) { moodBuilt = true; buildMood(true) } })
+}, { threshold: .35 })
+if (moodBars) moodObs.observe(moodBars)
+moodBtn.addEventListener('click', () => {
+  moodData.forEach(m => { m[1] += Math.floor(Math.random() * 5) - 2; if (m[1] < 1) m[1] = 1 })
+  buildMood(true)
 })
 
-// 键盘上下键
-window.addEventListener('keydown', e => {
-  if (e.key === 'ArrowDown') { e.preventDefault(); flipTo(screenIdx + 1) }
-  if (e.key === 'ArrowUp') { e.preventDefault(); flipTo(screenIdx - 1) }
+// ============ 标题逐字浮入 ============
+document.querySelectorAll('.section h2').forEach(h => {
+  const raw = h.textContent
+  h.textContent = ''
+  ;[...raw].forEach((ch, i) => {
+    const s = document.createElement('span')
+    s.className = 'title-reveal'
+    s.style.transitionDelay = (i * 45) + 'ms'
+    s.textContent = ch === ' ' ? '\u00A0' : ch
+    h.appendChild(s)
+  })
 })
+const titleObs = new IntersectionObserver(es => {
+  es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('show'); titleObs.unobserve(e.target) } })
+}, { threshold: .4 })
+document.querySelectorAll('.section h2').forEach(h => titleObs.observe(h))
+
+// ============ 鼠标爱心跟随（桌面端） ============
+let lastHeart = 0
+if (window.matchMedia('(pointer: fine)').matches) {
+  document.addEventListener('pointermove', e => {
+    const now = Date.now()
+    if (now - lastHeart < 90) return
+    lastHeart = now
+    const h = document.createElement('span')
+    h.className = 'cursor-heart'
+    h.textContent = ['💗', '💕', '✨'][Math.floor(Math.random() * 3)]
+    h.style.left = e.clientX + 'px'
+    h.style.top = e.clientY + 'px'
+    document.body.appendChild(h)
+    setTimeout(() => h.remove(), 1000)
+  })
+}
 const nums=document.querySelectorAll('.num[data-target]')
 let counted=false
 const countObs=new IntersectionObserver(entries=>{if(entries[0].isIntersecting&&!counted){counted=true;nums.forEach(el=>{const t=+el.dataset.target,s=t>100?80:20,step=t/s;let c=0;const iv=setInterval(()=>{c+=step;if(c>=t){el.textContent=t;clearInterval(iv)}else{el.textContent=Math.floor(c)}},30)})}},{threshold:.3})

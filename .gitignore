@@ -29,3 +29,6 @@ dist/
 
 # 部署脚本（含服务器凭据，勿提交）
 deploy_love_diary.py
+
+# 数据库备份（本地导出，勿提交）
+backups/
