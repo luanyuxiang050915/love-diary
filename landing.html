@@ -296,6 +296,19 @@
   .title-reveal { display:inline-block; opacity:0; transform:translateY(26px); transition:opacity .55s ease, transform .55s cubic-bezier(.25,.8,.25,1.2); }
   .section h2.show .title-reveal { opacity:1; transform:none; }
 
+  /* ===== 模块进场/出场动画 ===== */
+  .scroll-anim .hero, .scroll-anim .section, .scroll-anim .cta {
+    opacity:0; transform:translateY(70px) scale(.97);
+    transition:opacity .65s ease, transform .65s cubic-bezier(.25,.8,.25,1);
+    will-change:opacity,transform;
+  }
+  .scroll-anim .hero.in, .scroll-anim .section.in, .scroll-anim .cta.in { opacity:1; transform:none; }
+  .scroll-anim .hero.out-top, .scroll-anim .section.out-top, .scroll-anim .cta.out-top { opacity:0; transform:translateY(-70px) scale(.97); }
+  .scroll-anim .hero.out-bottom, .scroll-anim .section.out-bottom, .scroll-anim .cta.out-bottom { opacity:0; transform:translateY(70px) scale(.97); }
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-anim .hero, .scroll-anim .section, .scroll-anim .cta { transition:none; transform:none; opacity:1; }
+  }
+
   /* ===== 鼠标爱心跟随 ===== */
   .cursor-heart { position:fixed; pointer-events:none; z-index:160; font-size:15px; animation:cursorHeart 1s ease-out forwards; }
   @keyframes cursorHeart { 0%{transform:translate(-50%,-50%) scale(.5); opacity:.9} 100%{transform:translate(-50%,-130%) scale(1.15); opacity:0} }
@@ -784,6 +797,26 @@ function renderDots() {
 }
 window.addEventListener('scroll', renderDots, { passive: true })
 renderDots()
+
+// ============ 模块进场/出场动画（按滚动位置） ============
+const animSections = document.querySelectorAll('.hero,.section,.cta')
+let secTicking = false
+function updateSectionStates() {
+  const vh = window.innerHeight
+  animSections.forEach(s => {
+    const r = s.getBoundingClientRect()
+    if (r.bottom < -60) { s.classList.remove('in'); s.classList.add('out-top') }
+    else if (r.top > vh + 60) { s.classList.remove('in'); s.classList.add('out-bottom') }
+    else { s.classList.add('in'); s.classList.remove('out-top', 'out-bottom') }
+  })
+  secTicking = false
+}
+function onScrollSections() {
+  if (!secTicking) { secTicking = true; requestAnimationFrame(updateSectionStates) }
+}
+window.addEventListener('scroll', onScrollSections, { passive: true })
+updateSectionStates()
+document.body.classList.add('scroll-anim')
 
 // ============ 加载动画 ============
 const loader = document.getElementById('loader')
