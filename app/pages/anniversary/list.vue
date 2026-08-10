@@ -2,7 +2,10 @@
   <view class="page">
     <view class="item" v-for="a in list" :key="a.id" @longpress="delItem(a.id)">
       <view class="left">
-        <text class="name">{{ a.name }}</text>
+        <view class="name-row">
+          <view class="kind-dot" :style="{ background: kindColor(a.kind) }"></view>
+          <text class="name">{{ a.name }}</text>
+        </view>
         <text class="date">{{ a.date }}</text>
       </view>
       <view class="right">
@@ -25,6 +28,12 @@
         <picker mode="date" :value="form.date" @change="e => form.date = e.detail.value">
           <view class="pop-input">{{ form.date || '选择日期' }}</view>
         </picker>
+        <picker :range="kinds" range-key="label" :value="kindIndex" @change="e => form.kind = kinds[e.detail.value].key">
+          <view class="pop-input">
+            <view class="kind-dot inline" :style="{ background: kindColor(form.kind) }"></view>
+            {{ kindLabel(form.kind) }}
+          </view>
+        </picker>
         <view class="pop-btns">
           <button class="pop-btn cancel" @click="closeForm">取消</button>
           <button class="pop-btn ok" @click="doSave">{{ editingId ? '保存' : '添加' }}</button>
@@ -37,7 +46,8 @@
 
 <script>
 import * as api from '../../common/api.js'
-import { formatDate, daysLeftText } from '../../common/util.js'
+import { applyTheme } from '../../common/theme.js'
+import { ANNIV_KINDS, annivKindMeta, formatDate, daysLeftText } from '../../common/util.js'
 
 export default {
   data() {
@@ -45,11 +55,20 @@ export default {
       list: [],
       showForm: false,
       editingId: null,
-      form: { name: '', date: formatDate() },
+      form: { name: '', date: formatDate(), kind: 'love' },
+      kinds: ANNIV_KINDS,
     }
   },
-  onShow() { this.loadList() },
+  onShow() { applyTheme(); this.loadList() },
+  computed: {
+    kindIndex() {
+      const i = this.kinds.findIndex(k => k.key === this.form.kind)
+      return i < 0 ? 0 : i
+    },
+  },
   methods: {
+    kindColor(kind) { return annivKindMeta(kind).color },
+    kindLabel(kind) { return annivKindMeta(kind).label },
     async loadList() {
       const { ok, data } = await api.listAnniversaries()
       if (ok) this.list = data
@@ -60,8 +79,8 @@ export default {
       if (a.days_left > 0) return `还有 ${a.days_left} 天`
       return `已过 ${Math.abs(a.days_left)} 天`
     },
-    openAdd() { this.editingId = null; this.form = { name: '', date: formatDate() }; this.showForm = true },
-    openEdit(a) { this.editingId = a.id; this.form = { name: a.name, date: a.date }; this.showForm = true },
+    openAdd() { this.editingId = null; this.form = { name: '', date: formatDate(), kind: 'love' }; this.showForm = true },
+    openEdit(a) { this.editingId = a.id; this.form = { name: a.name, date: a.date, kind: a.kind || 'love' }; this.showForm = true },
     closeForm() { this.showForm = false; this.editingId = null },
     async doSave() {
       if (!this.form.name) { uni.showToast({ title: '请输入名称', icon: 'none' }); return }
@@ -92,19 +111,22 @@ export default {
 .page { padding-bottom: 140rpx; }
 .item {
   display: flex; align-items: center; justify-content: space-between;
-  background: #fff; border-radius: 16rpx; padding: 28rpx;
+  background: var(--card); border-radius: 16rpx; padding: 28rpx;
   margin: 20rpx 30rpx;
 }
 .left { display: flex; flex-direction: column; }
+.name-row { display: flex; align-items: center; }
+.kind-dot { width: 20rpx; height: 20rpx; border-radius: 50%; margin-right: 14rpx; flex-shrink: 0; }
+.kind-dot.inline { display: inline-block; vertical-align: middle; margin-right: 10rpx; }
 .name { font-size: 30rpx; font-weight: bold; }
-.date { font-size: 24rpx; color: #999; margin-top: 6rpx; }
-.days { font-size: 28rpx; color: #f8a5c2; }
+.date { font-size: 24rpx; color: var(--muted); margin-top: 6rpx; }
+.days { font-size: 28rpx; color: var(--pink); }
 .days.today { color: #e74c3c; font-weight: bold; }
-.days.past { color: #999; }
+.days.past { color: var(--muted); }
 .fab {
   position: fixed; bottom: 40rpx; right: 40rpx;
   width: 100rpx; height: 100rpx;
-  background: #f8a5c2; border-radius: 50%;
+  background: var(--pink); border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   color: #fff; font-size: 50rpx;
   box-shadow: 0 4rpx 12rpx rgba(248,165,194,0.5);
@@ -116,18 +138,18 @@ export default {
   z-index: 999;
 }
 .popup {
-  width: 600rpx; background: #fff; border-radius: 24rpx; padding: 40rpx;
+  width: 600rpx; background: var(--card); border-radius: 24rpx; padding: 40rpx;
 }
 .pop-title { font-size: 32rpx; font-weight: bold; display: block; margin-bottom: 30rpx; }
 .pop-input {
-  width: 100%; height: 80rpx; background: #f5f5f5;
+  width: 100%; height: 80rpx; background: var(--bg);
   border-radius: 12rpx; padding: 0 20rpx; margin-bottom: 20rpx;
   font-size: 28rpx; line-height: 80rpx;
 }
 .pop-btns { display: flex; gap: 20rpx; margin-top: 20rpx; }
 .pop-btn { flex: 1; height: 80rpx; line-height: 80rpx; border-radius: 12rpx; font-size: 28rpx; text-align: center; }
-.pop-btn.cancel { background: #f0f0f0; color: #666; }
-.pop-btn.ok { background: #f8a5c2; color: #fff; }
+.pop-btn.cancel { background: var(--input-bg); color: var(--muted); }
+.pop-btn.ok { background: var(--pink); color: #fff; }
 .pop-del { display: block; text-align: center; color: #e74c3c; font-size: 26rpx; margin-top: 26rpx; }
-.empty { text-align: center; color: #999; font-size: 28rpx; padding-top: 200rpx; }
+.empty { text-align: center; color: var(--muted); font-size: 28rpx; padding-top: 200rpx; }
 </style>

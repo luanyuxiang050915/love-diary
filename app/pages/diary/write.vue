@@ -54,6 +54,7 @@
 
 <script>
 import * as api from '../../common/api.js'
+import { applyTheme } from '../../common/theme.js'
 import { formatDate, MOODS } from '../../common/util.js'
 
 export default {
@@ -152,24 +153,24 @@ export default {
 .page { padding: 30rpx; padding-bottom: 120rpx; }
 .textarea {
   width: 100%; min-height: 320rpx;
-  background: #fff; border-radius: 16rpx;
+  background: var(--card); border-radius: 16rpx;
   padding: 24rpx; font-size: 30rpx; line-height: 1.7;
 }
-.row { display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 16rpx; padding: 14rpx 24rpx; margin-top: 20rpx; }
-.label { font-size: 28rpx; color: #666; }
-.picker { font-size: 28rpx; color: #333; }
+.row { display: flex; align-items: center; justify-content: space-between; background: var(--card); border-radius: 16rpx; padding: 14rpx 24rpx; margin-top: 20rpx; }
+.label { font-size: 28rpx; color: var(--muted); }
+.picker { font-size: 28rpx; color: var(--text); }
 .img-list { display: flex; flex-wrap: wrap; }
 .img-item { width: 100rpx; height: 100rpx; border-radius: 12rpx; margin-left: 10rpx; }
 .img-add {
   width: 100rpx; height: 100rpx;
-  background: #f0f0f0; border-radius: 12rpx;
+  background: var(--input-bg); border-radius: 12rpx;
   margin-left: 10rpx;
   display: flex; align-items: center; justify-content: center;
-  font-size: 44rpx; color: #999;
+  font-size: 44rpx; color: var(--muted);
 }
 .btn {
   width: 100%; height: 90rpx;
-  background: #f8a5c2; color: #fff;
+  background: var(--pink); color: #fff;
   border-radius: 16rpx; font-size: 32rpx;
   margin-top: 40rpx;
 }

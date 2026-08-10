@@ -26,3 +26,21 @@ export function daysLeftText(dateStr) {
 
 /** 心情标签的 emoji+文字映射 */
 export const MOODS = ['心动 💓', '得意 😎', '开心 😊', '平静 😌', '无聊 😑', '累了 😫', '孤独 🥺', '丧 😞', '伤心 😢', '烦躁 😣', '生气 😤']
+
+/** 纪念日类型 → 颜色 / 文案（日历着色用） */
+export const ANNIV_KINDS = [
+  { key: 'love', label: '恋爱', color: '#f8a5c2' },
+  { key: 'birthday', label: '生日', color: '#f59e0b' },
+  { key: 'trip', label: '旅行', color: '#10b981' },
+  { key: 'memory', label: '纪念', color: '#8b5cf6' },
+  { key: 'other', label: '其他', color: '#64748b' },
+]
+
+export function annivKindMeta(kind) {
+  return ANNIV_KINDS.find(k => k.key === kind) || ANNIV_KINDS[4]
+}
+
+/** 某年某月的天数（m 为 1~12） */
+export function daysInMonth(y, m) {
+  return new Date(y, m, 0).getDate()
+}

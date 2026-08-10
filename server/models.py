@@ -59,6 +59,7 @@ class Anniversary(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     name = Column(String(50), nullable=False)          # 纪念日名称
     date = Column(Date, nullable=False)                # 纪念日日期（倒计时由前端算）
+    kind = Column(String(20), default="love")          # 类型：love 恋爱 / birthday 生日 / trip 旅行 / memory 纪念 / other 其他
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
@@ -107,6 +108,43 @@ class Whisper(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     content = Column(String(200), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Message(Base):
+    """双人聊天消息：服务器保存全部记录，客户端只保留最近 24 小时。"""
+
+    __tablename__ = "messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    sender_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    receiver_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    content = Column(Text, default="")                  # 文本内容（表情/贴图时可为空）
+    msg_type = Column(String(10), default="text")       # text / emoji / sticker
+    sticker_url = Column(String(255), default="")       # msg_type=sticker 时的图片地址
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+
+class AlbumPhoto(Base):
+    """共享相册：绑定双方共同的照片墙。"""
+
+    __tablename__ = "album_photos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    url = Column(String(255), nullable=False)
+    caption = Column(String(100), default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Sticker(Base):
+    """自定义表情包：绑定双方共享使用。"""
+
+    __tablename__ = "stickers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    url = Column(String(255), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 

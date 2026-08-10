@@ -18,6 +18,7 @@ def _to_out(a: Anniversary) -> AnniversaryOut:
         id=a.id,
         name=a.name,
         date=a.date,
+        kind=a.kind or "love",
         days_left=(a.date - date_cls.today()).days,
     )
 
@@ -36,7 +37,7 @@ def create_anniversary(
     db: Session = Depends(get_db),
 ):
     """新增纪念日。"""
-    anniv = Anniversary(user_id=current_user.id, name=data.name, date=data.date)
+    anniv = Anniversary(user_id=current_user.id, name=data.name, date=data.date, kind=data.kind or "love")
     db.add(anniv)
     db.commit()
     db.refresh(anniv)
@@ -69,6 +70,7 @@ def update_anniversary(
     anniv = _get_own(db, anniv_id, current_user)
     anniv.name = data.name
     anniv.date = data.date
+    anniv.kind = data.kind or "love"
     db.commit()
     db.refresh(anniv)
     return _to_out(anniv)

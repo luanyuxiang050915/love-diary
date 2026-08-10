@@ -14,8 +14,12 @@ export default {
 <style>
 /* 全局基础样式 */
 page {
-  background-color: #f5f5f5;
+  /* 主题变量（默认白色主题，theme.js 会按主题覆盖） */
+  --bg: #f5f5f5; --card: #ffffff; --pink: #f8a5c2; --hot: #ff6b9d;
+  --text: #333333; --muted: #999999; --border: #f0f0f0; --input-bg: #f5f5f5;
+  --pink-soft: #fff0f5; --purple-soft: #f3ecff;
+  background-color: var(--bg);
   font-size: 15px;
-  color: #333;
+  color: var(--text);
 }
 </style>

@@ -128,3 +128,17 @@ export const sendWhisper = (content) => request('/api/whispers', 'POST', { conte
 
 // 心情月报
 export const getMoodReport = (month) => request(`/api/stats/moods${month ? '?month=' + month : ''}`)
+
+// 双人聊天
+export const sendMessage = (data) => request('/api/messages', 'POST', data)
+export const listMessages = (afterId = 0) => request(`/api/messages?after_id=${afterId}&limit=200`)
+
+// 共享相册
+export const addAlbumPhoto = (data) => request('/api/album', 'POST', data)
+export const listAlbum = () => request('/api/album')
+export const deleteAlbumPhoto = (id) => request(`/api/album/${id}`, 'DELETE')
+
+// 自定义表情包
+export const addSticker = (url) => request('/api/stickers', 'POST', { url })
+export const listStickers = () => request('/api/stickers')
+export const deleteSticker = (id) => request(`/api/stickers/${id}`, 'DELETE')

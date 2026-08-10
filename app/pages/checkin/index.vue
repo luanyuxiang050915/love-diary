@@ -28,6 +28,7 @@
 
 <script>
 import * as api from '../../common/api.js'
+import { applyTheme } from '../../common/theme.js'
 
 function fmt(d) {
   const y = d.getFullYear()
@@ -40,7 +41,7 @@ export default {
   data() {
     return { st: { today: false, total: 0, streak: 0, best: 0, dates: [] }, days: [] }
   },
-  onShow() { this.load() },
+  onShow() { applyTheme(); this.load() },
   methods: {
     async load() {
       const { ok, data } = await api.getCheckin()
@@ -83,16 +84,16 @@ export default {
 .stats-row { display: flex; }
 .stat { flex: 1; }
 .num { display: block; font-size: 48rpx; font-weight: bold; color: #ff6b9d; }
-.done + .stats-row .num { color: #333; }
-.label { display: block; font-size: 22rpx; color: #999; margin-top: 4rpx; }
-.section { background: #fff; border-radius: 24rpx; margin: 0 30rpx; padding: 24rpx 30rpx; }
-.section-title { font-size: 26rpx; color: #999; margin-bottom: 20rpx; }
+.done + .stats-row .num { color: var(--text); }
+.label { display: block; font-size: 22rpx; color: var(--muted); margin-top: 4rpx; }
+.section { background: var(--card); border-radius: 24rpx; margin: 0 30rpx; padding: 24rpx 30rpx; }
+.section-title { font-size: 26rpx; color: var(--muted); margin-bottom: 20rpx; }
 .days { display: flex; flex-wrap: wrap; gap: 10rpx; }
 .day {
   width: 56rpx; height: 56rpx; border-radius: 14rpx;
-  background: #f5f5f5; display: flex; align-items: center; justify-content: center;
+  background: var(--bg); display: flex; align-items: center; justify-content: center;
   font-size: 24rpx; color: #fff;
 }
 .day.done { background: linear-gradient(135deg, #ff6b9d, #f8a5c2); }
-.legend { text-align: center; font-size: 22rpx; color: #bbb; margin-top: 20rpx; }
+.legend { text-align: center; font-size: 22rpx; color: var(--muted); margin-top: 20rpx; }
 </style>

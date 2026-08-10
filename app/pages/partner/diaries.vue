@@ -22,12 +22,13 @@
 
 <script>
 import * as api from '../../common/api.js'
+import { applyTheme } from '../../common/theme.js'
 
 export default {
   data() {
     return { diaries: [] }
   },
-  onShow() {
+  onShow() { applyTheme();
     this.loadList()
   },
   methods: {
@@ -47,15 +48,15 @@ export default {
 <style scoped>
 .page { padding-bottom: 60rpx; }
 .card {
-  background: #fff; border-radius: 16rpx;
+  background: var(--card); border-radius: 16rpx;
   padding: 28rpx; margin: 20rpx 30rpx;
 }
 .card-header { display: flex; align-items: center; margin-bottom: 14rpx; }
-.card-date { font-size: 24rpx; color: #999; margin-right: 16rpx; }
-.card-mood { font-size: 24rpx; color: #f8a5c2; background: #fdf0f5; padding: 4rpx 14rpx; border-radius: 8rpx; }
-.card-body { font-size: 28rpx; color: #333; line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.card-date { font-size: 24rpx; color: var(--muted); margin-right: 16rpx; }
+.card-mood { font-size: 24rpx; color: var(--pink); background: var(--pink-soft); padding: 4rpx 14rpx; border-radius: 8rpx; }
+.card-body { font-size: 28rpx; color: var(--text); line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
 .card-images { display: flex; flex-wrap: wrap; margin-top: 16rpx; }
 .card-img { width: 160rpx; height: 160rpx; border-radius: 12rpx; margin-right: 12rpx; }
-.empty { display: flex; flex-direction: column; align-items: center; padding-top: 200rpx; color: #999; font-size: 28rpx; }
+.empty { display: flex; flex-direction: column; align-items: center; padding-top: 200rpx; color: var(--muted); font-size: 28rpx; }
 .empty-icon { font-size: 80rpx; margin-bottom: 20rpx; }
 </style>

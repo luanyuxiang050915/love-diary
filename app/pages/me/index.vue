@@ -36,11 +36,22 @@
       <view class="action" @click="showLogs">登录记录</view>
       <view class="action danger" @click="doLogout">退出登录</view>
     </view>
+
+    <!-- 个性化 -->
+    <view class="section">
+      <view class="section-title">个性化</view>
+      <view class="action" @click="changeTheme">
+        <text>🎨 主题</text>
+        <text class="value">{{ themeLabel }}</text>
+      </view>
+    </view>
   </view>
 </template>
 
 <script>
 import * as api from '../../common/api.js'
+import { applyTheme } from '../../common/theme.js'
+import { getThemeName, setThemeName, THEME_NAMES } from '../../common/theme.js'
 import store from '../../common/store.js'
 
 export default {
@@ -48,6 +59,7 @@ export default {
     return {
       user: {},
       bindCode: '',
+      themeLabel: '',
     }
   },
   computed: {
@@ -59,9 +71,26 @@ export default {
       return ''
     },
   },
-  onShow() { this.loadMe() },
+  onShow() { applyTheme(); this.loadMe(); this.refreshTheme() },
 
   methods: {
+    refreshTheme() {
+      const t = THEME_NAMES.find(x => x.key === getThemeName())
+      this.themeLabel = t ? t.emoji + ' ' + t.label : ''
+    },
+    changeTheme() {
+      uni.showActionSheet({
+        itemList: THEME_NAMES.map(t => t.emoji + ' ' + t.label),
+        success: (res) => {
+          const t = THEME_NAMES[res.tapIndex]
+          if (!t) return
+          setThemeName(t.key)
+          applyTheme(t.key)
+          this.themeLabel = t.emoji + ' ' + t.label
+          uni.showToast({ title: '已切换为「' + t.label + '」主题', icon: 'none' })
+        },
+      })
+    },
     async loadMe() {
       const { ok, data } = await api.getMe()
       if (ok) { this.user = data; store.updateUser(data) }
@@ -136,25 +165,25 @@ export default {
 .page { padding-bottom: 60rpx; }
 .header {
   display: flex; align-items: center;
-  background: #fff; border-radius: 16rpx;
+  background: var(--card); border-radius: 16rpx;
   padding: 40rpx 30rpx; margin: 20rpx 30rpx;
 }
-.avatar { width: 110rpx; height: 110rpx; border-radius: 50%; background: #f0f0f0; }
+.avatar { width: 110rpx; height: 110rpx; border-radius: 50%; background: var(--input-bg); }
 .name-row { margin-left: 24rpx; display: flex; flex-direction: column; }
 .nickname { font-size: 34rpx; font-weight: bold; }
-.edit-hint { font-size: 22rpx; color: #999; margin-top: 4rpx; }
+.edit-hint { font-size: 22rpx; color: var(--muted); margin-top: 4rpx; }
 .section {
-  background: #fff; border-radius: 16rpx;
+  background: var(--card); border-radius: 16rpx;
   padding: 24rpx 30rpx; margin: 0 30rpx 24rpx;
 }
-.section-title { font-size: 24rpx; color: #999; margin-bottom: 16rpx; }
+.section-title { font-size: 24rpx; color: var(--muted); margin-bottom: 16rpx; }
 .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16rpx; }
-.label { font-size: 28rpx; color: #333; }
-.value { font-size: 28rpx; color: #f8a5c2; }
+.label { font-size: 28rpx; color: var(--text); }
+.value { font-size: 28rpx; color: var(--pink); }
 .selectable { user-select: all; }
-.bind-input { flex: 1; height: 64rpx; background: #f5f5f5; border-radius: 8rpx; padding: 0 16rpx; font-size: 26rpx; margin-right: 16rpx; }
-.small-btn { background: #f8a5c2; color: #fff; border-radius: 8rpx; }
-.action { padding: 20rpx 0; font-size: 28rpx; color: #333; border-bottom: 1rpx solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
+.bind-input { flex: 1; height: 64rpx; background: var(--input-bg); border-radius: 8rpx; padding: 0 16rpx; font-size: 26rpx; margin-right: 16rpx; }
+.small-btn { background: var(--pink); color: #fff; border-radius: 8rpx; }
+.action { padding: 20rpx 0; font-size: 28rpx; color: var(--text); border-bottom: 1rpx solid var(--border); display: flex; align-items: center; justify-content: space-between; }
 .action:last-child { border-bottom: none; }
 .danger { color: #e74c3c; }
 </style>

@@ -12,13 +12,16 @@ from fastapi.staticfiles import StaticFiles
 from database import Base, engine
 from routers import (
     admin,
+    album,
     anniversaries,
     auth,
     bind,
     checkins,
+    chat,
     diaries,
     pokes,
     stats,
+    stickers,
     upload,
     whispers,
     wishes,
@@ -54,6 +57,9 @@ app.include_router(wishes.router, prefix="/api")
 app.include_router(checkins.router, prefix="/api")
 app.include_router(whispers.router, prefix="/api")
 app.include_router(stats.router, prefix="/api")
+app.include_router(chat.router, prefix="/api")
+app.include_router(album.router, prefix="/api")
+app.include_router(stickers.router, prefix="/api")
 
 
 @app.get("/")

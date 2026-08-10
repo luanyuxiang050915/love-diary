@@ -22,12 +22,13 @@
 
 <script>
 import * as api from '../../common/api.js'
+import { applyTheme } from '../../common/theme.js'
 
 export default {
   data() {
     return { whispers: [], content: '', scrollInto: '' }
   },
-  onShow() { this.load() },
+  onShow() { applyTheme(); this.load() },
   methods: {
     async load() {
       const { ok, data } = await api.listWhispers()
@@ -50,17 +51,17 @@ export default {
 <style scoped>
 .page { height: 100vh; display: flex; flex-direction: column; }
 .list { flex: 1; padding: 20rpx 30rpx 160rpx; box-sizing: border-box; }
-.tip { text-align: center; color: #bbb; font-size: 26rpx; padding-top: 120rpx; }
-.w-item { background: #fff; border-radius: 20rpx; padding: 24rpx; margin-bottom: 20rpx; }
+.tip { text-align: center; color: var(--muted); font-size: 26rpx; padding-top: 120rpx; }
+.w-item { background: var(--card); border-radius: 20rpx; padding: 24rpx; margin-bottom: 20rpx; }
 .w-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10rpx; }
-.w-name { font-size: 24rpx; color: #f8a5c2; font-weight: bold; }
-.w-time { font-size: 20rpx; color: #bbb; }
-.w-content { font-size: 30rpx; color: #333; line-height: 1.7; word-break: break-all; }
+.w-name { font-size: 24rpx; color: var(--pink); font-weight: bold; }
+.w-time { font-size: 20rpx; color: var(--muted); }
+.w-content { font-size: 30rpx; color: var(--text); line-height: 1.7; word-break: break-all; }
 .input-bar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
   display: flex; align-items: center; padding: 16rpx 30rpx calc(16rpx + env(safe-area-inset-bottom));
-  background: #fff; border-top: 1rpx solid #f0f0f0;
+  background: var(--card); border-top: 1rpx solid var(--border);
 }
-.w-input { flex: 1; background: #f5f5f5; border-radius: 36rpx; padding: 14rpx 26rpx; font-size: 28rpx; margin-right: 16rpx; }
+.w-input { flex: 1; background: var(--bg); border-radius: 36rpx; padding: 14rpx 26rpx; font-size: 28rpx; margin-right: 16rpx; }
 .send-btn { background: linear-gradient(135deg, #f8a5c2, #ff6b9d); color: #fff; border-radius: 36rpx; padding: 0 34rpx; }
 </style>

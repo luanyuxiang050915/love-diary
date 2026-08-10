@@ -27,6 +27,7 @@
 
 <script>
 import * as api from '../../common/api.js'
+import { applyTheme } from '../../common/theme.js'
 
 export default {
   data() {
@@ -42,10 +43,14 @@ export default {
         { key: 'checkin', emoji: '🔥', title: '爱的打卡', desc: '记录我们的坚持', url: '/pages/checkin/index' },
         { key: 'whisper', emoji: '💌', title: '悄悄话', desc: '留言给 TA 的心里话', url: '/pages/whisper/list' },
         { key: 'mood', emoji: '📊', title: '心情月报', desc: '看看这个月的心情变化', url: '/pages/stats/mood', wide: true },
+        { key: 'chat', emoji: '💬', title: '双人聊天', desc: '实时聊天 · 基础表情 + 自定义表情包', url: '/pages/chat/index' },
+        { key: 'album', emoji: '📷', title: '共享相册', desc: '两个人的照片墙，按月归档', url: '/pages/album/index' },
+        { key: 'calendar', emoji: '📅', title: '纪念日日历', desc: '不同纪念日用不同颜色标记', url: '/pages/calendar/index' },
+        { key: 'fortune', emoji: '🎋', title: '每日一签', desc: '摇一摇签筒，看看今天的缘分签', url: '/pages/fortune/index', wide: true },
       ]
     },
   },
-  onShow() {
+  onShow() { applyTheme();
     this.loadPokeUnread()
   },
   methods: {
@@ -63,7 +68,7 @@ export default {
 <style scoped>
 .page {
   min-height: 100vh;
-  background: linear-gradient(180deg, #fff0f5 0%, #f5f5f5 280rpx);
+  background: linear-gradient(180deg, var(--pink-soft) 0%, var(--bg) 280rpx);
   padding-bottom: 60rpx;
 }
 
@@ -75,13 +80,13 @@ export default {
   display: block;
   font-size: 46rpx;
   font-weight: bold;
-  color: #333;
+  color: var(--text);
 }
 
 .hero-sub {
   display: block;
   font-size: 26rpx;
-  color: #999;
+  color: var(--muted);
   margin-top: 10rpx;
 }
 
@@ -94,7 +99,7 @@ export default {
 
 .card {
   width: 330rpx;
-  background: #fff;
+  background: var(--card);
   border-radius: 24rpx;
   padding: 30rpx 24rpx;
   margin-bottom: 24rpx;
@@ -127,13 +132,13 @@ export default {
 .card-title {
   font-size: 30rpx;
   font-weight: bold;
-  color: #333;
+  color: var(--text);
 }
 
 .card-desc {
   display: block;
   font-size: 22rpx;
-  color: #bbb;
+  color: var(--muted);
   margin-top: 6rpx;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -141,7 +146,7 @@ export default {
 }
 
 .card-arrow {
-  color: #ddd;
+  color: var(--muted);
   font-size: 36rpx;
   margin-left: 10rpx;
   flex-shrink: 0;
@@ -153,7 +158,7 @@ export default {
   border-radius: 16rpx;
   text-align: center;
   line-height: 32rpx;
-  background: #ff6b9d;
+  background: var(--hot);
   color: #fff;
   font-size: 20rpx;
   padding: 0 8rpx;
@@ -164,7 +169,7 @@ export default {
 .footer-tip {
   text-align: center;
   font-size: 22rpx;
-  color: #ccc;
+  color: var(--muted);
   margin-top: 20rpx;
 }
 </style>

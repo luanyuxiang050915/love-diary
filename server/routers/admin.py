@@ -10,7 +10,7 @@ from sqlalchemy import func
 
 import security
 from database import get_db
-from models import Anniversary, Checkin, Diary, LoginLog, Poke, User, Whisper, Wish
+from models import AlbumPhoto, Anniversary, Checkin, Diary, LoginLog, Message, Poke, Sticker, User, Whisper, Wish
 from schemas import DiaryOut
 
 load_dotenv()
@@ -58,6 +58,9 @@ def delete_user(user_id: int, _ok: bool = Depends(_check_admin), db: Session = D
     db.query(Wish).filter(Wish.user_id == user_id).delete()
     db.query(Checkin).filter(Checkin.user_id == user_id).delete()
     db.query(Whisper).filter(Whisper.user_id == user_id).delete()
+    db.query(Message).filter(or_(Message.sender_id == user_id, Message.receiver_id == user_id)).delete()
+    db.query(AlbumPhoto).filter(AlbumPhoto.user_id == user_id).delete()
+    db.query(Sticker).filter(Sticker.user_id == user_id).delete()
     # 解除对方的绑定
     if user.partner_id:
         partner = db.query(User).filter(User.id == user.partner_id).first()

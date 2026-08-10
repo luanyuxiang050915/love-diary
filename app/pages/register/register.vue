@@ -13,6 +13,7 @@
 
 <script>
 import * as api from '../../common/api.js'
+import { applyTheme } from '../../common/theme.js'
 import store from '../../common/store.js'
 
 export default {
@@ -52,11 +53,11 @@ export default {
   padding-top: 100rpx;
 }
 .logo { font-size: 80rpx; margin-bottom: 20rpx; }
-.title { font-size: 34rpx; font-weight: bold; margin-bottom: 60rpx; color: #f8a5c2; }
+.title { font-size: 34rpx; font-weight: bold; margin-bottom: 60rpx; color: var(--pink); }
 .input {
   width: 85%;
   height: 90rpx;
-  background: #fff;
+  background: var(--card);
   border-radius: 16rpx;
   padding: 0 30rpx;
   margin-bottom: 24rpx;
@@ -65,7 +66,7 @@ export default {
 .btn {
   width: 85%;
   height: 90rpx;
-  background: #f8a5c2;
+  background: var(--pink);
   color: #fff;
   border-radius: 16rpx;
   font-size: 32rpx;

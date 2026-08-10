@@ -55,6 +55,22 @@
     {
       "path": "pages/stats/mood",
       "style": { "navigationBarTitleText": "心情月报" }
+    },
+    {
+      "path": "pages/chat/index",
+      "style": { "navigationBarTitleText": "双人聊天" }
+    },
+    {
+      "path": "pages/album/index",
+      "style": { "navigationBarTitleText": "共享相册" }
+    },
+    {
+      "path": "pages/calendar/index",
+      "style": { "navigationBarTitleText": "纪念日日历" }
+    },
+    {
+      "path": "pages/fortune/index",
+      "style": { "navigationBarTitleText": "每日一签" }
     }
   ],
   "globalStyle": {

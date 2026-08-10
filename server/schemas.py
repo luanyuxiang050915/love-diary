@@ -78,12 +78,14 @@ class DiaryOut(BaseModel):
 class AnniversaryIn(BaseModel):
     name: str = Field(min_length=1, max_length=50, description="纪念日名称")
     date: date
+    kind: str = Field(default="love", max_length=20, description="类型：love/birthday/trip/memory/other")
 
 
 class AnniversaryOut(BaseModel):
     id: int
     name: str
     date: date
+    kind: str = "love"
     days_left: Optional[int] = None   # 距今天数：正数=还有几天，0=今天，负数=已过
 
     class Config:
@@ -158,3 +160,48 @@ class MoodReportOut(BaseModel):
     month: str
     total: int
     stats: list[MoodStatItem]
+
+
+# ---------- 双人聊天 ----------
+class MessageIn(BaseModel):
+    content: str = Field(default="", max_length=1000, description="文本内容")
+    msg_type: str = Field(default="text", max_length=10, description="text / emoji / sticker")
+    sticker_url: str = Field(default="", max_length=255, description="贴图地址")
+
+
+class MessageOut(BaseModel):
+    id: int
+    sender_id: int
+    sender_nickname: str
+    receiver_id: int
+    content: str
+    msg_type: str
+    sticker_url: str
+    created_at: datetime
+
+
+# ---------- 共享相册 ----------
+class AlbumIn(BaseModel):
+    url: str = Field(min_length=1, max_length=255, description="图片地址")
+    caption: str = Field(default="", max_length=100, description="照片说明")
+
+
+class AlbumOut(BaseModel):
+    id: int
+    user_id: int
+    nickname: str
+    url: str
+    caption: str
+    created_at: datetime
+
+
+# ---------- 自定义表情包 ----------
+class StickerIn(BaseModel):
+    url: str = Field(min_length=1, max_length=255, description="表情图片地址")
+
+
+class StickerOut(BaseModel):
+    id: int
+    user_id: int
+    url: str
+    created_at: datetime
