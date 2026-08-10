@@ -196,8 +196,7 @@
 
   /* ===== 三步开始 ===== */
   .steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr)); gap:clamp(14px,2.5vw,26px); max-width:1040px; margin:0 auto; }
-  .step { position:relative; background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(255,255,255,.01)); border:1px solid rgba(255,255,255,.07); border-radius:clamp(20px,3vw,26px); padding:clamp(26px,4vw,40px) clamp(16px,3vw,28px) clamp(24px,3.5vw,34px); text-align:center; transition:all .45s cubic-bezier(.25,.8,.25,1.2); overflow:hidden; transform:translateY(60px); opacity:0; }
-  .step.show { transform:translateY(0); opacity:1; }
+  .step { position:relative; background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(255,255,255,.01)); border:1px solid rgba(255,255,255,.07); border-radius:clamp(20px,3vw,26px); padding:clamp(26px,4vw,40px) clamp(16px,3vw,28px) clamp(24px,3.5vw,34px); text-align:center; transition:all .45s cubic-bezier(.25,.8,.25,1.2); overflow:hidden; }
   .step:hover { transform:translateY(-7px); border-color:rgba(248,165,194,.4); box-shadow:0 20px 55px rgba(0,0,0,.4),0 0 35px rgba(248,165,194,.12); }
   .step::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:70px; height:3px; border-radius:3px; background:linear-gradient(90deg,var(--pink),var(--hot)); opacity:.8; }
   .step .s-num { position:absolute; top:18px; left:20px; font-size:13px; font-weight:900; color:var(--pink); opacity:.5; letter-spacing:2px; }
@@ -296,17 +295,19 @@
   .title-reveal { display:inline-block; opacity:0; transform:translateY(26px); transition:opacity .55s ease, transform .55s cubic-bezier(.25,.8,.25,1.2); }
   .section h2.show .title-reveal { opacity:1; transform:none; }
 
-  /* ===== 模块进场/出场动画 ===== */
-  .scroll-anim .hero, .scroll-anim .section, .scroll-anim .cta {
-    opacity:0; transform:translateY(70px) scale(.97);
-    transition:opacity .65s ease, transform .65s cubic-bezier(.25,.8,.25,1);
-    will-change:opacity,transform;
+  /* ===== 小块进场/出场动画 ===== */
+  .anim-item {
+    opacity:0; transform:translateY(46px) scale(.98);
+    transition:opacity .55s ease, transform .55s cubic-bezier(.25,.8,.25,1);
+    transition-delay:0s;
   }
-  .scroll-anim .hero.in, .scroll-anim .section.in, .scroll-anim .cta.in { opacity:1; transform:none; }
-  .scroll-anim .hero.out-top, .scroll-anim .section.out-top, .scroll-anim .cta.out-top { opacity:0; transform:translateY(-70px) scale(.97); }
-  .scroll-anim .hero.out-bottom, .scroll-anim .section.out-bottom, .scroll-anim .cta.out-bottom { opacity:0; transform:translateY(70px) scale(.97); }
+  .anim-item.in { opacity:1; transform:none; transition-delay:var(--delay,0ms); }
+  .anim-item.out-top { opacity:0; transform:translateY(-46px) scale(.98); }
+  .anim-item.out-bottom { opacity:0; transform:translateY(46px) scale(.98); }
+  .anim-item.btn.in:hover { transform:translateY(-4px) scale(1.04); }
+  .anim-item.step.in:hover { transform:translateY(-7px); }
   @media (prefers-reduced-motion: reduce) {
-    .scroll-anim .hero, .scroll-anim .section, .scroll-anim .cta { transition:none; transform:none; opacity:1; }
+    .anim-item { transition:none; transform:none; opacity:1; }
   }
 
   /* ===== 鼠标爱心跟随 ===== */
@@ -772,12 +773,6 @@ if (window.matchMedia('(pointer: fine)').matches && phoneRow3d) {
   phoneRow3d.addEventListener('mouseleave', () => { phoneRow3d.style.transform = '' })
 }
 
-// ============ 滚动渐显卡片 ============
-const obs = new IntersectionObserver(entries => {
-  entries.forEach((e, i) => { if (e.isIntersecting) setTimeout(() => e.target.classList.add('show'), i * 100) })
-}, { threshold: .1 })
-document.querySelectorAll('.step').forEach(s => obs.observe(s))
-
 // ============ 正常滚动 + 右侧导航圆点（滚动定位） ============
 const screens = document.querySelectorAll('.hero,.section,.cta')
 const dotsWrap = document.getElementById('navDots')
@@ -798,24 +793,39 @@ function renderDots() {
 window.addEventListener('scroll', renderDots, { passive: true })
 renderDots()
 
-// ============ 模块进场/出场动画（按滚动位置） ============
-const animSections = document.querySelectorAll('.hero,.section,.cta')
-let secTicking = false
-function updateSectionStates() {
+// ============ 小块进场/出场动画（每个小块独立 + 错峰延迟） ============
+const ITEM_SELECTORS = [
+  '.hero .logo-wrap', '.hero h1', '.hero .tagline', '.hero .typewriter', '.hero .btn', '.hero .hero-qr', '.hero .scroll-hint',
+  '.section h2', '.section > .sub',
+  '.feat-carousel', '.quote-card',
+  '.phone-stage', '.phone-caption', '.stage-hint',
+  '.steps .step', '.stats .stat',
+  '.cta h2', '.cta p', '.cta .btn'
+].join(',')
+const animItems = []
+document.querySelectorAll(ITEM_SELECTORS).forEach(el => {
+  el.classList.add('anim-item')
+  const group = el.closest('.hero,.section,.cta') || document.body
+  const idx = Array.from(group.querySelectorAll(ITEM_SELECTORS)).indexOf(el)
+  el.style.setProperty('--delay', Math.min(idx * 70, 420) + 'ms')
+  animItems.push(el)
+})
+let itemTicking = false
+function updateItemStates() {
   const vh = window.innerHeight
-  animSections.forEach(s => {
-    const r = s.getBoundingClientRect()
-    if (r.bottom < -60) { s.classList.remove('in'); s.classList.add('out-top') }
-    else if (r.top > vh + 60) { s.classList.remove('in'); s.classList.add('out-bottom') }
-    else { s.classList.add('in'); s.classList.remove('out-top', 'out-bottom') }
+  animItems.forEach(el => {
+    const r = el.getBoundingClientRect()
+    if (r.bottom < -50) { el.classList.remove('in'); el.classList.add('out-top') }
+    else if (r.top > vh + 50) { el.classList.remove('in'); el.classList.add('out-bottom') }
+    else { el.classList.add('in'); el.classList.remove('out-top', 'out-bottom') }
   })
-  secTicking = false
+  itemTicking = false
 }
-function onScrollSections() {
-  if (!secTicking) { secTicking = true; requestAnimationFrame(updateSectionStates) }
+function onScrollItems() {
+  if (!itemTicking) { itemTicking = true; requestAnimationFrame(updateItemStates) }
 }
-window.addEventListener('scroll', onScrollSections, { passive: true })
-updateSectionStates()
+window.addEventListener('scroll', onScrollItems, { passive: true })
+updateItemStates()
 document.body.classList.add('scroll-anim')
 
 // ============ 加载动画 ============
