@@ -1,8 +1,8 @@
 """接口的请求/响应数据模型（Pydantic）。"""
-from datetime import date, datetime
+from datetime import date as date_type, datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 # ---------- 用户 ----------
@@ -56,8 +56,13 @@ class DiaryIn(BaseModel):
     content: str = Field(min_length=1, description="日记内容")
     mood: str = Field(default="", max_length=20, description="心情标签")
     images: list[str] = Field(default=[], description="图片 URL 列表")
-    date: Optional[date] = None                          # 不填默认当天
+    date: Optional[date_type] = None                     # 不填默认当天（用全限定名避免与字段名 date 冲突）
     visible_to_partner: bool = True                      # 是否允许另一半看到
+
+    @field_validator("date", mode="before")
+    @classmethod
+    def _empty_date_to_none(cls, v):
+        return None if v == "" else v
 
 
 class DiaryOut(BaseModel):
@@ -65,7 +70,7 @@ class DiaryOut(BaseModel):
     content: str
     mood: str
     images: list[str]
-    date: date
+    date: date_type
     visible_to_partner: bool
     created_at: datetime
     updated_at: datetime
@@ -77,14 +82,14 @@ class DiaryOut(BaseModel):
 # ---------- 纪念日 ----------
 class AnniversaryIn(BaseModel):
     name: str = Field(min_length=1, max_length=50, description="纪念日名称")
-    date: date
+    date: date_type
     kind: str = Field(default="love", max_length=20, description="类型：love/birthday/trip/memory/other")
 
 
 class AnniversaryOut(BaseModel):
     id: int
     name: str
-    date: date
+    date: date_type
     kind: str = "love"
     days_left: Optional[int] = None   # 距今天数：正数=还有几天，0=今天，负数=已过
 
