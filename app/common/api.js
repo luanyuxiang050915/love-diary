@@ -39,7 +39,12 @@ function request(path, method = 'GET', data = null, auth = true) {
           uni.reLaunch({ url: '/pages/login/login' })
           resolve({ ok: false, msg: '登录过期，请重新登录' })
         } else {
-          resolve({ ok: false, msg: res.data?.detail || '请求失败' })
+          let msg = res.data?.detail || '请求失败'
+          // FastAPI 参数校验错误的 detail 是数组，转成可读文案
+          if (Array.isArray(msg)) {
+            msg = msg.map(d => (d && d.msg) || '参数有误').filter(Boolean).join('；')
+          }
+          resolve({ ok: false, msg })
         }
       },
       fail(err) {
