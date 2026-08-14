@@ -62,6 +62,7 @@ export const login = (data) => request('/api/auth/login', 'POST', data, false)
 export const getMe = () => request('/api/me')
 export const updateMe = (data) => request('/api/me', 'PUT', data)
 export const changePassword = (data) => request('/api/auth/password', 'PUT', data)
+export const resetPassword = (data) => request('/api/auth/password', 'POST', data, false)
 export const getLoginLogs = () => request('/api/login-logs')
 
 // 日记

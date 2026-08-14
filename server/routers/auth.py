@@ -12,6 +12,7 @@ from schemas import (
     ChangePasswordIn,
     LoginIn,
     LoginLogOut,
+    PasswordResetIn,
     RegisterIn,
     UpdateMeIn,
     UserOut,
@@ -93,6 +94,20 @@ def change_password(
     if not security.verify_password(data.old_password, current_user.password_hash):
         raise HTTPException(status_code=400, detail="旧密码不正确")
     current_user.password_hash = security.hash_password(data.new_password)
+    db.commit()
+    return {"message": "密码修改成功"}
+
+
+@router.post("/auth/password")
+def reset_password(
+    data: PasswordResetIn,
+    db: Session = Depends(get_db),
+):
+    """登录页修改密码：凭用户名 + 旧密码即可修改，无需登录态。"""
+    user = db.query(User).filter(User.username == data.username).first()
+    if user is None or not security.verify_password(data.old_password, user.password_hash):
+        raise HTTPException(status_code=400, detail="用户名或旧密码错误")
+    user.password_hash = security.hash_password(data.new_password)
     db.commit()
     return {"message": "密码修改成功"}
 

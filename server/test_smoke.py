@@ -82,6 +82,14 @@ def main():
     token = r.json()["token"]
     h = {"Authorization": f"Bearer {token}"}
 
+    # 9b. 登录页修改密码：用户名 + 旧密码，无需登录态
+    r = c.post("/api/auth/password", json={"username": "alice", "old_password": "654321", "new_password": "135790"})
+    check(r.status_code == 200, "未登录修改密码成功")
+    r = c.post("/api/auth/login", json={"username": "alice", "password": "135790"})
+    check(r.status_code == 200, "改后新密码可登录")
+    r = c.post("/api/auth/password", json={"username": "alice", "old_password": "wrong", "new_password": "000000"})
+    check(r.status_code == 400, "旧密码错误被拒绝")
+
     # 10. 绑定流程
     r = c.post("/api/bind/code", headers=h)
     check(r.status_code == 200, "alice 生成绑定码")

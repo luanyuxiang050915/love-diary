@@ -44,6 +44,13 @@ class ChangePasswordIn(BaseModel):
     new_password: str = Field(min_length=6, max_length=64)
 
 
+class PasswordResetIn(BaseModel):
+    """登录页修改密码：用户名 + 旧密码 + 新密码，无需登录态。"""
+    username: str
+    old_password: str
+    new_password: str = Field(min_length=6, max_length=64)
+
+
 class LoginLogOut(BaseModel):
     id: int
     user_agent: str
