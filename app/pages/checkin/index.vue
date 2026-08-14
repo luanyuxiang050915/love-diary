@@ -26,12 +26,14 @@
         <view class="cal-head">
           <text class="cal-wd" v-for="w in weekdays" :key="w" :class="{ weekend: w === '日' || w === '六' }">{{ w }}</text>
         </view>
-        <view class="cal-row">
-          <view class="day blank" v-for="n in g.pad" :key="'p' + n"></view>
-          <view class="day" v-for="c in g.days" :key="c.key" :class="{ done: c.done, today: c.today }">
-            <text class="day-num">{{ c.num }}</text>
-            <text class="day-heart" v-if="c.done">❤</text>
-          </view>
+        <view class="cal-row" v-for="(r, ri) in g.rows" :key="ri">
+          <template v-for="(c, ci) in r" :key="ci">
+            <view class="day blank" v-if="!c"></view>
+            <view class="day" v-else :class="{ done: c.done, today: c.today }">
+              <text class="day-num">{{ c.num }}</text>
+              <text class="day-heart" v-if="c.done">❤</text>
+            </view>
+          </template>
         </view>
       </view>
       <view class="legend"><text>❤ 已打卡 · 每天都来，让爱不断线</text></view>
@@ -93,7 +95,21 @@ export default {
         }
         cur.days.push({ key, num: d.getDate(), done: set.has(key), today: i === 0 })
       }
-      this.groups = groups
+      // 每组按 7 列换行，第一行前面补当月 1 号的星期偏移空格
+      this.groups = groups.map(g => {
+        const rows = []
+        let row = []
+        for (let i = 0; i < g.pad; i++) row.push(null)
+        g.days.forEach(c => {
+          row.push(c)
+          if (row.length === 7) { rows.push(row); row = [] }
+        })
+        if (row.length) {
+          while (row.length < 7) row.push(null)
+          rows.push(row)
+        }
+        return { label: g.label, rows }
+      })
     },
     async doCheckin() {
       if (this.st.today) { uni.showToast({ title: '今天已经打过卡啦', icon: 'none' }); return }
@@ -147,7 +163,7 @@ export default {
   background: var(--pink-soft); color: var(--pink);
   border-radius: 12rpx; padding: 4rpx 18rpx; margin-bottom: 14rpx;
 }
-.cal-head { display: flex; margin-bottom: 10rpx; }
+.cal-head { display: flex; gap: 10rpx; margin-bottom: 10rpx; }
 .cal-wd { flex: 1; text-align: center; font-size: 22rpx; color: var(--muted); }
 .cal-wd.weekend { color: var(--pink); }
 .cal-row { display: flex; gap: 10rpx; }
