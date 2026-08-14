@@ -18,25 +18,30 @@
       </view>
     </view>
 
-    <!-- 最近 30 天 -->
+    <!-- 打卡日历：本月，左右翻页查看历史 -->
     <view class="section">
-      <view class="section-title">最近 30 天</view>
-      <view class="cal-group" v-for="g in groups" :key="g.label">
-        <text class="cal-month">{{ g.label }}</text>
-        <view class="cal-head">
-          <text class="cal-wd" v-for="w in weekdays" :key="w" :class="{ weekend: w === '日' || w === '六' }">{{ w }}</text>
-        </view>
-        <view class="cal-row" v-for="(r, ri) in g.rows" :key="ri">
-          <template v-for="(c, ci) in r" :key="ci">
-            <view class="day blank" v-if="!c"></view>
-            <view class="day" v-else :class="{ done: c.done, today: c.today }">
-              <text class="day-num">{{ c.num }}</text>
-              <text class="day-heart" v-if="c.done">❤</text>
-            </view>
-          </template>
-        </view>
+      <view class="section-head">
+        <text class="section-title">打卡日历</text>
+        <text class="section-tip">左右翻页可查历史</text>
       </view>
-      <view class="legend"><text>❤ 已打卡 · 每天都来，让爱不断线</text></view>
+      <view class="month-bar">
+        <view class="m-btn" @click="prevMonth">‹</view>
+        <text class="m-title">{{ year }}年{{ month }}月</text>
+        <view class="m-btn" @click="nextMonth">›</view>
+      </view>
+      <view class="cal-head">
+        <text class="cal-wd" v-for="w in weekdays" :key="w" :class="{ weekend: w === '日' || w === '六' }">{{ w }}</text>
+      </view>
+      <view class="cal-row" v-for="(r, ri) in rows" :key="ri">
+        <template v-for="(c, ci) in r" :key="ci">
+          <view class="day blank" v-if="!c"></view>
+          <view class="day" v-else :class="{ done: c.done, today: c.today }">
+            <text class="day-num">{{ c.num }}</text>
+            <text class="day-heart" v-if="c.done">❤</text>
+          </view>
+        </template>
+      </view>
+      <view class="legend">❤ 已打卡 · 累计打卡 {{ st.total }} 天</view>
     </view>
   </view>
 </template>
@@ -54,10 +59,13 @@ function fmt(d) {
 
 export default {
   data() {
+    const d = new Date()
     return {
       st: { today: false, total: 0, streak: 0, best: 0, dates: [] },
-      groups: [],
+      rows: [],
       weekdays: ['日', '一', '二', '三', '四', '五', '六'],
+      year: d.getFullYear(),
+      month: d.getMonth() + 1,
     }
   },
   computed: {
@@ -76,40 +84,46 @@ export default {
   onShow() { applyTheme(); this.load() },
   methods: {
     async load() {
-      const { ok, data } = await api.getCheckin()
-      if (!ok) return
-      this.st = data
-      const set = new Set(data.dates)
-      // 最近 30 天，按月分组：每组带星期对齐的空格 + 当月日期
-      const groups = []
-      let cur = null
-      for (let i = 29; i >= 0; i--) {
-        const d = new Date()
-        d.setDate(d.getDate() - i)
-        const key = fmt(d)
-        const label = `${d.getMonth() + 1}月`
-        if (!cur || cur.label !== label) {
-          const first = new Date(d.getFullYear(), d.getMonth(), 1)
-          cur = { label, pad: first.getDay(), days: [] }
-          groups.push(cur)
-        }
-        cur.days.push({ key, num: d.getDate(), done: set.has(key), today: i === 0 })
+      const monthStr = `${this.year}-${String(this.month).padStart(2, '0')}`
+      const [st, monthRes] = await Promise.all([
+        api.getCheckin(),
+        api.getCheckin({ month: monthStr }),
+      ])
+      if (!st.ok) return
+      this.st = st.data
+      const set = new Set(monthRes.ok ? monthRes.data.dates : [])
+
+      // 当月日历：按星期对齐，7 列换行
+      const first = new Date(this.year, this.month - 1, 1)
+      const pad = first.getDay()
+      const total = new Date(this.year, this.month, 0).getDate()
+      const todayStr = fmt(new Date())
+      const rows = []
+      let row = []
+      for (let i = 0; i < pad; i++) row.push(null)
+      for (let day = 1; day <= total; day++) {
+        const key = `${this.year}-${String(this.month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+        row.push({ key, num: day, done: set.has(key), today: key === todayStr })
+        if (row.length === 7) { rows.push(row); row = [] }
       }
-      // 每组按 7 列换行，第一行前面补当月 1 号的星期偏移空格
-      this.groups = groups.map(g => {
-        const rows = []
-        let row = []
-        for (let i = 0; i < g.pad; i++) row.push(null)
-        g.days.forEach(c => {
-          row.push(c)
-          if (row.length === 7) { rows.push(row); row = [] }
-        })
-        if (row.length) {
-          while (row.length < 7) row.push(null)
-          rows.push(row)
-        }
-        return { label: g.label, rows }
-      })
+      if (row.length) {
+        while (row.length < 7) row.push(null)
+        rows.push(row)
+      }
+      this.rows = rows
+    },
+    prevMonth() {
+      if (this.month === 1) { this.year--; this.month = 12 } else this.month--
+      this.load()
+    },
+    nextMonth() {
+      const now = new Date()
+      if (this.year === now.getFullYear() && this.month === now.getMonth() + 1) {
+        uni.showToast({ title: '只能看到本月哦', icon: 'none' })
+        return
+      }
+      if (this.month === 12) { this.year++; this.month = 1 } else this.month++
+      this.load()
     },
     async doCheckin() {
       if (this.st.today) { uni.showToast({ title: '今天已经打过卡啦', icon: 'none' }); return }
@@ -154,15 +168,17 @@ export default {
 .done + .stats-row .num { color: var(--text); }
 .label { display: block; font-size: 22rpx; color: var(--muted); margin-top: 4rpx; }
 .section { background: var(--card); border-radius: 24rpx; margin: 0 30rpx; padding: 24rpx 30rpx; }
-.section-title { font-size: 26rpx; color: var(--muted); margin-bottom: 20rpx; }
-.cal-group { margin-bottom: 24rpx; }
-.cal-group:last-child { margin-bottom: 0; }
-.cal-month {
-  display: inline-block;
-  font-size: 24rpx; font-weight: bold;
-  background: var(--pink-soft); color: var(--pink);
-  border-radius: 12rpx; padding: 4rpx 18rpx; margin-bottom: 14rpx;
+.section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18rpx; }
+.section-title { font-size: 26rpx; color: var(--muted); }
+.section-tip { font-size: 22rpx; color: var(--pink); }
+.month-bar { display: flex; align-items: center; justify-content: center; gap: 36rpx; margin-bottom: 20rpx; }
+.m-btn {
+  width: 58rpx; height: 58rpx; border-radius: 50%;
+  background: var(--pink-soft);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34rpx; color: var(--pink);
 }
+.m-title { font-size: 30rpx; font-weight: bold; color: var(--text); letter-spacing: 2rpx; }
 .cal-head { display: flex; gap: 10rpx; margin-bottom: 10rpx; }
 .cal-wd { flex: 1; text-align: center; font-size: 22rpx; color: var(--muted); }
 .cal-wd.weekend { color: var(--pink); }

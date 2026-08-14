@@ -107,6 +107,18 @@ def main():
     r = c.delete(f"/api/diaries/{did}", headers=h)
     check(r.status_code == 200, "删除自己的日记")
 
+    # 14. 爱的打卡：本月/历史月份查询
+    r = c.post("/api/checkins", headers=h)
+    check(r.status_code == 200, "alice 打卡")
+    import datetime as _dt
+    cur_month = _dt.date.today().strftime("%Y-%m")
+    r = c.get("/api/checkins", headers=h, params={"month": cur_month})
+    check(len(r.json()["dates"]) == 1, "按月查询返回当月记录")
+    r = c.get("/api/checkins", headers=h, params={"month": "2000-01"})
+    check(r.json()["dates"] == [], "无打卡记录的月份返回空")
+    r = c.get("/api/checkins", headers=h)
+    check(r.json()["total"] >= 1 and r.json()["today"] is True, "打卡状态含累计与今日标记")
+
     # 14. 每日一签：每天只能抽一次
     r = c.get("/api/fortunes/today", headers=h)
     check(r.json() is None, "未抽签时 today 为空")

@@ -125,7 +125,11 @@ export const deleteWish = (id) => request(`/api/wishes/${id}`, 'DELETE')
 
 // 爱的打卡
 export const doCheckin = () => request('/api/checkins', 'POST')
-export const getCheckin = () => request('/api/checkins')
+export const getCheckin = (params) => {
+  let url = '/api/checkins'
+  if (params?.month) url += `?month=${params.month}`
+  return request(url)
+}
 
 // 悄悄话
 export const listWhispers = () => request('/api/whispers')

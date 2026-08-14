@@ -1,7 +1,8 @@
-"""爱的打卡：每人每天打卡一次，统计连续/累计天数。"""
+"""爱的打卡：每人每天打卡一次，统计连续/累计天数，支持按月查询历史记录。"""
 from datetime import date as date_cls, timedelta
+from typing import Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -33,10 +34,11 @@ def checkin(
 
 @router.get("/checkins", response_model=CheckinOut)
 def checkin_status(
+    month: Optional[str] = Query(default=None, description="按月份过滤打卡日期，如 2026-08"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """打卡状态：今天是否已打、连续天数、累计、最长、最近记录。"""
+    """打卡状态：今天是否已打、连续天数、累计、最长；dates 默认最近 30 条，传 month 返回该月全部记录。"""
     today = date_cls.today()
     today_done = (
         db.query(Checkin)
@@ -69,10 +71,20 @@ def checkin_status(
         best = max(best, run)
         prev = d
 
+    if month:
+        try:
+            my, mm = str(month).split("-")
+            prefix = f"{int(my):04d}-{int(mm):02d}"
+        except (ValueError, TypeError):
+            prefix = None
+        month_dates = [d for d in dates if prefix and f"{d.year:04d}-{d.month:02d}" == prefix]
+    else:
+        month_dates = dates[:30]
+
     return CheckinOut(
         today=today_done,
         total=len(dates),
         streak=streak,
         best=best,
-        dates=[d.isoformat() for d in dates[:30]],
+        dates=[d.isoformat() for d in month_dates],
     )
