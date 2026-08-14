@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from deps import get_current_user
 from models import AlbumPhoto, User
-from schemas import AlbumIn, AlbumOut
+from schemas import AlbumIn, AlbumOut, AlbumUpdateIn
 
 router = APIRouter(tags=["共享相册"])
 
@@ -62,6 +62,23 @@ def list_album(
         .all()
     )
     return [_to_out(p, db) for p in photos]
+
+
+@router.put("/album/{photo_id}", response_model=AlbumOut)
+def update_photo(
+    photo_id: int,
+    data: AlbumUpdateIn,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """修改自己上传的照片备注。"""
+    photo = db.query(AlbumPhoto).filter(AlbumPhoto.id == photo_id).first()
+    if photo is None or photo.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="照片不存在")
+    photo.caption = data.caption
+    db.commit()
+    db.refresh(photo)
+    return _to_out(photo, db)
 
 
 @router.delete("/album/{photo_id}")

@@ -145,6 +145,7 @@ export const listMessages = (afterId = 0) => request(`/api/messages?after_id=${a
 // 共享相册
 export const addAlbumPhoto = (data) => request('/api/album', 'POST', data)
 export const listAlbum = () => request('/api/album')
+export const updateAlbumPhoto = (id, data) => request(`/api/album/${id}`, 'PUT', data)
 export const deleteAlbumPhoto = (id) => request(`/api/album/${id}`, 'DELETE')
 
 // 自定义表情包

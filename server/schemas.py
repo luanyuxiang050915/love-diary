@@ -195,6 +195,10 @@ class AlbumIn(BaseModel):
     caption: str = Field(default="", max_length=100, description="照片说明")
 
 
+class AlbumUpdateIn(BaseModel):
+    caption: str = Field(default="", max_length=100, description="照片备注")
+
+
 class AlbumOut(BaseModel):
     id: int
     user_id: int

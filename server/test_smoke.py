@@ -141,14 +141,20 @@ def main():
     r = c.post("/api/album", headers=hb, json={"url": "/uploads/album-b.png", "caption": ""})
     check(r.status_code == 200, "bob 上传相册照片")
     r = c.get("/api/album", headers=h)
-    check(len(r.json()) == 2, "双方都能看到 2 张照片")
-    bob_photo_id = r.json()[0]["id"]  # 列表按 id 倒序，最新一张是 bob 的
+    album_list = r.json()
+    check(len(album_list) == 2, "双方都能看到 2 张照片")
+    alice_photo_id = album_list[1]["id"]  # 列表按 id 倒序，第二张是 alice 的
+    r = c.put(f"/api/album/{alice_photo_id}", headers=h, json={"caption": "我们的第一次旅行"})
+    check(r.status_code == 200 and r.json()["caption"] == "我们的第一次旅行", "alice 修改自己的照片备注")
+    r = c.put(f"/api/album/{alice_photo_id}", headers=hb, json={"caption": "篡改"})
+    check(r.status_code == 404, "不能修改对方的照片备注")
+    bob_photo_id = album_list[0]["id"]  # 列表按 id 倒序，最新一张是 bob 的
     r = c.delete(f"/api/album/{bob_photo_id}", headers=h)
     check(r.status_code == 404, "不能删除对方的照片")
     r = c.delete(f"/api/album/{bob_photo_id}", headers=hb)
     check(r.status_code == 200, "bob 删除自己的照片")
     r = c.get("/api/album", headers=h)
-    check(len(r.json()) == 1, "删除后剩 1 张")
+    check(len(r.json()) == 1 and r.json()[0]["caption"] == "我们的第一次旅行", "删除后剩 1 张（备注已保存）")
 
     # 16. 自定义表情包
     r = c.post("/api/stickers", headers=h, json={"url": "/uploads/sticker-1.png"})

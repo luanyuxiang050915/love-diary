@@ -32,6 +32,7 @@
         <view class="v-info">
           <text class="v-caption">{{ detail.caption || '这张照片还没有备注' }}</text>
           <text class="v-meta">{{ detail.nickname }} · {{ fmtTime(detail.created_at) }}</text>
+          <button class="v-btn" v-if="detail.user_id === myId" size="mini" @click="editCaption">✏️ 修改备注</button>
         </view>
         <text class="v-close" @click="detail = null">✕</text>
       </view>
@@ -110,6 +111,30 @@ export default {
     showPhoto(p) {
       this.detail = p
     },
+    async editCaption() {
+      if (!this.detail) return
+      let m
+      try {
+        m = await uni.showModal({
+          title: '修改备注',
+          editable: true,
+          placeholderText: '写句备注吧',
+          content: this.detail.caption || '',
+        })
+      } catch (e) {
+        return
+      }
+      if (!m.confirm) return
+      const caption = (m.content || '').trim()
+      const { ok, msg } = await api.updateAlbumPhoto(this.detail.id, { caption })
+      if (ok) {
+        uni.showToast({ title: '备注已更新', icon: 'success' })
+        this.detail = { ...this.detail, caption }
+        this.load()
+      } else {
+        uni.showToast({ title: msg, icon: 'none' })
+      }
+    },
     async delPhoto(p) {
       if (p.user_id !== this.myId) {
         uni.showToast({ title: '只能删除自己上传的照片', icon: 'none' })
@@ -187,6 +212,16 @@ export default {
 }
 .v-caption { font-size: 30rpx; color: var(--text); line-height: 1.6; text-align: center; }
 .v-meta { font-size: 24rpx; color: var(--muted); margin-top: 10rpx; }
+.v-btn {
+  margin-top: 18rpx;
+  background: var(--pink);
+  color: #fff;
+  font-size: 24rpx;
+  border-radius: 28rpx;
+  padding: 0 30rpx;
+  line-height: 56rpx;
+  height: 56rpx;
+}
 .v-close {
   position: absolute; top: 18rpx; right: 18rpx;
   width: 56rpx; height: 56rpx; border-radius: 50%;
