@@ -4,9 +4,11 @@
     <view class="columns">
       <view class="column" v-for="col in columns" :key="col.key">
         <view class="col-head" :class="col.cls">
-          <text class="col-emoji">{{ col.emoji }}</text>
-          <text class="col-name">{{ col.label }}</text>
-          <text class="col-count">{{ col.diaries.length }} 篇</text>
+          <view class="col-avatar"><text class="col-symbol">{{ col.symbol }}</text></view>
+          <view class="col-info">
+            <text class="col-name">{{ col.label }}</text>
+            <text class="col-count">{{ col.diaries.length }} 篇</text>
+          </view>
         </view>
 
         <view class="col-list">
@@ -82,16 +84,16 @@ export default {
     columns() {
       return [
         {
-          key: 'male', label: '男', emoji: '👦', cls: 'male',
+          key: 'male', label: '他的日记', symbol: '♂', cls: 'male',
           diaries: this.maleDiaries,
           emptyEmoji: '📭',
-          emptyText: this.partnerBound ? '这里还没有男生的日记' : '还没有绑定另一半',
+          emptyText: this.partnerBound ? '这里还没有他的日记' : '还没有绑定另一半',
         },
         {
-          key: 'female', label: '女', emoji: '👧', cls: 'female',
+          key: 'female', label: '她的日记', symbol: '♀', cls: 'female',
           diaries: this.femaleDiaries,
           emptyEmoji: '📭',
-          emptyText: this.partnerBound ? '这里还没有女生的日记' : '还没有绑定另一半',
+          emptyText: this.partnerBound ? '这里还没有她的日记' : '还没有绑定另一半',
         },
       ]
     },
@@ -179,18 +181,45 @@ export default {
 .col-head {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10rpx;
-  height: 72rpx;
-  border-radius: 14rpx;
+  gap: 14rpx;
+  padding: 16rpx 18rpx;
+  border-radius: 20rpx;
   margin-bottom: 18rpx;
-  font-weight: bold;
+  border: 1rpx solid transparent;
 }
-.col-head.male { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
-.col-head.female { background: rgba(248, 165, 194, 0.18); color: #f06292; }
-.col-emoji { font-size: 30rpx; }
-.col-name { font-size: 30rpx; }
-.col-count { font-size: 22rpx; font-weight: normal; opacity: 0.75; }
+.col-head.male {
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.16), rgba(59, 130, 246, 0.06));
+  border-color: rgba(96, 165, 250, 0.28);
+}
+.col-head.female {
+  background: linear-gradient(135deg, rgba(249, 168, 212, 0.18), rgba(244, 114, 182, 0.06));
+  border-color: rgba(249, 168, 212, 0.3);
+}
+.col-avatar {
+  width: 68rpx;
+  height: 68rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+.col-head.male .col-avatar {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  box-shadow: 0 6rpx 16rpx rgba(59, 130, 246, 0.32);
+}
+.col-head.female .col-avatar {
+  background: linear-gradient(135deg, #f9a8d4, #f472b6);
+  box-shadow: 0 6rpx 16rpx rgba(244, 114, 182, 0.32);
+}
+.col-info { display: flex; flex-direction: column; min-width: 0; }
+.col-name { font-size: 28rpx; font-weight: bold; }
+.col-head.male .col-name { color: #3b82f6; }
+.col-head.female .col-name { color: #f06292; }
+.col-count { font-size: 20rpx; color: var(--muted); margin-top: 4rpx; }
 
 .col-list { display: flex; flex-direction: column; }
 
