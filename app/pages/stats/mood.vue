@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :style="cssVars">
     <!-- 月份切换 -->
     <view class="month-bar">
       <text class="month-btn" @click="prevMonth">‹</text>
@@ -85,11 +85,11 @@ export default {
 .mood-row { display: flex; align-items: center; margin-bottom: 22rpx; }
 .mood-rank {
   width: 40rpx; height: 40rpx; border-radius: 12rpx; text-align: center; line-height: 40rpx;
-  font-size: 22rpx; font-weight: bold; color: #fff; background: linear-gradient(135deg, #f8a5c2, #ff6b9d); margin-right: 16rpx; flex-shrink: 0;
+  font-size: 22rpx; font-weight: bold; color: #fff; background: linear-gradient(135deg, var(--pink), var(--hot)); margin-right: 16rpx; flex-shrink: 0;
 }
 .mood-name { width: 140rpx; font-size: 26rpx; color: var(--text); }
 .mood-bar { flex: 1; height: 20rpx; background: var(--bg); border-radius: 10rpx; overflow: hidden; margin: 0 16rpx; }
-.mood-fill { height: 100%; background: linear-gradient(90deg, #f8a5c2, #c44dff); border-radius: 10rpx; transition: width .5s; }
+.mood-fill { height: 100%; background: linear-gradient(90deg, var(--pink), var(--purple)); border-radius: 10rpx; transition: width .5s; }
 .mood-count { font-size: 22rpx; color: var(--muted); flex-shrink: 0; }
 .empty { text-align: center; color: var(--muted); font-size: 26rpx; padding: 50rpx 0; }
 </style>

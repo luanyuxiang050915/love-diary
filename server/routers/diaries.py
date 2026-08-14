@@ -27,6 +27,7 @@ def _to_out(diary: Diary) -> DiaryOut:
         content=diary.content,
         mood=diary.mood,
         images=images,
+        gender=(diary.author.gender if diary.author else ""),
         date=diary.date,
         visible_to_partner=diary.visible_to_partner,
         created_at=diary.created_at,

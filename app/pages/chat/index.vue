@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :style="cssVars">
     <!-- 消息列表 -->
     <scroll-view class="msg-list" scroll-y :scroll-into-view="scrollInto" :scroll-with-animation="true">
       <template v-for="item in displayList" :key="item.id">

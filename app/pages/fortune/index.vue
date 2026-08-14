@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :style="cssVars">
     <!-- 摇签桶 -->
     <view class="stage" v-if="!result">
       <view class="bucket-wrap" :class="{ shaking: shaking }">
@@ -145,12 +145,12 @@ export default {
 
 .bucket { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); width: 250rpx; height: 150rpx; }
 .bucket-top {
-  width: 250rpx; height: 40rpx; background: linear-gradient(135deg, #f8a5c2, #ff6b9d);
+  width: 250rpx; height: 40rpx; background: linear-gradient(135deg, var(--pink), var(--hot));
   border-radius: 50%; box-shadow: 0 6rpx 20rpx rgba(255, 107, 157, 0.35);
 }
 .bucket-body {
   width: 210rpx; height: 120rpx; margin: -8rpx auto 0;
-  background: linear-gradient(160deg, #f8a5c2, #ff6b9d);
+  background: linear-gradient(160deg, var(--pink), var(--hot));
   border-radius: 8rpx 8rpx 60rpx 60rpx;
   display: flex; align-items: flex-end; justify-content: center;
   font-size: 34rpx; padding-bottom: 16rpx;
@@ -158,7 +158,7 @@ export default {
 
 .hint { margin-top: 20rpx; font-size: 26rpx; color: var(--muted); }
 .btn {
-  margin-top: 30rpx; background: linear-gradient(135deg, #f8a5c2, #ff6b9d); color: #fff;
+  margin-top: 30rpx; background: linear-gradient(135deg, var(--pink), var(--hot)); color: #fff;
   border-radius: 40rpx; font-size: 30rpx; padding: 0 60rpx; line-height: 84rpx; height: 84rpx;
   box-shadow: 0 10rpx 30rpx rgba(255, 107, 157, 0.35);
 }
@@ -182,7 +182,7 @@ export default {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 .ds-front {
-  background: linear-gradient(160deg, #f8a5c2, #ff6b9d); color: #fff; font-size: 80rpx; font-weight: bold;
+  background: linear-gradient(160deg, var(--pink), var(--hot)); color: #fff; font-size: 80rpx; font-weight: bold;
   box-shadow: 0 14rpx 40rpx rgba(255, 107, 157, 0.4);
 }
 .ds-back {

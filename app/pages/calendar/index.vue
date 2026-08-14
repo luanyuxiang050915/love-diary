@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :style="cssVars">
     <!-- 月份切换 -->
     <view class="month-bar">
       <view class="m-btn" @click="prevMonth">‹</view>
@@ -17,6 +17,7 @@
       <view class="day-cell" v-for="(d, i) in dayCells" :key="i" :class="{ blank: !d.day, today: d.today }">
         <template v-if="d.day">
           <text class="d-num">{{ d.day }}</text>
+          <text class="d-fest" v-if="d.festival">{{ d.festival }}</text>
           <view class="d-dots">
             <view v-for="k in d.kinds" :key="k" class="d-dot" :style="{ background: kindColor(k) }"></view>
           </view>
@@ -26,6 +27,10 @@
 
     <!-- 图例 -->
     <view class="legend">
+      <view class="lg-item">
+        <view class="lg-dot holiday"></view>
+        <text class="lg-text">节假日</text>
+      </view>
       <view class="lg-item" v-for="k in kinds" :key="k.key">
         <view class="lg-dot" :style="{ background: k.color }"></view>
         <text class="lg-text">{{ k.label }}</text>
@@ -53,7 +58,7 @@
 <script>
 import * as api from '../../common/api.js'
 import { applyTheme } from '../../common/theme.js'
-import { ANNIV_KINDS, annivKindMeta, daysInMonth } from '../../common/util.js'
+import { ANNIV_KINDS, annivKindMeta, daysInMonth, festivalOf } from '../../common/util.js'
 
 export default {
   data() {
@@ -77,7 +82,13 @@ export default {
       const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
       for (let day = 1; day <= total; day++) {
         const dateStr = `${this.year}-${String(this.month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-        cells.push({ day, dateStr, today: dateStr === todayStr, kinds: this.kindsOf(dateStr) })
+        cells.push({
+          day,
+          dateStr,
+          today: dateStr === todayStr,
+          festival: festivalOf(dateStr),
+          kinds: this.kindsOf(dateStr),
+        })
       }
       return cells
     },
@@ -150,12 +161,14 @@ export default {
 .day-cell.today { background: var(--pink-soft); }
 .d-num { font-size: 28rpx; color: var(--text); }
 .day-cell.today .d-num { color: var(--pink); font-weight: bold; }
+.d-fest { font-size: 17rpx; color: #e74c3c; margin-top: 2rpx; line-height: 1.1; transform: scale(0.92); white-space: nowrap; }
 .d-dots { display: flex; gap: 6rpx; margin-top: 6rpx; height: 12rpx; }
 .d-dot { width: 12rpx; height: 12rpx; border-radius: 50%; }
 
 .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 26rpx; margin-top: 24rpx; }
 .lg-item { display: flex; align-items: center; gap: 8rpx; }
 .lg-dot { width: 16rpx; height: 16rpx; border-radius: 50%; }
+.lg-dot.holiday { background: #e74c3c; }
 .lg-text { font-size: 22rpx; color: var(--muted); }
 
 .month-list {

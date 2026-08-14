@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :style="cssVars">
     <view class="logo">💕</view>
     <view class="title">恋爱日记</view>
 

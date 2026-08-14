@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :style="cssVars">
     <!-- 顶部 -->
     <view class="hero">
       <text class="hero-title">恋爱互动</text>

@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :style="cssVars">
     <!-- 内容 -->
     <textarea
       class="textarea"
@@ -43,7 +43,7 @@
     <!-- 是否让TA看到 -->
     <view class="row">
       <text class="label">让TA看到</text>
-      <switch :checked="form.visible_to_partner" @change="e => form.visible_to_partner = e.detail.value" color="#f8a5c2" />
+      <switch :checked="form.visible_to_partner" @change="e => form.visible_to_partner = e.detail.value" :color="themePink" />
     </view>
 
     <!-- 保存 -->
@@ -54,7 +54,7 @@
 
 <script>
 import * as api from '../../common/api.js'
-import { applyTheme } from '../../common/theme.js'
+import { applyTheme, getThemeName, THEMES } from '../../common/theme.js'
 import { formatDate, MOODS } from '../../common/util.js'
 
 export default {
@@ -74,6 +74,10 @@ export default {
   },
 
   computed: {
+    themePink() {
+      const t = THEMES[getThemeName()] || THEMES.light
+      return t['--pink']
+    },
     moodIndex() {
       const i = MOODS.indexOf(this.form.mood)
       return i >= 0 ? i : 0

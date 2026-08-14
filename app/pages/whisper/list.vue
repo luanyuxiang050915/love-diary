@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :style="cssVars">
     <!-- 留言列表 -->
     <scroll-view class="list" scroll-y :scroll-into-view="scrollInto">
       <view class="tip" v-if="whispers.length === 0">留一句悄悄话，TA 打开就能看到 💌</view>
@@ -63,5 +63,5 @@ export default {
   background: var(--card); border-top: 1rpx solid var(--border);
 }
 .w-input { flex: 1; background: var(--bg); border-radius: 36rpx; padding: 14rpx 26rpx; font-size: 28rpx; margin-right: 16rpx; }
-.send-btn { background: linear-gradient(135deg, #f8a5c2, #ff6b9d); color: #fff; border-radius: 36rpx; padding: 0 34rpx; }
+.send-btn { background: linear-gradient(135deg, var(--pink), var(--hot)); color: #fff; border-radius: 36rpx; padding: 0 34rpx; }
 </style>

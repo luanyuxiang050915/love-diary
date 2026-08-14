@@ -1,11 +1,14 @@
 <template>
-  <view class="page">
+  <view class="page" :style="cssVars">
     <!-- 头像和昵称 -->
     <view class="header">
       <image class="avatar" :src="avatarUrl || '/static/default-avatar.png'" mode="aspectFill" @click="changeAvatar" />
       <view class="name-row">
         <text class="nickname" @click="changeNickname">{{ user.nickname || '未设置' }}</text>
         <text class="edit-hint">点击修改</text>
+        <view class="gender-chip" @click="changeGender">
+          <text>{{ user.gender ? (user.gender === '男' ? '👦 男' : '👧 女') : '＋ 设置性别' }}</text>
+        </view>
       </view>
     </view>
 
@@ -51,7 +54,7 @@
 <script>
 import * as api from '../../common/api.js'
 import { applyTheme } from '../../common/theme.js'
-import { getThemeName, setThemeName, THEME_NAMES } from '../../common/theme.js'
+import { getThemeName, setThemeName, themeCssVars, THEME_NAMES } from '../../common/theme.js'
 import store from '../../common/store.js'
 
 export default {
@@ -86,6 +89,7 @@ export default {
           if (!t) return
           setThemeName(t.key)
           applyTheme(t.key)
+          this.cssVars = themeCssVars(t.key)
           this.themeLabel = t.emoji + ' ' + t.label
           uni.showToast({ title: '已切换为「' + t.label + '」主题', icon: 'none' })
         },
@@ -104,6 +108,22 @@ export default {
         await api.updateMe({ nickname })
         this.loadMe()
       }})
+    },
+
+    changeGender() {
+      uni.showActionSheet({
+        itemList: ['👦 男', '👧 女'],
+        success: async (res) => {
+          const gender = res.tapIndex === 0 ? '男' : '女'
+          const { ok } = await api.updateMe({ gender })
+          if (ok) {
+            uni.showToast({ title: '性别已更新', icon: 'success' })
+            this.loadMe()
+          } else {
+            uni.showToast({ title: '更新失败', icon: 'none' })
+          }
+        },
+      })
     },
 
     changeAvatar() {
@@ -172,6 +192,16 @@ export default {
 .name-row { margin-left: 24rpx; display: flex; flex-direction: column; }
 .nickname { font-size: 34rpx; font-weight: bold; }
 .edit-hint { font-size: 22rpx; color: var(--muted); margin-top: 4rpx; }
+.gender-chip {
+  align-self: flex-start;
+  margin-top: 12rpx;
+  padding: 6rpx 18rpx;
+  border-radius: 24rpx;
+  font-size: 24rpx;
+  color: var(--pink);
+  background: var(--pink-soft);
+  border: 1rpx solid var(--border);
+}
 .section {
   background: var(--card); border-radius: 16rpx;
   padding: 24rpx 30rpx; margin: 0 30rpx 24rpx;

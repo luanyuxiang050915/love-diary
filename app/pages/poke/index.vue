@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :style="cssVars">
     <view class="hero-card">
       <view class="heart-btn" :class="{ active: poking }" @click="doPoke">
         <text class="heart">💓</text>
@@ -73,7 +73,7 @@ export default {
 }
 .heart-btn {
   width: 180rpx; height: 180rpx; margin: 0 auto 24rpx;
-  background: linear-gradient(135deg, #f8a5c2, #ff6b9d);
+  background: linear-gradient(135deg, var(--pink), var(--hot));
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
   box-shadow: 0 12rpx 40rpx rgba(255, 107, 157, 0.45);
   transition: all 0.25s;
@@ -83,7 +83,7 @@ export default {
 .hero-title { display: block; font-size: 36rpx; font-weight: bold; color: var(--text); }
 .hero-sub { display: block; font-size: 24rpx; color: var(--muted); margin: 12rpx 0 28rpx; }
 .btn {
-  background: linear-gradient(135deg, #f8a5c2, #ff6b9d); color: #fff;
+  background: linear-gradient(135deg, var(--pink), var(--hot)); color: #fff;
   border-radius: 40rpx; font-size: 30rpx; width: 60%;
 }
 .section {
@@ -101,6 +101,6 @@ export default {
 .poke-name { display: block; font-size: 28rpx; color: var(--text); }
 .poke-time { font-size: 22rpx; color: var(--muted); margin-top: 4rpx; }
 .poke-state { font-size: 22rpx; color: var(--muted); }
-.poke-state.unread { color: #ff6b9d; font-weight: bold; }
+.poke-state.unread { color: var(--hot); font-weight: bold; }
 .empty { text-align: center; color: var(--muted); font-size: 26rpx; padding: 40rpx 0; }
 </style>

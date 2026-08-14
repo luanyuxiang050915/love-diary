@@ -10,6 +10,7 @@ class RegisterIn(BaseModel):
     username: str = Field(min_length=2, max_length=50, description="账号，2~50 字符")
     password: str = Field(min_length=6, max_length=64, description="密码，至少 6 位")
     nickname: str = Field(default="", max_length=50, description="昵称，可不填")
+    gender: str = Field(default="", max_length=10, description="性别：男/女，可不填")
 
 
 class LoginIn(BaseModel):
@@ -22,6 +23,7 @@ class UserOut(BaseModel):
     username: str
     nickname: str
     avatar: str
+    gender: str = ""
     partner_id: Optional[int]
     bind_code: Optional[str]
     last_user_agent: str
@@ -34,6 +36,7 @@ class UserOut(BaseModel):
 class UpdateMeIn(BaseModel):
     nickname: Optional[str] = Field(default=None, max_length=50)
     avatar: Optional[str] = None
+    gender: Optional[str] = None
 
 
 class ChangePasswordIn(BaseModel):
@@ -70,6 +73,7 @@ class DiaryOut(BaseModel):
     content: str
     mood: str
     images: list[str]
+    gender: str = ""                     # 作者性别：男 / 女（用于双列展示）
     date: date_type
     visible_to_partner: bool
     created_at: datetime

@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :style="cssVars">
     <!-- 进度 -->
     <view class="progress-card">
       <text class="p-emoji">✨</text>
@@ -86,10 +86,10 @@ export default {
 .p-title { display: block; font-size: 32rpx; font-weight: bold; color: var(--text); }
 .p-sub { display: block; font-size: 24rpx; color: var(--muted); margin-top: 6rpx; }
 .p-bar { width: 100%; height: 14rpx; background: rgba(255,255,255,.8); border-radius: 8rpx; margin-top: 20rpx; overflow: hidden; }
-.p-fill { height: 100%; background: linear-gradient(90deg, #f8a5c2, #c44dff); border-radius: 8rpx; transition: width .4s; }
+.p-fill { height: 100%; background: linear-gradient(90deg, var(--pink), var(--purple)); border-radius: 8rpx; transition: width .4s; }
 .add-row { display: flex; align-items: center; margin: 0 30rpx 24rpx; background: var(--card); border-radius: 16rpx; padding: 12rpx 20rpx; }
 .add-input { flex: 1; font-size: 28rpx; }
-.add-btn { background: linear-gradient(135deg, #f8a5c2, #ff6b9d); color: #fff; }
+.add-btn { background: linear-gradient(135deg, var(--pink), var(--hot)); color: #fff; }
 .section { background: var(--card); border-radius: 24rpx; margin: 0 30rpx; padding: 10rpx 30rpx; }
 .wish-item { display: flex; align-items: center; padding: 24rpx 0; border-bottom: 1rpx solid var(--border); }
 .wish-item:last-child { border-bottom: none; }

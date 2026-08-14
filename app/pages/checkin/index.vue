@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :style="cssVars">
     <!-- 打卡按钮 -->
     <view class="checkin-card">
       <view class="checkin-btn" :class="{ done: st.today }" @click="doCheckin">
@@ -69,12 +69,12 @@ export default {
 <style scoped>
 .page { padding-bottom: 80rpx; }
 .checkin-card {
-  background: linear-gradient(160deg, #fff0f5, #f3ecff);
+  background: linear-gradient(160deg, var(--pink-soft), var(--purple-soft));
   border-radius: 24rpx; margin: 30rpx; padding: 40rpx 30rpx; text-align: center;
 }
 .checkin-btn {
   width: 240rpx; height: 240rpx; margin: 0 auto 30rpx;
-  background: linear-gradient(135deg, #ff6b9d, #f8a5c2);
+  background: linear-gradient(135deg, var(--hot), var(--pink));
   border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;
   box-shadow: 0 14rpx 44rpx rgba(255, 107, 157, 0.45);
 }
@@ -83,7 +83,7 @@ export default {
 .checkin-text { color: #fff; font-size: 28rpx; margin-top: 8rpx; }
 .stats-row { display: flex; }
 .stat { flex: 1; }
-.num { display: block; font-size: 48rpx; font-weight: bold; color: #ff6b9d; }
+.num { display: block; font-size: 48rpx; font-weight: bold; color: var(--hot); }
 .done + .stats-row .num { color: var(--text); }
 .label { display: block; font-size: 22rpx; color: var(--muted); margin-top: 4rpx; }
 .section { background: var(--card); border-radius: 24rpx; margin: 0 30rpx; padding: 24rpx 30rpx; }
@@ -94,6 +94,6 @@ export default {
   background: var(--bg); display: flex; align-items: center; justify-content: center;
   font-size: 24rpx; color: #fff;
 }
-.day.done { background: linear-gradient(135deg, #ff6b9d, #f8a5c2); }
+.day.done { background: linear-gradient(135deg, var(--hot), var(--pink)); }
 .legend { text-align: center; font-size: 22rpx; color: var(--muted); margin-top: 20rpx; }
 </style>

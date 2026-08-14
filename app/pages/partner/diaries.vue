@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :style="cssVars">
     <block v-if="diaries.length > 0">
       <view class="card" v-for="d in diaries" :key="d.id">
         <view class="card-header">

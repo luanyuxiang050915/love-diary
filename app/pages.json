@@ -11,7 +11,7 @@
     {
       "path": "pages/diary/list",
       "style": {
-        "navigationBarTitleText": "我的日记",
+        "navigationBarTitleText": "双人日记",
         "navigationBarBackgroundColor": "#f8a5c2",
         "navigationBarTextStyle": "white"
       }

@@ -18,6 +18,7 @@ class User(Base):
     password_hash = Column(String(128), nullable=False)
     nickname = Column(String(50), default="")
     avatar = Column(String(255), default="")          # 头像图片 URL
+    gender = Column(String(10), default="")           # 性别：男 / 女 / 空
     partner_id = Column(Integer, nullable=True)        # 绑定的对方用户 id，未绑定为空
     bind_code = Column(String(10), unique=True, nullable=True)  # 我的专属绑定码
     last_user_agent = Column(Text, default="")         # 最近一次登录的设备 UA

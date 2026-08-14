@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :style="cssVars">
     <!-- 顶部操作 -->
     <view class="topbar">
       <text class="count">两个人的回忆 · {{ photos.length }} 张</text>
@@ -96,7 +96,7 @@ export default {
 
 .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24rpx; }
 .count { font-size: 26rpx; color: var(--muted); }
-.upload-btn { background: linear-gradient(135deg, #f8a5c2, #ff6b9d); color: #fff; }
+.upload-btn { background: linear-gradient(135deg, var(--pink), var(--hot)); color: #fff; }
 
 .month { margin-bottom: 30rpx; }
 .month-title { display: block; font-size: 28rpx; font-weight: bold; color: var(--text); margin-bottom: 16rpx; }

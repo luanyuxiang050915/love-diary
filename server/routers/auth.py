@@ -58,6 +58,7 @@ def register(data: RegisterIn, request: Request, db: Session = Depends(get_db)):
         username=data.username,
         password_hash=security.hash_password(data.password),
         nickname=data.nickname or data.username,
+        gender=data.gender,
         bind_code=_new_bind_code(db),
     )
     db.add(user)
@@ -113,6 +114,8 @@ def update_me(
         current_user.nickname = data.nickname
     if data.avatar is not None:
         current_user.avatar = data.avatar
+    if data.gender is not None:
+        current_user.gender = data.gender
     db.commit()
     db.refresh(current_user)
     return current_user
