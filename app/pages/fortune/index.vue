@@ -1,18 +1,12 @@
 <template>
   <view class="page" :style="cssVars">
-    <!-- 夜景大图背景 -->
+    <!-- 夜景背景 -->
     <view class="bg-img"></view>
     <view class="bg-cover"></view>
     <view class="bg-vignette"></view>
 
-    <!-- 漂浮星光 -->
-    <view class="deco">
-      <text class="deco-item d1">✦</text>
-      <text class="deco-item d2">✧</text>
-      <text class="deco-item d3">✦</text>
-      <text class="deco-item d4">✧</text>
-      <text class="deco-item d5">✦</text>
-    </view>
+    <!-- Canvas 粒子特效层 -->
+    <canvas class="fx-canvas" canvas-id="fxCanvas" id="fxCanvas"></canvas>
 
     <!-- 标题 -->
     <view class="title-box">
@@ -23,9 +17,9 @@
 
     <!-- 摇签桶 -->
     <view class="stage" v-if="!result">
-      <view class="bucket-wrap" :class="{ shaking: shaking }">
+      <view class="bucket-wrap" id="bucketWrap">
         <view class="bucket-glow"></view>
-        <view class="sticks">
+        <view class="sticks" id="fxSticks">
           <view
             class="stick"
             v-for="(s, i) in sticks"
@@ -38,6 +32,7 @@
           <view class="bucket-band"></view>
           <view class="bucket-body">🏮</view>
         </view>
+        <view class="tassel"></view>
       </view>
 
       <view class="hint" v-if="!shaking && !drawn">
@@ -52,8 +47,8 @@
       <button class="btn" v-if="!shaking && !drawn" hover-class="btn-hover" @click="shake">🎋 摇一签</button>
 
       <!-- 掉出来的签 -->
-      <view class="drawn-stick" v-if="drawn" @click="openStick">
-        <view class="ds-inner" :class="{ open: result }">
+      <view class="drawn-stick" v-if="drawn" id="drawnStick" @click="openStick">
+        <view class="ds-inner" id="dsInner">
           <view class="ds-front">
             <text class="ds-q">?</text>
             <text class="ds-tip">点开</text>
@@ -67,7 +62,7 @@
     </view>
 
     <!-- 签文卡片 -->
-    <view class="fortune-card" v-if="result" :style="cardStyle">
+    <view class="fortune-card" v-if="result" id="fortuneCard" :style="cardStyle">
       <view class="fc-deco fc-d1"></view>
       <view class="fc-deco fc-d2"></view>
       <view class="fc-seal">
@@ -91,6 +86,7 @@
 <script>
 import * as api from '../../common/api.js'
 import { applyTheme } from '../../common/theme.js'
+import gsap from '../../common/gsap.js'
 
 // 深色夜景背景下的签级配色（亮色系）
 const LEVEL_COLORS = {
@@ -110,6 +106,7 @@ export default {
     return {
       sticks: [],
       shaking: false,
+      opening: false,
       drawn: false,
       result: null,
       picked: {},
@@ -121,55 +118,285 @@ export default {
       return `--lv:${c.main};--lv-soft:${c.soft};--lv-glow:${c.glow};`
     },
   },
-  onShow() { applyTheme(); this.init() },
+  onShow() {
+    applyTheme()
+    this.initFx()
+    this.init()
+  },
+  onHide() {
+    this.stopFx()
+  },
+  onUnload() {
+    this.stopFx()
+  },
   methods: {
     todayKey() {
       const t = new Date()
       return `fortune_${t.getFullYear()}-${t.getMonth() + 1}-${t.getDate()}`
     },
+    el(id) {
+      return typeof document !== 'undefined' ? document.getElementById(id) : null
+    },
     async init() {
-      // 随机摆几根签在桶里：红头竹签，角度微微错开
       this.sticks = Array.from({ length: 7 }, (_, i) => ({
         left: 14 + i * 11,
         h: 44 + Math.random() * 16,
         rot: -7 + Math.random() * 14,
       }))
 
-      // 先问服务器今天有没有抽过：抽过直接展示，没抽过才显示签筒
       const { ok, data } = await api.getTodayFortune()
       if (ok && data) {
         this.result = data
         this.picked = data
         this.drawn = true
         uni.setStorageSync(this.todayKey(), JSON.stringify(data))
+        this.$nextTick(() => this.cardIn())
       } else if (!ok) {
-        // 网络异常时退回本地缓存（仅作展示兜底，是否可抽仍以服务器为准）
         const saved = uni.getStorageSync(this.todayKey())
         if (saved) {
           this.result = JSON.parse(saved)
           this.picked = this.result
           this.drawn = true
+          this.$nextTick(() => this.cardIn())
         }
       }
     },
+
+    /* ---------- GSAP 动效 ---------- */
     shake() {
+      if (this.shaking) return
       this.shaking = true
+      const bw = this.el('bucketWrap')
+      const st = this.el('fxSticks')
+
+      if (bw) {
+        gsap.to(bw, {
+          rotate: 0,
+          duration: 0.96,
+          keyframes: [
+            { rotate: -14, duration: 0.13, ease: 'power2.in' },
+            { rotate: 11, duration: 0.14, ease: 'power1.out' },
+            { rotate: -9, duration: 0.15, ease: 'power1.out' },
+            { rotate: 7, duration: 0.16, ease: 'power1.out' },
+            { rotate: -5, duration: 0.16, ease: 'power1.out' },
+            { rotate: 0, duration: 0.22, ease: 'elastic.out(1, 0.4)' },
+          ],
+        })
+      }
+      if (st) {
+        gsap.to(st, {
+          x: 0,
+          duration: 0.96,
+          keyframes: [
+            { x: 6, duration: 0.13, ease: 'power1.out' },
+            { x: -5, duration: 0.14, ease: 'power1.out' },
+            { x: 4, duration: 0.15, ease: 'power1.out' },
+            { x: -3, duration: 0.16, ease: 'power1.out' },
+            { x: 2, duration: 0.16, ease: 'power1.out' },
+            { x: 0, duration: 0.22, ease: 'elastic.out(1, 0.4)' },
+          ],
+        })
+      }
+      this.burst(0.5, 0.32, 18)
+
       setTimeout(() => {
         this.shaking = false
         this.drawn = true
         this.picked = {}
-      }, 950)
+        this.$nextTick(() => {
+          const ds = this.el('drawnStick')
+          if (ds) {
+            gsap.fromTo(ds, { y: -170, rotate: -18, opacity: 0 }, {
+              y: 0,
+              rotate: 0,
+              opacity: 1,
+              duration: 0.8,
+              ease: 'elastic.out(1, 0.45)',
+            })
+          }
+          this.burst(0.5, 0.55, 26)
+        })
+      }, 980)
     },
+
     async openStick() {
-      if (this.shaking) return
+      if (this.shaking || this.opening) return
       const { ok, data, msg } = await api.drawFortune()
       if (!ok) {
         uni.showToast({ title: msg || '抽签失败，请重试', icon: 'none' })
         return
       }
+      this.opening = true
       this.picked = data
-      this.result = data
       uni.setStorageSync(this.todayKey(), JSON.stringify(data))
+
+      this.$nextTick(() => {
+        const inner = this.el('dsInner')
+        if (!inner) { this.opening = false; this.result = data; return }
+        gsap.to(inner, {
+          rotateY: 180,
+          duration: 0.9,
+          ease: 'power3.inOut',
+          onComplete: () => {
+            this.result = data
+            this.opening = false
+            this.$nextTick(() => {
+              this.cardIn()
+              this.burst(0.5, 0.42, 40)
+            })
+          },
+        })
+      })
+    },
+
+    cardIn() {
+      const card = this.el('fortuneCard')
+      if (!card) return
+      gsap.from(card, {
+        y: 80,
+        scale: 0.88,
+        opacity: 0,
+        duration: 0.9,
+        ease: 'elastic.out(1, 0.5)',
+      })
+    },
+
+    /* ---------- Canvas 粒子 ---------- */
+    findCanvas() {
+      // uni-app H5 会把 <canvas> 包一层 uni-canvas，真实画布在内部
+      const wrapper = document.getElementById('fxCanvas')
+      if (wrapper) return wrapper.tagName === 'CANVAS' ? wrapper : wrapper.querySelector('canvas')
+      return document.querySelector('canvas')
+    },
+    initFx() {
+      if (this.running || this.fxInitPending) return
+      const canvas = this.findCanvas()
+      if (!canvas || typeof canvas.getContext !== 'function') {
+        // 内层画布可能还没渲染出来，稍后重试
+        this.fxInitPending = true
+        setTimeout(() => { this.fxInitPending = false; this.initFx() }, 200)
+        return
+      }
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      this.fxW = window.innerWidth
+      this.fxH = window.innerHeight
+      canvas.width = this.fxW * dpr
+      canvas.height = this.fxH * dpr
+      canvas.style.width = this.fxW + 'px'
+      canvas.style.height = this.fxH + 'px'
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      this.fxCtx = ctx
+
+      this.petals = Array.from({ length: 16 }, () => this.newPetal(true))
+      this.sparkles = Array.from({ length: 14 }, () => this.newSparkle(true))
+      this.bursts = []
+      this.running = true
+      const loop = () => {
+        if (!this.running) return
+        this.drawFx()
+        this.raf = requestAnimationFrame(loop)
+      }
+      this.raf = requestAnimationFrame(loop)
+    },
+    stopFx() {
+      this.running = false
+      this.fxInitPending = false
+      if (this.raf) cancelAnimationFrame(this.raf)
+      this.raf = null
+    },
+    newPetal(anywhere) {
+      return {
+        x: Math.random() * this.fxW,
+        y: anywhere ? Math.random() * this.fxH : -20,
+        size: 4 + Math.random() * 5,
+        vy: 0.35 + Math.random() * 0.55,
+        sway: Math.random() * 0.02 + 0.01,
+        phase: Math.random() * Math.PI * 2,
+        rot: Math.random() * Math.PI * 2,
+        vr: (Math.random() - 0.5) * 0.05,
+      }
+    },
+    newSparkle(anywhere) {
+      return {
+        x: Math.random() * this.fxW,
+        y: anywhere ? Math.random() * this.fxH : this.fxH + 10,
+        size: 0.8 + Math.random() * 1.6,
+        vy: 0.15 + Math.random() * 0.35,
+        phase: Math.random() * Math.PI * 2,
+      }
+    },
+    burst(nx, ny, count) {
+      const ctx = this.fxCtx
+      if (!ctx) return
+      const x = this.fxW * nx
+      const y = this.fxH * ny
+      for (let i = 0; i < count; i++) {
+        const ang = Math.random() * Math.PI * 2
+        const spd = 1.2 + Math.random() * 3.2
+        this.bursts.push({
+          x, y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd - 1.2,
+          life: 60 + Math.random() * 30,
+          max: 90,
+          size: 1 + Math.random() * 2,
+          gold: Math.random() > 0.35,
+        })
+      }
+    },
+    drawFx() {
+      const ctx = this.fxCtx
+      if (!ctx) return
+      ctx.clearRect(0, 0, this.fxW, this.fxH)
+      const t = Date.now() / 1000
+
+      // 花瓣
+      this.petals.forEach(p => {
+        p.y += p.vy
+        p.x += Math.sin(t * 1.2 + p.phase) * p.sway * 8
+        p.rot += p.vr
+        if (p.y > this.fxH + 24) Object.assign(p, this.newPetal(false))
+        ctx.save()
+        ctx.translate(p.x, p.y)
+        ctx.rotate(p.rot)
+        ctx.globalAlpha = 0.55
+        ctx.fillStyle = '#f9a8d4'
+        ctx.beginPath()
+        ctx.ellipse(0, 0, p.size, p.size * 0.55, 0, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.restore()
+      })
+
+      // 星光
+      this.sparkles.forEach(s => {
+        s.y -= s.vy
+        s.phase += 0.04
+        if (s.y < -12) Object.assign(s, this.newSparkle(false))
+        const a = 0.25 + 0.55 * Math.abs(Math.sin(s.phase))
+        ctx.globalAlpha = a
+        ctx.fillStyle = '#f5d78a'
+        ctx.beginPath()
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2)
+        ctx.fill()
+      })
+
+      // 爆发粒子
+      this.bursts = this.bursts.filter(b => b.life > 0)
+      this.bursts.forEach(b => {
+        b.life -= 1
+        b.x += b.vx
+        b.y += b.vy
+        b.vy += 0.06
+        const a = Math.max(0, b.life / b.max)
+        ctx.globalAlpha = a
+        ctx.fillStyle = b.gold ? '#f5d78a' : '#f9a8d4'
+        ctx.beginPath()
+        ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2)
+        ctx.fill()
+      })
+      ctx.globalAlpha = 1
     },
   },
 }
@@ -206,17 +433,11 @@ export default {
   z-index: 1;
 }
 
-/* ---------- 漂浮星光 ---------- */
-.deco { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; pointer-events: none; overflow: hidden; }
-.deco-item { position: absolute; color: rgba(255, 236, 190, 0.55); animation: floatUp 8s ease-in-out infinite; }
-.d1 { left: 8%; top: 20%; font-size: 34rpx; }
-.d2 { left: 84%; top: 15%; font-size: 28rpx; animation-delay: 1.4s; }
-.d3 { left: 14%; top: 64%; font-size: 26rpx; animation-delay: 2.6s; }
-.d4 { left: 76%; top: 66%; font-size: 32rpx; animation-delay: 3.8s; }
-.d5 { left: 46%; top: 9%; font-size: 24rpx; animation-delay: 0.8s; }
-@keyframes floatUp {
-  0%, 100% { transform: translateY(0) rotate(0); opacity: 0.45; }
-  50% { transform: translateY(-26rpx) rotate(12deg); opacity: 0.9; }
+/* ---------- 粒子画布 ---------- */
+.fx-canvas {
+  position: fixed; top: 0; left: 0;
+  z-index: 4;
+  pointer-events: none;
 }
 
 /* ---------- 标题 ---------- */
@@ -248,15 +469,7 @@ export default {
 /* ---------- 签筒 ---------- */
 .stage { position: relative; z-index: 3; width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 56rpx; }
 
-.bucket-wrap { position: relative; width: 340rpx; height: 330rpx; }
-.bucket-wrap.shaking { animation: bucketShake 0.95s ease-in-out; }
-@keyframes bucketShake {
-  0%, 100% { transform: rotate(0); }
-  20% { transform: rotate(-12deg); }
-  40% { transform: rotate(10deg); }
-  60% { transform: rotate(-8deg); }
-  80% { transform: rotate(6deg); }
-}
+.bucket-wrap { position: relative; width: 340rpx; height: 330rpx; transform-origin: 50% 90%; will-change: transform; }
 
 .bucket-glow {
   position: absolute; left: 50%; bottom: -14rpx; transform: translateX(-50%);
@@ -265,20 +478,13 @@ export default {
   filter: blur(6rpx);
 }
 
-.sticks { position: absolute; top: 0; left: 0; width: 100%; height: 240rpx; z-index: 5; }
+.sticks { position: absolute; top: 0; left: 0; width: 100%; height: 240rpx; z-index: 5; will-change: transform; }
 .stick {
   position: absolute; bottom: 0; width: 14rpx;
   border-radius: 7rpx 7rpx 3rpx 3rpx;
   background: linear-gradient(180deg, #d94f4f 0%, #d94f4f 22rpx, #f7e6bd 22rpx, #edcf96 100%);
   box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.35);
   transform-origin: bottom center;
-}
-.bucket-wrap.shaking .stick { animation: stickWobble 0.95s ease-in-out; }
-@keyframes stickWobble {
-  0%, 100% { margin-left: 0; }
-  25% { margin-left: -8rpx; }
-  50% { margin-left: 6rpx; }
-  75% { margin-left: -4rpx; }
 }
 
 .bucket { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); width: 260rpx; z-index: 4; }
@@ -303,6 +509,18 @@ export default {
   display: flex; align-items: flex-end; justify-content: center;
   font-size: 40rpx; padding-bottom: 16rpx;
   box-shadow: inset -14rpx 0 24rpx rgba(0, 0, 0, 0.25), 0 14rpx 34rpx rgba(0, 0, 0, 0.4);
+}
+.tassel {
+  position: absolute; left: 50%; bottom: -26rpx; transform: translateX(-50%);
+  width: 12rpx; height: 56rpx;
+  background: linear-gradient(180deg, #d84f4f, #b83a3a);
+  border-radius: 0 0 8rpx 8rpx;
+}
+.tassel::after {
+  content: '';
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  width: 26rpx; height: 34rpx;
+  background: radial-gradient(closest-side, #d84f4f, transparent);
 }
 
 /* ---------- 提示与按钮 ---------- */
@@ -338,18 +556,11 @@ export default {
 }
 
 /* ---------- 掉出来的签 ---------- */
-.drawn-stick { margin-top: 48rpx; perspective: 800rpx; }
+.drawn-stick { margin-top: 48rpx; perspective: 800rpx; will-change: transform; }
 .ds-inner {
   position: relative; width: 150rpx; height: 380rpx; transform-style: preserve-3d;
-  transition: transform 0.7s cubic-bezier(0.25, 0.8, 0.25, 1.2);
-  animation: stickDrop 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  will-change: transform;
 }
-@keyframes stickDrop {
-  0% { transform: translateY(-180rpx) rotate(-12deg); opacity: 0; }
-  60% { transform: translateY(14rpx) rotate(4deg); opacity: 1; }
-  100% { transform: translateY(0) rotate(0); }
-}
-.ds-inner.open { transform: rotateY(180deg); }
 .ds-front, .ds-back {
   position: absolute; inset: 0; backface-visibility: hidden; border-radius: 26rpx;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -387,10 +598,9 @@ export default {
   margin-top: 52rpx;
   text-align: center;
   box-shadow: 0 24rpx 70rpx rgba(0, 0, 0, 0.45), 0 0 0 10rpx var(--lv-soft);
-  animation: cardIn 0.6s ease;
+  will-change: transform, opacity;
   overflow: hidden;
 }
-@keyframes cardIn { from { transform: translateY(30rpx) scale(0.94); opacity: 0; } to { transform: none; opacity: 1; } }
 .fc-deco {
   position: absolute; width: 190rpx; height: 190rpx; border-radius: 50%;
   background: var(--lv-soft); pointer-events: none;
