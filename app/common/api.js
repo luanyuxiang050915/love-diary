@@ -134,6 +134,10 @@ export const sendWhisper = (content) => request('/api/whispers', 'POST', { conte
 // 心情月报
 export const getMoodReport = (month) => request(`/api/stats/moods${month ? '?month=' + month : ''}`)
 
+// 每日一签（每人每天只能抽一次）
+export const getTodayFortune = () => request('/api/fortunes/today')
+export const drawFortune = () => request('/api/fortunes/draw', 'POST')
+
 // 双人聊天
 export const sendMessage = (data) => request('/api/messages', 'POST', data)
 export const listMessages = (afterId = 0) => request(`/api/messages?after_id=${afterId}&limit=200`)

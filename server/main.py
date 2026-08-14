@@ -19,6 +19,7 @@ from routers import (
     checkins,
     chat,
     diaries,
+    fortune,
     pokes,
     stats,
     stickers,
@@ -60,6 +61,7 @@ app.include_router(stats.router, prefix="/api")
 app.include_router(chat.router, prefix="/api")
 app.include_router(album.router, prefix="/api")
 app.include_router(stickers.router, prefix="/api")
+app.include_router(fortune.router, prefix="/api")
 
 
 @app.get("/")

@@ -149,4 +149,18 @@ class Sticker(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+class Fortune(Base):
+    """每日一签：每人每天只能抽一次（user_id + date 唯一）。"""
+
+    __tablename__ = "fortunes"
+    __table_args__ = (UniqueConstraint("user_id", "date", name="uq_fortune_user_date"),)
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    date = Column(Date, default=date.today, index=True)
+    level = Column(String(10), nullable=False)         # 大吉 / 中吉 / 小吉 / 吉 / 半吉 / 末吉 / 末小吉 / 凶 / 大凶
+    content = Column(Text, default="{}")               # 签文 JSON（emoji/wish/health/love/study/hint）
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 # partner_requests（绑定请求表）第一版不做，留作后续扩展

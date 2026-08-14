@@ -107,6 +107,17 @@ def main():
     r = c.delete(f"/api/diaries/{did}", headers=h)
     check(r.status_code == 200, "删除自己的日记")
 
+    # 14. 每日一签：每天只能抽一次
+    r = c.get("/api/fortunes/today", headers=h)
+    check(r.json() is None, "未抽签时 today 为空")
+    r = c.post("/api/fortunes/draw", headers=h)
+    f1 = r.json()
+    check(r.status_code == 200 and f1.get("level"), "第一次抽签成功")
+    r = c.post("/api/fortunes/draw", headers=h)
+    check(r.json()["id"] == f1["id"], "当天重复抽签返回同一条")
+    r = c.get("/api/fortunes/today", headers=h)
+    check(r.json()["id"] == f1["id"], "today 返回当天已抽的签")
+
     # 14. 双人聊天
     r = c.post("/api/messages", headers=h, json={"content": "想你了", "msg_type": "text"})
     check(r.status_code == 200, "alice 发文本消息")

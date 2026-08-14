@@ -40,25 +40,14 @@
         <view class="fc-line"><text class="fc-k">学业</text><text class="fc-v">{{ result.study }}</text></view>
       </view>
       <view class="fc-hint">✨ {{ result.hint }}</view>
-      <button class="btn again" @click="reset">明天再来一签</button>
+      <view class="btn again disabled">今日已抽 · 明天再来 ✨</view>
     </view>
   </view>
 </template>
 
 <script>
+import * as api from '../../common/api.js'
 import { applyTheme } from '../../common/theme.js'
-
-const FORTUNES = [
-  { level: '大吉', emoji: '🌟', wish: '心想事成', health: '元气满满', love: '甜甜蜜蜜', study: '一飞冲天', hint: '今天的你闪闪发光，大胆去表达爱吧！' },
-  { level: '中吉', emoji: '✨', wish: '小有收获', health: '精神不错', love: '升温进行时', study: '稳步向前', hint: '主动一点点，好事就会靠近。' },
-  { level: '小吉', emoji: '🌿', wish: '慢慢实现', health: '注意休息', love: '细水长流', study: '渐入佳境', hint: '不用急，美好正在路上。' },
-  { level: '吉', emoji: '🌸', wish: '顺其自然', health: '心情舒畅', love: '刚刚好', study: '保持节奏', hint: '今天适合给对方一个拥抱。' },
-  { level: '半吉', emoji: '🍀', wish: '一半一半', health: '小有起伏', love: '需要耐心', study: '别松懈', hint: '慢慢来，反而比较快。' },
-  { level: '末吉', emoji: '🍃', wish: '再等等看', health: '多喝热水', love: '考验耐心', study: '别放弃', hint: '山重水复疑无路，柳暗花明又一村。' },
-  { level: '末小吉', emoji: '🌱', wish: '萌芽之中', health: '规律作息', love: '轻声细语', study: '厚积薄发', hint: '今天少说气话，多撒撒娇。' },
-  { level: '凶', emoji: '🌧️', wish: '暂缓行动', health: '注意保暖', love: '避免误会', study: '冷静一下', hint: '有我在，坏运气也会绕道走。' },
-  { level: '大凶', emoji: '🌪️', wish: '别冲动', health: '好好睡觉', love: '温柔沟通', study: '暂停一下', hint: '凶签也是签，抱抱就不凶了。' },
-]
 
 const STICK_COLORS = ['#f8a5c2', '#ff6b9d', '#c44dff', '#f59e0b', '#10b981', '#3b82f6']
 
@@ -74,21 +63,33 @@ export default {
   },
   onShow() { applyTheme(); this.init() },
   methods: {
-    init() {
+    todayKey() {
+      const t = new Date()
+      return `fortune_${t.getFullYear()}-${t.getMonth() + 1}-${t.getDate()}`
+    },
+    async init() {
       // 随机摆几根签在桶里
       this.sticks = Array.from({ length: 6 }, (_, i) => ({
         left: 18 + i * 12,
         h: 42 + Math.random() * 14,
         color: STICK_COLORS[i % STICK_COLORS.length],
       }))
-      // 每天只能抽一次
-      const today = new Date()
-      const key = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
-      const saved = uni.getStorageSync('fortune_' + key)
-      if (saved) {
-        this.result = JSON.parse(saved)
-        this.picked = this.result
+
+      // 先问服务器今天有没有抽过：抽过直接展示，没抽过才显示签筒
+      const { ok, data } = await api.getTodayFortune()
+      if (ok && data) {
+        this.result = data
+        this.picked = data
         this.drawn = true
+        uni.setStorageSync(this.todayKey(), JSON.stringify(data))
+      } else if (!ok) {
+        // 网络异常时退回本地缓存（仅作展示兜底，是否可抽仍以服务器为准）
+        const saved = uni.getStorageSync(this.todayKey())
+        if (saved) {
+          this.result = JSON.parse(saved)
+          this.picked = this.result
+          this.drawn = true
+        }
       }
     },
     shake() {
@@ -96,20 +97,19 @@ export default {
       setTimeout(() => {
         this.shaking = false
         this.drawn = true
-        this.picked = FORTUNES[Math.floor(Math.random() * FORTUNES.length)]
+        this.picked = {}
       }, 950)
     },
-    openStick() {
-      if (!this.picked.level) return
-      const today = new Date()
-      const key = `fortune_${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
-      uni.setStorageSync(key, JSON.stringify(this.picked))
-      this.result = this.picked
-    },
-    reset() {
-      this.result = null
-      this.drawn = false
-      this.picked = {}
+    async openStick() {
+      if (this.shaking) return
+      const { ok, data, msg } = await api.drawFortune()
+      if (!ok) {
+        uni.showToast({ title: msg || '抽签失败，请重试', icon: 'none' })
+        return
+      }
+      this.picked = data
+      this.result = data
+      uni.setStorageSync(this.todayKey(), JSON.stringify(data))
     },
   },
 }
@@ -162,7 +162,11 @@ export default {
   border-radius: 40rpx; font-size: 30rpx; padding: 0 60rpx; line-height: 84rpx; height: 84rpx;
   box-shadow: 0 10rpx 30rpx rgba(255, 107, 157, 0.35);
 }
-.btn.again { margin-top: 40rpx; font-size: 26rpx; line-height: 72rpx; height: 72rpx; padding: 0 40rpx; }
+.btn.again {
+  margin-top: 40rpx; font-size: 26rpx; line-height: 72rpx; height: 72rpx; padding: 0 40rpx;
+  background: var(--input-bg); color: var(--muted);
+  box-shadow: none;
+}
 
 /* 掉出来的签 */
 .drawn-stick { margin-top: 40rpx; perspective: 800rpx; }

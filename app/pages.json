@@ -65,10 +65,6 @@
       "style": { "navigationBarTitleText": "共享相册" }
     },
     {
-      "path": "pages/calendar/index",
-      "style": { "navigationBarTitleText": "纪念日日历" }
-    },
-    {
       "path": "pages/fortune/index",
       "style": { "navigationBarTitleText": "每日一签" }
     }

@@ -44,7 +44,6 @@ export default {
         { key: 'whisper', emoji: '💌', title: '悄悄话', desc: '留言给 TA 的心里话', url: '/pages/whisper/list' },
         { key: 'mood', emoji: '📊', title: '心情月报', desc: '看看这个月的心情变化', url: '/pages/stats/mood', wide: true },
         { key: 'album', emoji: '📷', title: '共享相册', desc: '两个人的照片墙，按月归档', url: '/pages/album/index' },
-        { key: 'calendar', emoji: '📅', title: '纪念日日历', desc: '不同纪念日用不同颜色标记', url: '/pages/calendar/index' },
         { key: 'fortune', emoji: '🎋', title: '每日一签', desc: '摇一摇签筒，看看今天的缘分签', url: '/pages/fortune/index', wide: true },
       ]
     },
