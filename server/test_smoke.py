@@ -112,11 +112,12 @@ def main():
     check(r.json() is None, "未抽签时 today 为空")
     r = c.post("/api/fortunes/draw", headers=h)
     f1 = r.json()
-    check(r.status_code == 200 and f1.get("level"), "第一次抽签成功")
+    check(r.status_code == 200 and f1.get("level") and f1.get("quote"), "第一次抽签成功（带名言/诗句）")
     r = c.post("/api/fortunes/draw", headers=h)
-    check(r.json()["id"] == f1["id"], "当天重复抽签返回同一条")
+    f2 = r.json()
+    check(f2["id"] == f1["id"] and f2["quote"] == f1["quote"], "当天重复抽签返回同一条（含同一句名言）")
     r = c.get("/api/fortunes/today", headers=h)
-    check(r.json()["id"] == f1["id"], "today 返回当天已抽的签")
+    check(r.json()["id"] == f1["id"] and r.json()["quote"] == f1["quote"], "today 返回当天已抽的签")
 
     # 14. 双人聊天
     r = c.post("/api/messages", headers=h, json={"content": "想你了", "msg_type": "text"})

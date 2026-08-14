@@ -39,6 +39,7 @@
         <view class="fc-line"><text class="fc-k">爱情</text><text class="fc-v">{{ result.love }}</text></view>
         <view class="fc-line"><text class="fc-k">学业</text><text class="fc-v">{{ result.study }}</text></view>
       </view>
+      <view class="fc-quote" v-if="result.quote">「{{ result.quote }}」</view>
       <view class="fc-hint">✨ {{ result.hint }}</view>
       <view class="btn again disabled">今日已抽 · 明天再来 ✨</view>
     </view>
@@ -211,5 +212,16 @@ export default {
 .fc-line:last-child { border-bottom: none; }
 .fc-k { width: 110rpx; font-size: 26rpx; color: var(--muted); text-align: left; }
 .fc-v { flex: 1; font-size: 28rpx; color: var(--text); text-align: right; }
+.fc-quote {
+  margin-top: 30rpx;
+  padding: 24rpx 26rpx;
+  background: var(--pink-soft);
+  border-left: 6rpx solid var(--pink);
+  border-radius: 12rpx;
+  font-size: 27rpx;
+  color: var(--text);
+  line-height: 1.9;
+  text-align: left;
+}
 .fc-hint { margin-top: 28rpx; font-size: 26rpx; color: var(--pink); line-height: 1.7; }
 </style>
