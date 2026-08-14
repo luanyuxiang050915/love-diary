@@ -1,17 +1,23 @@
 <template>
   <view class="page" :style="cssVars">
-    <!-- 漂浮装饰 -->
+    <!-- 夜景大图背景 -->
+    <view class="bg-img"></view>
+    <view class="bg-cover"></view>
+    <view class="bg-vignette"></view>
+
+    <!-- 漂浮星光 -->
     <view class="deco">
-      <text class="deco-item d1">✨</text>
-      <text class="deco-item d2">💖</text>
-      <text class="deco-item d3">🌙</text>
-      <text class="deco-item d4">💫</text>
-      <text class="deco-item d5">🌸</text>
+      <text class="deco-item d1">✦</text>
+      <text class="deco-item d2">✧</text>
+      <text class="deco-item d3">✦</text>
+      <text class="deco-item d4">✧</text>
+      <text class="deco-item d5">✦</text>
     </view>
 
     <!-- 标题 -->
     <view class="title-box">
-      <text class="title">🎋 每日一签</text>
+      <text class="title-en">OMIKUJI · DAILY FORTUNE</text>
+      <text class="title">每日一签</text>
       <text class="sub">摇一摇签筒，看看今天的好运气</text>
     </view>
 
@@ -86,17 +92,17 @@
 import * as api from '../../common/api.js'
 import { applyTheme } from '../../common/theme.js'
 
-// 每种签级的主色 / 浅色 / 光晕（用于签文卡片配色）
+// 深色夜景背景下的签级配色（亮色系）
 const LEVEL_COLORS = {
-  '大吉': { main: '#e6a23c', soft: '#fdf3e2', glow: 'rgba(230, 162, 60, 0.35)' },
-  '中吉': { main: '#f472b6', soft: '#fdf0f6', glow: 'rgba(244, 114, 182, 0.32)' },
-  '小吉': { main: '#10b981', soft: '#e8faf2', glow: 'rgba(16, 185, 129, 0.3)' },
-  '吉': { main: '#8b5cf6', soft: '#f3ecff', glow: 'rgba(139, 92, 246, 0.3)' },
-  '半吉': { main: '#f59e0b', soft: '#fef3e2', glow: 'rgba(245, 158, 11, 0.3)' },
-  '末吉': { main: '#64748b', soft: '#eef1f5', glow: 'rgba(100, 116, 139, 0.28)' },
-  '末小吉': { main: '#3b82f6', soft: '#eaf2ff', glow: 'rgba(59, 130, 246, 0.3)' },
-  '凶': { main: '#475569', soft: '#e8ecf1', glow: 'rgba(71, 85, 105, 0.28)' },
-  '大凶': { main: '#334155', soft: '#e2e8f0', glow: 'rgba(51, 65, 85, 0.32)' },
+  '大吉': { main: '#f3c96b', soft: 'rgba(243, 201, 107, 0.16)', glow: 'rgba(243, 201, 107, 0.38)' },
+  '中吉': { main: '#f9a8d4', soft: 'rgba(249, 168, 212, 0.16)', glow: 'rgba(249, 168, 212, 0.32)' },
+  '小吉': { main: '#5eead4', soft: 'rgba(94, 234, 212, 0.16)', glow: 'rgba(94, 234, 212, 0.3)' },
+  '吉': { main: '#c4b5fd', soft: 'rgba(196, 181, 253, 0.16)', glow: 'rgba(196, 181, 253, 0.3)' },
+  '半吉': { main: '#fcd34d', soft: 'rgba(252, 211, 77, 0.16)', glow: 'rgba(252, 211, 77, 0.3)' },
+  '末吉': { main: '#94a3b8', soft: 'rgba(148, 163, 184, 0.16)', glow: 'rgba(148, 163, 184, 0.28)' },
+  '末小吉': { main: '#93c5fd', soft: 'rgba(147, 197, 253, 0.16)', glow: 'rgba(147, 197, 253, 0.3)' },
+  '凶': { main: '#cbd5e1', soft: 'rgba(203, 213, 225, 0.14)', glow: 'rgba(203, 213, 225, 0.25)' },
+  '大凶': { main: '#94a3b8', soft: 'rgba(148, 163, 184, 0.14)', glow: 'rgba(148, 163, 184, 0.28)' },
 }
 
 export default {
@@ -172,33 +178,75 @@ export default {
 <style scoped>
 .page {
   min-height: 100vh;
-  background: linear-gradient(180deg, var(--pink-soft) 0%, var(--purple-soft) 36%, var(--bg) 72%);
-  padding: 50rpx 30rpx 80rpx;
+  padding: 60rpx 30rpx 80rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  overflow: hidden;
 }
 
-/* ---------- 漂浮装饰 ---------- */
-.deco { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: -1; pointer-events: none; overflow: hidden; }
-.deco-item { position: absolute; opacity: 0.35; animation: floatUp 8s ease-in-out infinite; }
-.d1 { left: 8%; top: 20%; font-size: 40rpx; }
-.d2 { left: 80%; top: 16%; font-size: 34rpx; animation-delay: 1.4s; }
-.d3 { left: 14%; top: 60%; font-size: 32rpx; animation-delay: 2.6s; }
-.d4 { left: 72%; top: 64%; font-size: 36rpx; animation-delay: 3.8s; }
-.d5 { left: 46%; top: 10%; font-size: 30rpx; animation-delay: 0.8s; }
+/* ---------- 背景图层 ---------- */
+.bg-img {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url('/static/fortune-night.jpg');
+  background-size: cover;
+  background-position: 50% 14%;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+.bg-cover {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(180deg, rgba(8, 6, 18, 0.30) 0%, rgba(8, 6, 18, 0.18) 45%, rgba(8, 6, 18, 0.62) 100%);
+  z-index: 1;
+}
+.bg-vignette {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at 50% 36%, rgba(255, 214, 150, 0.14) 0%, transparent 40%, rgba(6, 5, 14, 0.5) 100%);
+  z-index: 1;
+}
+
+/* ---------- 漂浮星光 ---------- */
+.deco { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; pointer-events: none; overflow: hidden; }
+.deco-item { position: absolute; color: rgba(255, 236, 190, 0.55); animation: floatUp 8s ease-in-out infinite; }
+.d1 { left: 8%; top: 20%; font-size: 34rpx; }
+.d2 { left: 84%; top: 15%; font-size: 28rpx; animation-delay: 1.4s; }
+.d3 { left: 14%; top: 64%; font-size: 26rpx; animation-delay: 2.6s; }
+.d4 { left: 76%; top: 66%; font-size: 32rpx; animation-delay: 3.8s; }
+.d5 { left: 46%; top: 9%; font-size: 24rpx; animation-delay: 0.8s; }
 @keyframes floatUp {
-  0%, 100% { transform: translateY(0) rotate(0); }
-  50% { transform: translateY(-26rpx) rotate(12deg); }
+  0%, 100% { transform: translateY(0) rotate(0); opacity: 0.45; }
+  50% { transform: translateY(-26rpx) rotate(12deg); opacity: 0.9; }
 }
 
 /* ---------- 标题 ---------- */
-.title-box { text-align: center; margin-top: 8rpx; }
-.title { display: block; font-size: 46rpx; font-weight: bold; color: var(--text); letter-spacing: 6rpx; }
-.sub { display: block; font-size: 24rpx; color: var(--muted); margin-top: 12rpx; letter-spacing: 2rpx; }
+.title-box { position: relative; z-index: 3; text-align: center; margin-top: 6rpx; }
+.title-en {
+  display: block;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20rpx;
+  letter-spacing: 6rpx;
+  color: rgba(236, 214, 168, 0.7);
+}
+.title {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 52rpx;
+  font-weight: bold;
+  letter-spacing: 12rpx;
+  color: #f6ecd8;
+  text-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.45);
+}
+.sub {
+  display: block;
+  margin-top: 14rpx;
+  font-size: 24rpx;
+  letter-spacing: 3rpx;
+  color: rgba(246, 236, 216, 0.66);
+}
 
 /* ---------- 签筒 ---------- */
-.stage { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 46rpx; }
+.stage { position: relative; z-index: 3; width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 56rpx; }
 
 .bucket-wrap { position: relative; width: 340rpx; height: 330rpx; }
 .bucket-wrap.shaking { animation: bucketShake 0.95s ease-in-out; }
@@ -211,17 +259,18 @@ export default {
 }
 
 .bucket-glow {
-  position: absolute; left: 50%; bottom: -8rpx; transform: translateX(-50%);
-  width: 230rpx; height: 40rpx; border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255, 107, 157, 0.26), transparent);
+  position: absolute; left: 50%; bottom: -14rpx; transform: translateX(-50%);
+  width: 280rpx; height: 56rpx; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 214, 140, 0.34), transparent);
+  filter: blur(6rpx);
 }
 
-.sticks { position: absolute; top: 0; left: 0; width: 100%; height: 240rpx; z-index: 3; }
+.sticks { position: absolute; top: 0; left: 0; width: 100%; height: 240rpx; z-index: 5; }
 .stick {
   position: absolute; bottom: 0; width: 14rpx;
   border-radius: 7rpx 7rpx 3rpx 3rpx;
-  background: linear-gradient(180deg, #e74c3c 0%, #e74c3c 22rpx, #f8eccb 22rpx, #f1d9a4 100%);
-  box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.12);
+  background: linear-gradient(180deg, #d94f4f 0%, #d94f4f 22rpx, #f7e6bd 22rpx, #edcf96 100%);
+  box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.35);
   transform-origin: bottom center;
 }
 .bucket-wrap.shaking .stick { animation: stickWobble 0.95s ease-in-out; }
@@ -232,18 +281,20 @@ export default {
   75% { margin-left: -4rpx; }
 }
 
-.bucket { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); width: 260rpx; z-index: 2; }
+.bucket { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); width: 260rpx; z-index: 4; }
 .bucket-top {
-  width: 260rpx; height: 46rpx;
-  background: linear-gradient(180deg, #cf9568, #a86f45);
+  width: 260rpx; height: 48rpx;
+  background: linear-gradient(180deg, #d5a269, #b07a4b);
+  border: 4rpx solid #e3bd7d;
+  box-sizing: border-box;
   border-radius: 50%;
-  box-shadow: inset 0 4rpx 8rpx rgba(0, 0, 0, 0.12), 0 6rpx 16rpx rgba(120, 70, 30, 0.25);
+  box-shadow: inset 0 4rpx 8rpx rgba(0, 0, 0, 0.25), 0 6rpx 18rpx rgba(0, 0, 0, 0.4);
 }
 .bucket-band {
   width: 268rpx; height: 26rpx; margin: -6rpx auto 0;
   background: linear-gradient(180deg, #d84f4f, #b83a3a);
   border-radius: 8rpx;
-  box-shadow: 0 4rpx 10rpx rgba(180, 50, 50, 0.22);
+  box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.3);
 }
 .bucket-body {
   width: 216rpx; height: 150rpx; margin: -6rpx auto 0;
@@ -251,33 +302,43 @@ export default {
   border-radius: 10rpx 10rpx 70rpx 70rpx;
   display: flex; align-items: flex-end; justify-content: center;
   font-size: 40rpx; padding-bottom: 16rpx;
-  box-shadow: inset -14rpx 0 24rpx rgba(0, 0, 0, 0.12), 0 12rpx 30rpx rgba(120, 70, 30, 0.22);
+  box-shadow: inset -14rpx 0 24rpx rgba(0, 0, 0, 0.25), 0 14rpx 34rpx rgba(0, 0, 0, 0.4);
 }
 
 /* ---------- 提示与按钮 ---------- */
 .hint {
-  display: flex; align-items: center; margin-top: 26rpx;
-  font-size: 26rpx; color: var(--muted);
+  display: flex; align-items: center; margin-top: 30rpx;
+  font-size: 26rpx; color: rgba(246, 236, 216, 0.8);
+  text-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.5);
 }
 .hint-dot {
   width: 12rpx; height: 12rpx; border-radius: 50%;
-  background: var(--pink); margin-right: 12rpx;
-  box-shadow: 0 0 10rpx var(--pink);
+  background: #f3c96b; margin-right: 12rpx;
+  box-shadow: 0 0 14rpx #f3c96b;
 }
 .btn {
-  margin-top: 32rpx; background: linear-gradient(135deg, var(--pink), var(--hot)); color: #fff;
-  border-radius: 44rpx; font-size: 30rpx; padding: 0 64rpx; line-height: 88rpx; height: 88rpx;
-  box-shadow: 0 12rpx 34rpx rgba(255, 107, 157, 0.4);
+  margin-top: 34rpx;
+  background: linear-gradient(135deg, #f0cf8f, #d3a654);
+  color: #2e2410;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  font-weight: bold;
+  letter-spacing: 4rpx;
+  padding: 0 66rpx;
+  line-height: 90rpx; height: 90rpx;
+  box-shadow: 0 12rpx 36rpx rgba(240, 207, 143, 0.32);
 }
-.btn-hover { transform: scale(0.96); opacity: 0.9; }
+.btn-hover { transform: scale(0.96); opacity: 0.92; }
 .btn.again {
   margin-top: 40rpx; font-size: 26rpx; line-height: 72rpx; height: 72rpx; padding: 0 40rpx;
-  background: var(--input-bg); color: var(--muted);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(246, 236, 216, 0.55);
   box-shadow: none;
+  border: 1rpx solid rgba(255, 255, 255, 0.14);
 }
 
 /* ---------- 掉出来的签 ---------- */
-.drawn-stick { margin-top: 44rpx; perspective: 800rpx; }
+.drawn-stick { margin-top: 48rpx; perspective: 800rpx; }
 .ds-inner {
   position: relative; width: 150rpx; height: 380rpx; transform-style: preserve-3d;
   transition: transform 0.7s cubic-bezier(0.25, 0.8, 0.25, 1.2);
@@ -294,59 +355,65 @@ export default {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 .ds-front {
-  background: linear-gradient(160deg, #e74c3c 0%, #c0392b 26%, #f3d9a4 26%, #e8c98f 100%);
-  color: #fff; box-shadow: 0 14rpx 40rpx rgba(180, 50, 50, 0.35);
+  background: linear-gradient(160deg, #d94f4f 0%, #b83939 26%, #f7e6bd 26%, #e8c88d 100%);
+  box-shadow: 0 16rpx 44rpx rgba(0, 0, 0, 0.45);
 }
-.ds-q { font-size: 76rpx; font-weight: bold; text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.25); }
+.ds-q { font-size: 76rpx; font-weight: bold; color: #fff; text-shadow: 0 4rpx 14rpx rgba(0, 0, 0, 0.35); }
 .ds-tip {
   position: absolute; bottom: 26rpx;
-  font-size: 22rpx; color: #a83232; background: #f8eccb;
+  font-size: 22rpx; color: #9c3131; background: #f7e6bd;
   padding: 2rpx 18rpx; border-radius: 16rpx;
 }
 .ds-back {
-  background: var(--card); border: 3rpx solid var(--pink); transform: rotateY(180deg);
+  background: rgba(24, 19, 40, 0.92);
+  border: 2rpx solid rgba(255, 255, 255, 0.22);
+  transform: rotateY(180deg);
+  box-shadow: 0 16rpx 44rpx rgba(0, 0, 0, 0.4);
 }
-.ds-level { font-size: 60rpx; font-weight: bold; color: var(--pink); letter-spacing: 4rpx; }
+.ds-level { font-size: 60rpx; font-weight: bold; color: #f3c96b; letter-spacing: 4rpx; }
 .ds-emoji { font-size: 44rpx; margin-top: 12rpx; }
 
-/* ---------- 签文卡片 ---------- */
+/* ---------- 签文卡片（玻璃拟态） ---------- */
 .fortune-card {
   position: relative;
+  z-index: 3;
   width: 100%;
-  background: var(--card);
+  background: rgba(18, 14, 32, 0.82);
+  backdrop-filter: blur(18rpx);
+  -webkit-backdrop-filter: blur(18rpx);
+  border: 1rpx solid rgba(255, 255, 255, 0.14);
   border-radius: 32rpx;
-  border: 2rpx solid var(--lv);
-  padding: 48rpx 36rpx 40rpx;
-  margin-top: 48rpx;
+  padding: 52rpx 36rpx 42rpx;
+  margin-top: 52rpx;
   text-align: center;
-  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.08), 0 0 0 10rpx var(--lv-soft);
+  box-shadow: 0 24rpx 70rpx rgba(0, 0, 0, 0.45), 0 0 0 10rpx var(--lv-soft);
   animation: cardIn 0.6s ease;
   overflow: hidden;
 }
 @keyframes cardIn { from { transform: translateY(30rpx) scale(0.94); opacity: 0; } to { transform: none; opacity: 1; } }
 .fc-deco {
-  position: absolute; width: 180rpx; height: 180rpx; border-radius: 50%;
-  background: var(--lv-soft); opacity: 0.9;
+  position: absolute; width: 190rpx; height: 190rpx; border-radius: 50%;
+  background: var(--lv-soft); pointer-events: none;
 }
 .fc-d1 { top: -80rpx; right: -70rpx; }
 .fc-d2 { bottom: -90rpx; left: -70rpx; }
 .fc-seal {
   position: relative;
-  width: 132rpx; height: 132rpx; margin: 0 auto 20rpx;
+  width: 136rpx; height: 136rpx; margin: 0 auto 22rpx;
   border-radius: 50%;
-  background: linear-gradient(160deg, var(--lv), var(--hot));
-  border: 6rpx solid var(--card);
+  background: linear-gradient(160deg, var(--lv), rgba(255, 255, 255, 0.18));
+  border: 5rpx solid rgba(255, 255, 255, 0.85);
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 10rpx 30rpx var(--lv-glow);
+  box-shadow: 0 12rpx 34rpx var(--lv-glow);
 }
-.fc-emoji { font-size: 64rpx; }
-.fc-level { display: block; font-size: 58rpx; font-weight: bold; color: var(--lv); letter-spacing: 6rpx; }
-.fc-sub { display: block; font-size: 24rpx; color: var(--muted); margin-top: 10rpx; letter-spacing: 6rpx; }
-.fc-lines { margin-top: 34rpx; }
-.fc-line { display: flex; align-items: center; padding: 18rpx 0; border-bottom: 1rpx solid var(--border); }
+.fc-emoji { font-size: 66rpx; }
+.fc-level { display: block; font-size: 58rpx; font-weight: bold; color: var(--lv); letter-spacing: 8rpx; text-shadow: 0 0 24rpx var(--lv-glow); }
+.fc-sub { display: block; font-size: 24rpx; color: rgba(246, 236, 216, 0.55); margin-top: 10rpx; letter-spacing: 8rpx; }
+.fc-lines { margin-top: 36rpx; }
+.fc-line { display: flex; align-items: center; padding: 18rpx 0; border-bottom: 1rpx solid rgba(255, 255, 255, 0.08); }
 .fc-line:last-child { border-bottom: none; }
-.fc-k { width: 110rpx; font-size: 26rpx; color: var(--muted); text-align: left; }
-.fc-v { flex: 1; font-size: 28rpx; color: var(--text); text-align: right; }
+.fc-k { width: 110rpx; font-size: 26rpx; color: rgba(246, 236, 216, 0.55); text-align: left; letter-spacing: 2rpx; }
+.fc-v { flex: 1; font-size: 28rpx; color: #f6ecd8; text-align: right; }
 .fc-quote {
   margin-top: 30rpx;
   padding: 24rpx 26rpx;
@@ -354,9 +421,9 @@ export default {
   border-left: 6rpx solid var(--lv);
   border-radius: 12rpx;
   font-size: 27rpx;
-  color: var(--text);
+  color: #f0e7d2;
   line-height: 1.9;
   text-align: left;
 }
-.fc-hint { margin-top: 28rpx; font-size: 26rpx; color: var(--lv); line-height: 1.7; }
+.fc-hint { margin-top: 30rpx; font-size: 26rpx; color: var(--lv); line-height: 1.7; text-shadow: 0 0 18rpx var(--lv-glow); }
 </style>
