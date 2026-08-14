@@ -100,8 +100,11 @@ export default {
 
   methods: {
     async loadList() {
-      const me = store.getUser() || {}
+      // 优先从服务器拉最新资料（老用户的本地缓存可能没有 gender）
+      const meRes = await api.getMe()
+      const me = (meRes.ok && meRes.data) || store.getUser() || {}
       this.myGender = me.gender === '男' || me.gender === '女' ? me.gender : ''
+      if (meRes.ok) store.updateUser(meRes.data)
 
       const mine = await api.listDiaries()
       const partner = await api.getPartnerDiaries()
