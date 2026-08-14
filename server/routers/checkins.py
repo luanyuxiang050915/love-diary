@@ -2,7 +2,7 @@
 from datetime import date as date_cls, timedelta
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -32,23 +32,18 @@ def checkin(
     return {"message": "打卡成功", "already": False}
 
 
-@router.get("/checkins", response_model=CheckinOut)
-def checkin_status(
-    month: Optional[str] = Query(default=None, description="按月份过滤打卡日期，如 2026-08"),
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """打卡状态：今天是否已打、连续天数、累计、最长；dates 默认最近 30 条，传 month 返回该月全部记录。"""
+def _status_for(user: User, db: Session, month: Optional[str]) -> CheckinOut:
+    """计算某个用户的打卡状态；dates 默认最近 30 条，传 month 返回该月全部记录。"""
     today = date_cls.today()
     today_done = (
         db.query(Checkin)
-        .filter(Checkin.user_id == current_user.id, Checkin.date == today)
+        .filter(Checkin.user_id == user.id, Checkin.date == today)
         .first()
         is not None
     )
     rows = (
         db.query(Checkin)
-        .filter(Checkin.user_id == current_user.id)
+        .filter(Checkin.user_id == user.id)
         .order_by(Checkin.date.desc())
         .all()
     )
@@ -88,3 +83,28 @@ def checkin_status(
         best=best,
         dates=[d.isoformat() for d in month_dates],
     )
+
+
+@router.get("/checkins", response_model=CheckinOut)
+def checkin_status(
+    month: Optional[str] = Query(default=None, description="按月份过滤打卡日期，如 2026-08"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """我的打卡状态。"""
+    return _status_for(current_user, db, month)
+
+
+@router.get("/checkins/partner", response_model=CheckinOut)
+def partner_checkin_status(
+    month: Optional[str] = Query(default=None, description="按月份过滤打卡日期，如 2026-08"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """另一半的打卡状态（需已绑定）。"""
+    if not current_user.partner_id:
+        raise HTTPException(status_code=400, detail="还没有绑定另一半")
+    partner = db.query(User).filter(User.id == current_user.partner_id).first()
+    if partner is None:
+        raise HTTPException(status_code=400, detail="对方账号不存在")
+    return _status_for(partner, db, month)

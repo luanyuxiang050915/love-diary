@@ -130,6 +130,11 @@ export const getCheckin = (params) => {
   if (params?.month) url += `?month=${params.month}`
   return request(url)
 }
+export const getPartnerCheckin = (params) => {
+  let url = '/api/checkins/partner'
+  if (params?.month) url += `?month=${params.month}`
+  return request(url)
+}
 
 // 悄悄话
 export const listWhispers = () => request('/api/whispers')

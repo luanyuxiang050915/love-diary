@@ -118,6 +118,11 @@ def main():
     check(r.json()["dates"] == [], "无打卡记录的月份返回空")
     r = c.get("/api/checkins", headers=h)
     check(r.json()["total"] >= 1 and r.json()["today"] is True, "打卡状态含累计与今日标记")
+    r = c.get("/api/checkins/partner", headers=h, params={"month": cur_month})
+    check(r.status_code == 200 and r.json()["dates"] == [], "TA 本月还没打卡返回空")
+    c.post("/api/checkins", headers=hb)
+    r = c.get("/api/checkins/partner", headers=h, params={"month": cur_month})
+    check(r.status_code == 200 and len(r.json()["dates"]) == 1 and r.json()["today"] is True, "能看到 TA 的打卡记录")
 
     # 14. 每日一签：每天只能抽一次
     r = c.get("/api/fortunes/today", headers=h)

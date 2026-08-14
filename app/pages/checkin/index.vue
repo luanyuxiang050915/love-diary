@@ -7,14 +7,14 @@
         <text class="date-main">{{ monthDayText }}</text>
         <text class="date-week">{{ weekText }}</text>
       </view>
-      <view class="checkin-btn" :class="{ done: st.today }" @click="doCheckin">
-        <text class="checkin-emoji">{{ st.today ? '✅' : '🔥' }}</text>
-        <text class="checkin-text">{{ st.today ? '今天已打卡' : '打卡想 TA' }}</text>
+      <view class="checkin-btn" :class="{ done: mySt.today }" @click="doCheckin">
+        <text class="checkin-emoji">{{ mySt.today ? '✅' : '🔥' }}</text>
+        <text class="checkin-text">{{ mySt.today ? '今天已打卡' : '打卡想 TA' }}</text>
       </view>
       <view class="stats-row">
-        <view class="stat"><text class="num">{{ st.streak }}</text><text class="label">连续天数</text></view>
-        <view class="stat"><text class="num">{{ st.total }}</text><text class="label">累计天数</text></view>
-        <view class="stat"><text class="num">{{ st.best }}</text><text class="label">最长纪录</text></view>
+        <view class="stat"><text class="num">{{ mySt.streak }}</text><text class="label">连续天数</text></view>
+        <view class="stat"><text class="num">{{ mySt.total }}</text><text class="label">累计天数</text></view>
+        <view class="stat"><text class="num">{{ mySt.best }}</text><text class="label">最长纪录</text></view>
       </view>
     </view>
 
@@ -24,24 +24,34 @@
         <text class="section-title">打卡日历</text>
         <text class="section-tip">左右翻页可查历史</text>
       </view>
-      <view class="month-bar">
-        <view class="m-btn" @click="prevMonth">‹</view>
-        <text class="m-title">{{ year }}年{{ month }}月</text>
-        <view class="m-btn" @click="nextMonth">›</view>
+      <view class="seg">
+        <view class="seg-item" :class="{ active: view === 'me' }" @click="switchView('me')">我的</view>
+        <view class="seg-item" :class="{ active: view === 'ta' }" @click="switchView('ta')">TA 的</view>
       </view>
-      <view class="cal-head">
-        <text class="cal-wd" v-for="w in weekdays" :key="w" :class="{ weekend: w === '日' || w === '六' }">{{ w }}</text>
+
+      <view class="ta-empty" v-if="view === 'ta' && !partnerBound">
+        <text>还没有绑定另一半，绑定后才能看到 TA 的打卡记录</text>
       </view>
-      <view class="cal-row" v-for="(r, ri) in rows" :key="ri">
-        <template v-for="(c, ci) in r" :key="ci">
-          <view class="day blank" v-if="!c"></view>
-          <view class="day" v-else :class="{ done: c.done, today: c.today }">
-            <text class="day-num">{{ c.num }}</text>
-            <text class="day-heart" v-if="c.done">❤</text>
-          </view>
-        </template>
-      </view>
-      <view class="legend">❤ 已打卡 · 累计打卡 {{ st.total }} 天</view>
+      <template v-else>
+        <view class="month-bar">
+          <view class="m-btn" @click="prevMonth">‹</view>
+          <text class="m-title">{{ year }}年{{ month }}月</text>
+          <view class="m-btn" @click="nextMonth">›</view>
+        </view>
+        <view class="cal-head">
+          <text class="cal-wd" v-for="w in weekdays" :key="w" :class="{ weekend: w === '日' || w === '六' }">{{ w }}</text>
+        </view>
+        <view class="cal-row" v-for="(r, ri) in rows" :key="ri">
+          <template v-for="(c, ci) in r" :key="ci">
+            <view class="day blank" v-if="!c"></view>
+            <view class="day" v-else :class="{ done: c.done, today: c.today }">
+              <text class="day-num">{{ c.num }}</text>
+              <text class="day-heart" v-if="c.done">❤</text>
+            </view>
+          </template>
+        </view>
+        <view class="legend">❤ 已打卡 · {{ view === 'me' ? '我' : 'TA' }} 累计打卡 {{ curSt.total }} 天</view>
+      </template>
     </view>
   </view>
 </template>
@@ -61,7 +71,12 @@ export default {
   data() {
     const d = new Date()
     return {
-      st: { today: false, total: 0, streak: 0, best: 0, dates: [] },
+      mySt: { today: false, total: 0, streak: 0, best: 0, dates: [] },
+      taSt: null,
+      myMonthDates: [],
+      taMonthDates: [],
+      partnerBound: false,
+      view: 'me',
       rows: [],
       weekdays: ['日', '一', '二', '三', '四', '五', '六'],
       year: d.getFullYear(),
@@ -69,6 +84,9 @@ export default {
     }
   },
   computed: {
+    curSt() {
+      return this.view === 'me' ? this.mySt : (this.taSt || { today: false, total: 0, streak: 0, best: 0, dates: [] })
+    },
     yearText() {
       const d = new Date()
       return `${d.getFullYear()}年`
@@ -85,13 +103,28 @@ export default {
   methods: {
     async load() {
       const monthStr = `${this.year}-${String(this.month).padStart(2, '0')}`
-      const [st, monthRes] = await Promise.all([
+      const [me, meMonth, ta, taMonth] = await Promise.all([
         api.getCheckin(),
         api.getCheckin({ month: monthStr }),
+        api.getPartnerCheckin(),
+        api.getPartnerCheckin({ month: monthStr }),
       ])
-      if (!st.ok) return
-      this.st = st.data
-      const set = new Set(monthRes.ok ? monthRes.data.dates : [])
+      if (!me.ok) return
+      this.mySt = me.data
+      this.myMonthDates = meMonth.ok ? meMonth.data.dates : []
+      if (ta.ok && taMonth.ok) {
+        this.taSt = ta.data
+        this.taMonthDates = taMonth.data.dates
+        this.partnerBound = true
+      } else {
+        this.taSt = null
+        this.taMonthDates = []
+        this.partnerBound = false
+      }
+      this.buildRows()
+    },
+    buildRows() {
+      const set = new Set(this.view === 'me' ? this.myMonthDates : this.taMonthDates)
 
       // 当月日历：按星期对齐，7 列换行
       const first = new Date(this.year, this.month - 1, 1)
@@ -112,6 +145,11 @@ export default {
       }
       this.rows = rows
     },
+    switchView(v) {
+      if (this.view === v) return
+      this.view = v
+      this.buildRows()
+    },
     prevMonth() {
       if (this.month === 1) { this.year--; this.month = 12 } else this.month--
       this.load()
@@ -126,7 +164,7 @@ export default {
       this.load()
     },
     async doCheckin() {
-      if (this.st.today) { uni.showToast({ title: '今天已经打过卡啦', icon: 'none' }); return }
+      if (this.mySt.today) { uni.showToast({ title: '今天已经打过卡啦', icon: 'none' }); return }
       const { ok, msg } = await api.doCheckin()
       uni.showToast({ title: ok ? '打卡成功 ❤' : msg, icon: 'none' })
       if (ok) this.load()
@@ -171,6 +209,36 @@ export default {
 .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18rpx; }
 .section-title { font-size: 26rpx; color: var(--muted); }
 .section-tip { font-size: 22rpx; color: var(--pink); }
+.seg {
+  display: flex;
+  background: var(--input-bg);
+  border-radius: 30rpx;
+  padding: 6rpx;
+  margin-bottom: 22rpx;
+}
+.seg-item {
+  flex: 1;
+  height: 60rpx;
+  line-height: 60rpx;
+  text-align: center;
+  font-size: 26rpx;
+  color: var(--muted);
+  border-radius: 26rpx;
+  transition: all 0.2s;
+}
+.seg-item.active {
+  background: var(--pink);
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 4rpx 12rpx rgba(248, 165, 194, 0.4);
+}
+.ta-empty {
+  padding: 80rpx 20rpx;
+  text-align: center;
+  font-size: 26rpx;
+  color: var(--muted);
+  line-height: 1.7;
+}
 .month-bar { display: flex; align-items: center; justify-content: center; gap: 36rpx; margin-bottom: 20rpx; }
 .m-btn {
   width: 58rpx; height: 58rpx; border-radius: 50%;
