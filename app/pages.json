@@ -98,6 +98,12 @@
         "selectedIconPath": "static/icon-heart-active.png"
       },
       {
+        "pagePath": "pages/chat/index",
+        "text": "聊天",
+        "iconPath": "static/icon-chat.png",
+        "selectedIconPath": "static/icon-chat-active.png"
+      },
+      {
         "pagePath": "pages/interact/index",
         "text": "互动",
         "iconPath": "static/icon-interact.png",
