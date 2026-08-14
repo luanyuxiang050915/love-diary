@@ -148,6 +148,11 @@ export const getMoodReport = (month) => request(`/api/stats/moods${month ? '?mon
 export const getTodayFortune = () => request('/api/fortunes/today')
 export const drawFortune = () => request('/api/fortunes/draw', 'POST')
 
+// 位置共享
+export const updateMyLocation = (data) => request('/api/location', 'PUT', data)
+export const getMyLocation = () => request('/api/location')
+export const getPartnerLocation = () => request('/api/location/partner')
+
 // 双人聊天
 export const sendMessage = (data) => request('/api/messages', 'POST', data)
 export const listMessages = (afterId = 0) => request(`/api/messages?after_id=${afterId}&limit=200`)

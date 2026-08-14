@@ -4,7 +4,7 @@
 """
 from datetime import date, datetime
 
-from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Column, Date, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -161,6 +161,20 @@ class Fortune(Base):
     level = Column(String(10), nullable=False)         # 大吉 / 中吉 / 小吉 / 吉 / 半吉 / 末吉 / 末小吉 / 凶 / 大凶
     content = Column(Text, default="{}")               # 签文 JSON（emoji/wish/health/love/study/hint）
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class UserLocation(Base):
+    """位置共享：每人保存一条最新位置（主动更新，非持续追踪）。"""
+
+    __tablename__ = "user_locations"
+    __table_args__ = (UniqueConstraint("user_id", name="uq_location_user"),)
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    lat = Column(Float, nullable=False)
+    lng = Column(Float, nullable=False)
+    remark = Column(String(50), default="")           # 位置备注，如"在公司"
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
 # partner_requests（绑定请求表）第一版不做，留作后续扩展

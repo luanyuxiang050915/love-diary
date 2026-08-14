@@ -225,3 +225,21 @@ class StickerOut(BaseModel):
     user_id: int
     url: str
     created_at: datetime
+
+
+# ---------- 位置共享 ----------
+class LocationIn(BaseModel):
+    lat: float = Field(ge=-90, le=90, description="纬度")
+    lng: float = Field(ge=-180, le=180, description="经度")
+    remark: str = Field(default="", max_length=50, description="位置备注，如：在公司")
+
+
+class LocationOut(BaseModel):
+    user_id: int
+    lat: float
+    lng: float
+    remark: str = ""
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True

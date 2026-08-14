@@ -29,6 +29,8 @@
                     "<uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>",
                     "<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>",
                     "<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>",
                     "<uses-feature android:name=\"android.hardware.camera\"/>",
                     "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
                 ],
@@ -36,7 +38,10 @@
             },
             /* ios打包配置 */
             "ios" : {
-                "dSYMs" : false
+                "dSYMs" : false,
+                "privacyDescription" : {
+                    "NSLocationWhenInUseUsageDescription" : "用于与另一半共享当前位置"
+                }
             },
             /* SDK配置 */
             "sdkConfigs" : {}
@@ -48,7 +53,9 @@
             "delay" : 0
         },
         /* 模块配置 */
-        "modules" : {}
+        "modules" : {
+            "Geolocation" : {}
+        }
     },
     /* 快应用特有相关 */
     "quickapp" : {},

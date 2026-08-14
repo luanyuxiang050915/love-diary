@@ -132,6 +132,18 @@ def main():
     r = c.get("/api/checkins/partner", headers=h, params={"month": cur_month})
     check(r.status_code == 200 and len(r.json()["dates"]) == 1 and r.json()["today"] is True, "能看到 TA 的打卡记录")
 
+    # 14b. 位置共享
+    r = c.get("/api/location", headers=h)
+    check(r.json() is None, "未共享位置时查询为空")
+    r = c.put("/api/location", headers=h, json={"lat": 31.2304, "lng": 121.4737, "remark": "在公司"})
+    check(r.status_code == 200 and abs(r.json()["lat"] - 31.2304) < 0.0001, "更新自己的位置")
+    r = c.get("/api/location", headers=h)
+    check(r.json()["remark"] == "在公司", "查询自己的位置")
+    r = c.get("/api/location/partner", headers=hb)
+    check(r.status_code == 200 and abs(r.json()["lat"] - 31.2304) < 0.0001, "能看到对方的位置")
+    r = c.get("/api/location/partner", headers=h)
+    check(r.json() is None, "对方未共享位置返回空")
+
     # 14. 每日一签：每天只能抽一次
     r = c.get("/api/fortunes/today", headers=h)
     check(r.json() is None, "未抽签时 today 为空")

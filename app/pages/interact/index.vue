@@ -42,6 +42,7 @@ export default {
         { key: 'wish', emoji: '✅', title: '心愿清单', desc: '写下想一起做的事', url: '/pages/wish/list' },
         { key: 'checkin', emoji: '🔥', title: '爱的打卡', desc: '记录我们的坚持', url: '/pages/checkin/index' },
         { key: 'whisper', emoji: '💌', title: '悄悄话', desc: '留言给 TA 的心里话', url: '/pages/whisper/list' },
+        { key: 'location', emoji: '📍', title: 'TA 在哪', desc: '共享彼此位置，看看距离有多远', url: '/pages/location/index' },
         { key: 'mood', emoji: '📊', title: '心情月报', desc: '看看这个月的心情变化', url: '/pages/stats/mood', wide: true },
         { key: 'album', emoji: '📷', title: '共享相册', desc: '两个人的照片墙，按月归档', url: '/pages/album/index' },
         { key: 'fortune', emoji: '🎋', title: '每日一签', desc: '摇一摇签筒，看看今天的缘分签', url: '/pages/fortune/index', wide: true },
