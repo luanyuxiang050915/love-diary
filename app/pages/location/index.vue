@@ -112,12 +112,20 @@ export default {
         })
         // #endif
         // #ifndef H5
-        // App 原生定位模块直接返回 gcj02（和高德/腾讯地图坐标一致）
-        uni.getLocation({
-          type: 'gcj02',
-          success: (r) => resolve({ lat: r.latitude, lng: r.longitude }),
-          fail: () => resolve(null),
-        })
+        // App 端用 HTML5+ 系统定位（无需高德/腾讯地图 key，云打包不报错）
+        if (typeof plus !== 'undefined' && plus.geolocation) {
+          plus.geolocation.getCurrentPosition(
+            (p) => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
+            () => resolve(null),
+            { coordsType: 'gcj02', enableHighAccuracy: true, timeout: 10000 }
+          )
+        } else {
+          uni.getLocation({
+            type: 'gcj02',
+            success: (r) => resolve({ lat: r.latitude, lng: r.longitude }),
+            fail: () => resolve(null),
+          })
+        }
         // #endif
       })
     },

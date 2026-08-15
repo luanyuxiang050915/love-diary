@@ -52,10 +52,8 @@
             "autoclose" : true,
             "delay" : 0
         },
-        /* 模块配置 */
-        "modules" : {
-            "Geolocation" : {}
-        }
+        /* 模块配置（不使用高德/腾讯定位SDK，App端走系统定位，避免云打包需要地图key） */
+        "modules" : {}
     },
     /* 快应用特有相关 */
     "quickapp" : {},
